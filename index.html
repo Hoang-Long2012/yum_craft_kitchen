@@ -495,6 +495,28 @@
         <span>Đi vào nhà bếp</span>
       </button>
 
+      <!-- Cộng đồng đầu bếp -->
+      <button 
+        type="button" 
+        id="btn-menu-community" 
+        class="w-full py-3.5 px-6 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-game font-bold text-lg rounded-3xl shadow-lg hover:shadow-xl border-2 border-emerald-400 focus:ring-4 focus:ring-emerald-300 transition-all flex items-center justify-center gap-3 cursor-pointer"
+        aria-haspopup="dialog"
+      >
+        <span class="text-2xl" aria-hidden="true">🌐</span>
+        <span>Cộng đồng đầu bếp</span>
+      </button>
+
+      <!-- Bảng xếp hạng -->
+      <button 
+        type="button" 
+        id="btn-menu-leaderboard" 
+        class="w-full py-3.5 px-6 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-amber-950 font-game font-extrabold text-lg rounded-3xl shadow-lg hover:shadow-xl border-2 border-amber-300 focus:ring-4 focus:ring-amber-300 transition-all flex items-center justify-center gap-3 cursor-pointer"
+        aria-haspopup="dialog"
+      >
+        <span class="text-2xl" aria-hidden="true">🏆</span>
+        <span>Bảng xếp hạng</span>
+      </button>
+
       <!-- Bảng Quản Trị (Chỉ hiển thị cho Quản trị viên) -->
       <button 
         type="button" 
@@ -960,6 +982,12 @@
                 <span>Điểm hài lòng:</span>
                 <strong id="dining-last-score" class="text-orange-700 font-extrabold">Chưa nếm món nào</strong>
               </div>
+              <div id="share-community-container" class="hidden mt-3 pt-2.5 border-t border-amber-300/80">
+                <button id="btn-share-to-community" type="button" class="game-btn btn-3d-emerald w-full py-3 px-4 rounded-2xl text-sm sm:text-base font-extrabold font-game flex items-center justify-center gap-2 shadow-lg hover:brightness-105 transition cursor-pointer" aria-haspopup="dialog">
+                  <span class="text-xl" aria-hidden="true">🌐</span>
+                  <span>Đưa Lên Cộng Đồng</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1329,7 +1357,33 @@
           <span class="text-xs font-bold bg-amber-200 text-amber-900 px-3 py-1 rounded-full">Soạn thảo</span>
         </button>
 
-        <!-- Nút 3: Chế độ bảo trì máy chủ -->
+        <!-- Nút 3: Quản lý cộng đồng -->
+        <button 
+          type="button" 
+          id="btn-admin-manage-community" 
+          class="w-full py-3.5 px-5 bg-emerald-50 hover:bg-emerald-100 text-emerald-950 font-game font-bold text-base rounded-2xl border-2 border-emerald-300 focus:ring-4 focus:ring-emerald-300 transition flex items-center justify-between cursor-pointer"
+        >
+          <span class="flex items-center gap-3">
+            <span class="text-2xl" aria-hidden="true">🌐</span>
+            <span>Quản lý cộng đồng</span>
+          </span>
+          <span class="text-xs font-bold bg-emerald-200 text-emerald-900 px-3 py-1 rounded-full">Xem &amp; Xóa bài</span>
+        </button>
+
+        <!-- Nút 4: Đặt lại bảng xếp hạng -->
+        <button 
+          type="button" 
+          id="btn-admin-reset-leaderboard" 
+          class="w-full py-3.5 px-5 bg-orange-50 hover:bg-orange-100 text-orange-950 font-game font-bold text-base rounded-2xl border-2 border-orange-300 focus:ring-4 focus:ring-orange-300 transition flex items-center justify-between cursor-pointer"
+        >
+          <span class="flex items-center gap-3">
+            <span class="text-2xl" aria-hidden="true">🏆</span>
+            <span>Đặt lại bảng xếp hạng</span>
+          </span>
+          <span class="text-xs font-bold bg-orange-200 text-orange-900 px-3 py-1 rounded-full">Làm trống Top</span>
+        </button>
+
+        <!-- Nút 5: Chế độ bảo trì máy chủ -->
         <button 
           type="button" 
           id="btn-admin-toggle-maintenance" 
@@ -1743,6 +1797,248 @@
       >
         ✅ Tôi Đã Đọc &amp; Vào Bếp
       </button>
+    </div>
+  </dialog>
+
+  <!-- ========================================================================= -->
+  <!-- HỆ THỐNG CỘNG ĐỒNG ĐẦU BẾP & BẢNG XẾP HẠNG (COMMUNITY & LEADERBOARD)      -->
+  <!-- ========================================================================= -->
+
+  <!-- 9. HỘP THOẠI XÁC NHẬN ĐƯA LÊN CỘNG ĐỒNG ĐẦU BẾP (TRONG NHÀ BẾP) -->
+  <dialog id="modal-confirm-share-community" class="backdrop:bg-black/60 backdrop:backdrop-blur-sm bg-transparent p-4 z-50 max-w-md w-full m-auto" role="dialog" aria-modal="true" aria-labelledby="confirm-share-community-title">
+    <div class="bg-white rounded-3xl p-6 shadow-2xl border-4 border-emerald-400 flex flex-col gap-4 text-stone-800 text-center">
+      <div class="text-4xl" aria-hidden="true">🌐</div>
+      <h2 id="confirm-share-community-title" class="text-lg sm:text-xl font-black font-game text-emerald-950">
+        Bạn có muốn đưa lên cộng đồng đầu bếp không?
+      </h2>
+      <p id="confirm-share-community-desc" class="text-xs sm:text-sm text-stone-700 leading-relaxed font-medium bg-emerald-50 p-3.5 rounded-2xl border border-emerald-200">
+        Món ăn sẽ được đăng lên Cộng đồng Đầu bếp và điểm hài lòng sẽ được cộng vào tổng điểm của bạn trên Bảng xếp hạng!
+      </p>
+      <div class="flex items-center justify-center gap-3 pt-1">
+        <button 
+          type="button" 
+          id="btn-confirm-share-no" 
+          class="flex-1 py-2.5 px-4 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-game font-bold text-sm cursor-pointer"
+        >
+          Hủy
+        </button>
+        <button 
+          type="button" 
+          id="btn-confirm-share-yes" 
+          class="flex-1 py-2.5 px-5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-game font-extrabold text-sm shadow-lg border border-emerald-500 cursor-pointer"
+        >
+          ✅ Xác nhận
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 10. HỘP THOẠI TRANG CỘNG ĐỒNG ĐẦU BẾP (MỞ TỪ MENU CHÍNH) -->
+  <dialog id="modal-community-hub" class="backdrop:bg-black/60 backdrop:backdrop-blur-sm bg-transparent p-4 z-50 max-w-3xl w-full m-auto" role="dialog" aria-modal="true" aria-labelledby="community-hub-title">
+    <div class="bg-white rounded-3xl p-5 sm:p-7 shadow-2xl border-4 border-emerald-400 flex flex-col gap-4 text-stone-800 max-h-[88vh] overflow-hidden">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-emerald-200 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-3xl" aria-hidden="true">🌐</span>
+          <div>
+            <h2 id="community-hub-title" class="text-xl sm:text-2xl font-black font-game text-emerald-950">
+              CỘNG ĐỒNG ĐẦU BẾP
+            </h2>
+            <p id="community-hub-subtitle" class="text-xs font-semibold text-stone-500">
+              Những món ăn và bữa ăn sáng tạo do người chơi làm ra
+            </p>
+          </div>
+        </div>
+        <button id="btn-close-community-hub" type="button" class="p-2.5 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs cursor-pointer" aria-label="Đóng Cộng đồng đầu bếp">
+          ✕
+        </button>
+      </div>
+
+      <!-- Tìm kiếm nhanh trên Cộng đồng -->
+      <div>
+        <label for="community-search-input" class="sr-only">Tìm kiếm món ăn hoặc đầu bếp trên cộng đồng</label>
+        <input 
+          type="search" 
+          id="community-search-input" 
+          placeholder="🔍 Tìm theo tên món ăn, tên người chơi hoặc tên nhà bếp..." 
+          class="w-full px-4 py-2.5 rounded-2xl border-2 border-emerald-200 focus:border-emerald-500 focus:outline-none text-stone-800 text-sm font-medium"
+        />
+      </div>
+
+      <!-- Danh sách các món ăn và bữa ăn (Chia Heading H3 chuẩn trợ năng NVDA) -->
+      <div id="community-dishes-list" class="flex flex-col gap-3.5 overflow-y-auto max-h-[55vh] pr-1 custom-scroll" role="region" aria-label="Danh sách món ăn và bữa ăn trên cộng đồng">
+        <!-- Render động qua JavaScript -->
+      </div>
+
+      <!-- Footer Quay lại -->
+      <div class="border-t border-stone-200 pt-3 flex justify-end">
+        <button 
+          type="button" 
+          id="btn-back-from-community" 
+          class="px-6 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-game font-bold text-sm rounded-2xl cursor-pointer"
+        >
+          ⬅️ Quay lại Menu Chính
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 11. HỘP THOẠI XEM CHI TIẾT MÓN ĂN / BỮA ĂN TRÊN CỘNG ĐỒNG -->
+  <dialog id="modal-community-dish-detail" class="backdrop:bg-black/60 backdrop:backdrop-blur-sm bg-transparent p-4 z-50 max-w-xl w-full m-auto" role="dialog" aria-modal="true" aria-labelledby="community-detail-title">
+    <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-2xl border-4 border-amber-400 flex flex-col gap-4 text-stone-800 max-h-[88vh] overflow-y-auto custom-scroll">
+      <!-- Header -->
+      <div class="flex items-start justify-between gap-2 border-b border-amber-200 pb-3">
+        <div>
+          <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">
+            Chi tiết tác phẩm ẩm thực
+          </span>
+          <h2 id="community-detail-title" class="text-lg sm:text-xl font-black font-game text-stone-900 mt-1 leading-snug">
+            Tên món ăn
+          </h2>
+          <p id="community-detail-meta" class="text-xs font-semibold text-stone-600 mt-0.5">
+            Đầu bếp: ... &bull; Được sản xuất bởi: ...
+          </p>
+        </div>
+        <button id="btn-close-community-detail" type="button" class="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs cursor-pointer shrink-0" aria-label="Đóng hộp thoại chi tiết món ăn">
+          ✕ Close
+        </button>
+      </div>
+
+      <!-- Phần 1: Danh sách những món ăn có trên cái dĩa được người chơi đưa lên cộng đồng -->
+      <section aria-labelledby="detail-plate-dishes-heading" class="bg-amber-50/70 p-4 rounded-2xl border border-amber-200">
+        <h3 id="detail-plate-dishes-heading" class="text-sm font-extrabold font-game text-amber-950 mb-2.5 flex items-center gap-1.5">
+          <span aria-hidden="true">🍽️</span>
+          <span>Danh sách những món ăn có trên dĩa:</span>
+        </h3>
+        <ul id="community-detail-dishes-list" class="space-y-2 text-xs sm:text-sm text-stone-800">
+          <!-- Render động danh sách từng món trên dĩa -->
+        </ul>
+      </section>
+
+      <!-- Phần 2: Đánh giá của khách hàng và Điểm hài lòng -->
+      <section aria-labelledby="detail-customer-review-heading" class="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200">
+        <h3 id="detail-customer-review-heading" class="text-sm font-extrabold font-game text-emerald-950 mb-2 flex items-center gap-1.5">
+          <span id="community-detail-customer-emoji" aria-hidden="true">😋</span>
+          <span id="community-detail-customer-name">Đánh giá của khách hàng:</span>
+        </h3>
+        <p id="community-detail-customer-speech" class="text-xs sm:text-sm font-semibold text-stone-800 leading-relaxed italic bg-white p-3 rounded-xl border border-emerald-200/80">
+          "Lời nhận xét của thực khách..."
+        </p>
+        <div class="mt-3 pt-2.5 border-t border-emerald-200 flex items-center justify-between text-sm">
+          <span class="font-bold text-stone-700">Điểm hài lòng:</span>
+          <strong id="community-detail-score" class="text-base font-black text-orange-700 font-game">100 điểm</strong>
+        </div>
+      </section>
+
+      <!-- Nút Close thoát hộp thoại -->
+      <div class="pt-1 flex justify-end">
+        <button 
+          type="button" 
+          id="btn-close-community-detail-bottom" 
+          class="px-6 py-2.5 bg-stone-800 hover:bg-stone-900 text-white font-game font-bold text-sm rounded-2xl cursor-pointer"
+        >
+          ✕ Đóng (Close / Escape)
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 12. HỘP THOẠI BẢNG XẾP HẠNG TOP 100 ĐẦU BẾP (MỞ TỪ MENU CHÍNH) -->
+  <dialog id="modal-leaderboard" class="backdrop:bg-black/60 backdrop:backdrop-blur-sm bg-transparent p-4 z-50 max-w-2xl w-full m-auto" role="dialog" aria-modal="true" aria-labelledby="leaderboard-modal-title">
+    <div class="bg-white rounded-3xl p-5 sm:p-7 shadow-2xl border-4 border-amber-400 flex flex-col gap-4 text-stone-800 max-h-[88vh] overflow-hidden">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-amber-200 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-3xl" aria-hidden="true">🏆</span>
+          <div>
+            <h2 id="leaderboard-modal-title" class="text-xl sm:text-2xl font-black font-game text-amber-950">
+              BẢNG XẾP HẠNG ĐẦU BẾP
+            </h2>
+            <p class="text-xs font-semibold text-stone-500">
+              Top những đầu bếp nấu ăn ngon nhất (Tối đa 100 đầu bếp)
+            </p>
+          </div>
+        </div>
+        <button id="btn-close-leaderboard" type="button" class="p-2.5 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs cursor-pointer" aria-label="Quay lại Menu Chính">
+          ✕
+        </button>
+      </div>
+
+      <!-- Danh sách Top 100 -->
+      <div id="leaderboard-list" class="flex flex-col gap-2.5 overflow-y-auto max-h-[58vh] pr-1 custom-scroll" role="list" aria-label="Danh sách xếp hạng Top 100 đầu bếp">
+        <!-- Render động qua JavaScript -->
+      </div>
+
+      <!-- Nút Quay lại Menu Chính -->
+      <div class="border-t border-stone-200 pt-3 flex justify-end">
+        <button 
+          type="button" 
+          id="btn-back-from-leaderboard" 
+          class="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-amber-950 font-game font-extrabold text-sm rounded-2xl shadow cursor-pointer"
+        >
+          ⬅️ Quay lại
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 13. HỘP THOẠI QUẢN LÝ CỘNG ĐỒNG (DÀNH CHO QUẢN TRỊ VIÊN) -->
+  <dialog id="modal-admin-community" class="backdrop:bg-black/60 backdrop:backdrop-blur-sm bg-transparent p-4 z-50 max-w-2xl w-full m-auto" role="dialog" aria-modal="true" aria-labelledby="admin-community-title">
+    <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-2xl border-4 border-emerald-500 flex flex-col gap-4 text-stone-800 max-h-[88vh] overflow-hidden">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-emerald-200 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl" aria-hidden="true">🌐</span>
+          <div>
+            <h2 id="admin-community-title" class="text-lg sm:text-xl font-black font-game text-emerald-950">
+              QUẢN LÝ CỘNG ĐỒNG ĐẦU BẾP
+            </h2>
+            <p id="admin-community-count" class="text-xs font-semibold text-stone-500">
+              Đang tải danh sách món ăn trên cộng đồng...
+            </p>
+          </div>
+        </div>
+        <button id="btn-close-admin-community" type="button" class="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs cursor-pointer" aria-label="Đóng quản lý cộng đồng">
+          ✕
+        </button>
+      </div>
+
+      <!-- Thanh công cụ: Tìm kiếm nhanh + Nút Xóa tất cả ở đầu -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+        <div class="flex-1">
+          <label for="admin-search-community" class="sr-only">Tìm kiếm nhanh món ăn trên cộng đồng</label>
+          <input 
+            type="search" 
+            id="admin-search-community" 
+            placeholder="🔍 Tìm nhanh theo tên món ăn, đầu bếp, nhà bếp..." 
+            class="w-full px-4 py-2.5 rounded-2xl border-2 border-emerald-200 focus:border-emerald-500 focus:outline-none text-stone-800 text-sm font-medium"
+          />
+        </div>
+        <button 
+          type="button" 
+          id="btn-admin-delete-all-community" 
+          class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-game font-extrabold text-xs sm:text-sm rounded-2xl shadow border border-red-500 flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+        >
+          <span aria-hidden="true">🗑️</span>
+          <span>Xóa tất cả</span>
+        </button>
+      </div>
+
+      <!-- Danh sách toàn bộ những món ăn được đăng lên cộng đồng -->
+      <div id="admin-community-list" class="flex flex-col gap-2.5 overflow-y-auto max-h-[50vh] pr-1 custom-scroll" role="list" aria-label="Danh sách bài đăng cộng đồng trong bảng quản trị">
+        <!-- Render động qua JavaScript -->
+      </div>
+
+      <!-- Quay lại Bảng Quản Trị -->
+      <div class="border-t border-stone-200 pt-3 flex justify-end">
+        <button 
+          type="button" 
+          id="btn-back-from-admin-community" 
+          class="px-5 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-game font-bold text-sm rounded-2xl cursor-pointer"
+        >
+          ⬅️ Quay lại Bảng Quản Trị
+        </button>
+      </div>
     </div>
   </dialog>
 
@@ -5513,6 +5809,33 @@
       if (speechEl) speechEl.textContent = review.speech;
       if (scoreEl) scoreEl.textContent = `${review.score} / 100 điểm (${review.moodTag})`;
 
+      // Lưu lại dữ liệu món ăn / bữa ăn vừa thưởng thức để người chơi có thể Đưa Lên Cộng Đồng
+      const tastedMealPayload = {
+        dishes: dishes.map(d => ({
+          name: d.name || 'Món Ăn Tự Chế',
+          garnish: d.garnish || { name: 'Mộc', emoji: '🍽️' },
+          items: (d.items || []).map(it => ({ name: it.name, emoji: it.emoji })),
+          analysis: {
+            structureSummary: (d.analysis && d.analysis.structureSummary) ? d.analysis.structureSummary : '',
+            harmonyScore: (d.analysis && typeof d.analysis.harmonyScore === 'number') ? d.analysis.harmonyScore : review.score
+          }
+        })),
+        fallbackTitle: state.customDishName || 'Món Ăn Tự Chế',
+        customerName: char.name,
+        customerEmoji: char.emoji,
+        customerSpeech: review.speech,
+        customerMoodTag: review.moodTag,
+        satisfactionScore: review.score
+      };
+      state.lastTastedMeal = tastedMealPayload;
+      window.lastTastedMeal = tastedMealPayload;
+
+      // Hiển thị nút nổi bật "Đưa Lên Cộng Đồng" ngay dưới phần đánh giá
+      const shareContainer = document.getElementById('share-community-container');
+      if (shareContainer) {
+        shareContainer.classList.remove('hidden');
+      }
+
       // Dọn sạch dĩa thức ăn
       state.plateItems = [];
       state.servedDishes = [];
@@ -5585,6 +5908,10 @@
       state.selectedWrapperUid = null;
       state.selectedVesselUid = null;
       state.currentScreen = 'character_select';
+      state.lastTastedMeal = null;
+      window.lastTastedMeal = null;
+      const shareContainer = document.getElementById('share-community-container');
+      if (shareContainer) shareContainer.classList.add('hidden');
 
       const screenSelect = document.getElementById('screen-character-select');
       const screenKitchen = document.getElementById('screen-kitchen');

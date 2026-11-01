@@ -31,6 +31,16 @@ import {
   setMaintenanceMode
 } from "./admin-service.js";
 
+import {
+  formatCommunityMealHeading,
+  publishMealToCommunity,
+  getCommunityDishes,
+  deleteCommunityDish,
+  deleteAllCommunityDishes,
+  getLeaderboardTop100,
+  resetLeaderboardScores
+} from "./community-service.js";
+
 // Khóa lưu cài đặt
 const SETTINGS_STORAGE_KEY = "yumcraft_game_settings";
 
@@ -852,6 +862,564 @@ export function initAdminPanelController() {
       announceToScreenReader("Đã đọc thông báo trong ngày. Chuyển về Menu Chính.");
     });
   }
+
+  // --- 11. Quản Lý Cộng Đồng Đầu Bếp (Admin) ---
+  const btnAdminManageCommunity = document.getElementById("btn-admin-manage-community");
+  const modalAdminCommunity = document.getElementById("modal-admin-community");
+  const btnCloseAdminCommunity = document.getElementById("btn-close-admin-community");
+  const btnBackFromAdminCommunity = document.getElementById("btn-back-from-admin-community");
+  const adminSearchCommunity = document.getElementById("admin-search-community");
+  const btnAdminDeleteAllCommunity = document.getElementById("btn-admin-delete-all-community");
+  const adminCommunityListEl = document.getElementById("admin-community-list");
+  const adminCommunityCountEl = document.getElementById("admin-community-count");
+
+  let cachedAdminCommunityDishes = [];
+
+  const renderAdminCommunityList = (dishes) => {
+    if (!adminCommunityListEl) return;
+    adminCommunityListEl.innerHTML = "";
+
+    if (!dishes || dishes.length === 0) {
+      adminCommunityListEl.innerHTML = `
+        <div class="p-6 text-center text-stone-500 font-semibold text-sm bg-stone-50 rounded-2xl border border-dashed border-stone-300">
+          Chưa có món ăn hoặc bữa ăn nào trên Cộng đồng Đầu bếp.
+        </div>
+      `;
+      if (adminCommunityCountEl) adminCommunityCountEl.textContent = "Hiện có 0 bài đăng trên cộng đồng";
+      return;
+    }
+
+    if (adminCommunityCountEl) {
+      adminCommunityCountEl.textContent = `Hiện có ${dishes.length} món ăn / bữa ăn được đăng lên cộng đồng`;
+    }
+
+    dishes.forEach((post) => {
+      const itemEl = document.createElement("div");
+      itemEl.setAttribute("role", "listitem");
+      itemEl.className = "p-4 bg-stone-50 hover:bg-emerald-50/60 rounded-2xl border border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition";
+
+      const titleText = post.headingTitle || "Món Ăn Sáng Tạo";
+      const chefText = post.chefDisplayName || post.chefUsername || "Bếp Trưởng";
+      const kitchenText = post.kitchenName || "Nhà Bếp Sáng Tạo";
+      const scoreText = Number(post.satisfactionScore) || 0;
+
+      const infoDiv = document.createElement("div");
+      infoDiv.className = "min-w-0 flex-1";
+
+      const h3 = document.createElement("h3");
+      h3.className = "font-extrabold text-stone-900 font-game text-sm sm:text-base leading-snug";
+      h3.textContent = titleText;
+
+      const metaP = document.createElement("p");
+      metaP.className = "text-xs text-stone-600 mt-1";
+      metaP.textContent = `Người chơi: ${chefText} (@${post.chefUsername || "chef"}) • Được sản xuất bởi: ${kitchenText} • Điểm hài lòng: ${scoreText} điểm`;
+
+      infoDiv.appendChild(h3);
+      infoDiv.appendChild(metaP);
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "px-3.5 py-2 bg-red-100 hover:bg-red-600 text-red-800 hover:text-white font-game font-bold text-xs rounded-xl border border-red-300 transition cursor-pointer shrink-0";
+      delBtn.textContent = `🗑️ Xóa ${titleText}`;
+      delBtn.setAttribute("aria-label", `Xóa ${titleText}`);
+
+      delBtn.addEventListener("click", async () => {
+        const confirmDel = window.confirm(`Bạn có chắc chắn muốn xóa bài đăng "${titleText}" của ${chefText} khỏi cộng đồng không?`);
+        if (!confirmDel) return;
+        try {
+          await deleteCommunityDish(post.id);
+          cachedAdminCommunityDishes = cachedAdminCommunityDishes.filter(d => d.id !== post.id);
+          const q = adminSearchCommunity ? adminSearchCommunity.value.toLowerCase().trim() : "";
+          const listToRender = q
+            ? cachedAdminCommunityDishes.filter(d =>
+                (d.headingTitle && d.headingTitle.toLowerCase().includes(q)) ||
+                (d.chefDisplayName && d.chefDisplayName.toLowerCase().includes(q)) ||
+                (d.kitchenName && d.kitchenName.toLowerCase().includes(q))
+              )
+            : cachedAdminCommunityDishes;
+          renderAdminCommunityList(listToRender);
+          announceToScreenReader(`Đã xóa ${titleText} khỏi cộng đồng đầu bếp.`);
+        } catch (err) {
+          alert(err.message || "Lỗi khi xóa bài đăng cộng đồng.");
+        }
+      });
+
+      itemEl.appendChild(infoDiv);
+      itemEl.appendChild(delBtn);
+      adminCommunityListEl.appendChild(itemEl);
+    });
+  };
+
+  const openAdminCommunityModal = async () => {
+    if (modalAdminPanel) modalAdminPanel.close();
+    if (modalAdminCommunity) modalAdminCommunity.showModal();
+    if (adminSearchCommunity) adminSearchCommunity.value = "";
+    if (adminCommunityCountEl) adminCommunityCountEl.textContent = "Đang tải danh sách món ăn trên cộng đồng...";
+
+    try {
+      cachedAdminCommunityDishes = await getCommunityDishes();
+      renderAdminCommunityList(cachedAdminCommunityDishes);
+      if (adminSearchCommunity) adminSearchCommunity.focus();
+      announceToScreenReader(`Quản lý cộng đồng đầu bếp: Đang có ${cachedAdminCommunityDishes.length} bài đăng.`);
+    } catch (e) {
+      console.error("Lỗi tải danh sách cộng đồng admin:", e);
+      if (adminCommunityCountEl) adminCommunityCountEl.textContent = "Lỗi tải danh sách cộng đồng.";
+    }
+  };
+
+  if (btnAdminManageCommunity) {
+    btnAdminManageCommunity.addEventListener("click", openAdminCommunityModal);
+  }
+
+  if (adminSearchCommunity) {
+    adminSearchCommunity.addEventListener("input", (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) {
+        renderAdminCommunityList(cachedAdminCommunityDishes);
+        return;
+      }
+      const filtered = cachedAdminCommunityDishes.filter(d =>
+        (d.headingTitle && d.headingTitle.toLowerCase().includes(q)) ||
+        (d.chefDisplayName && d.chefDisplayName.toLowerCase().includes(q)) ||
+        (d.chefUsername && d.chefUsername.toLowerCase().includes(q)) ||
+        (d.kitchenName && d.kitchenName.toLowerCase().includes(q))
+      );
+      renderAdminCommunityList(filtered);
+    });
+  }
+
+  if (btnAdminDeleteAllCommunity) {
+    btnAdminDeleteAllCommunity.addEventListener("click", async () => {
+      if (cachedAdminCommunityDishes.length === 0) {
+        announceToScreenReader("Hiện không có bài đăng nào trên cộng đồng để xóa.");
+        alert("Hiện không có bài đăng nào trên cộng đồng để xóa.");
+        return;
+      }
+      const confirmAll = window.confirm(`CẢNH BÁO: Bạn có chắc chắn muốn XÓA TẤT CẢ (${cachedAdminCommunityDishes.length} bài đăng) trên Cộng đồng Đầu bếp không?`);
+      if (!confirmAll) return;
+
+      try {
+        await deleteAllCommunityDishes();
+        cachedAdminCommunityDishes = [];
+        renderAdminCommunityList([]);
+        announceToScreenReader("Đã xóa tất cả món ăn trên Cộng đồng Đầu bếp thành công.");
+        alert("Đã xóa tất cả món ăn trên Cộng đồng Đầu bếp thành công!");
+      } catch (err) {
+        alert(err.message || "Lỗi khi xóa tất cả bài đăng cộng đồng.");
+      }
+    });
+  }
+
+  const returnFromAdminCommunity = () => {
+    if (modalAdminCommunity) modalAdminCommunity.close();
+    if (modalAdminPanel) modalAdminPanel.showModal();
+    if (btnAdminManageCommunity) btnAdminManageCommunity.focus();
+  };
+  if (btnCloseAdminCommunity) btnCloseAdminCommunity.addEventListener("click", returnFromAdminCommunity);
+  if (btnBackFromAdminCommunity) btnBackFromAdminCommunity.addEventListener("click", returnFromAdminCommunity);
+
+  // --- 12. Đặt Lại Bảng Xếp Hạng (Admin) ---
+  const btnAdminResetLeaderboard = document.getElementById("btn-admin-reset-leaderboard");
+  if (btnAdminResetLeaderboard) {
+    btnAdminResetLeaderboard.addEventListener("click", async () => {
+      const confirmReset = window.confirm("Bạn có chắc chắn muốn ĐẶT LẠI BẢNG XẾP HẠNG về trống không? Toàn bộ điểm của các đầu bếp sẽ đưa về 0.");
+      if (!confirmReset) return;
+
+      try {
+        await resetLeaderboardScores();
+        announceToScreenReader("Đã đặt lại bảng xếp hạng về trống thành công.");
+        alert("Đã đặt lại Bảng xếp hạng thành công! Hiện tại chưa có ai trong bảng xếp hạng này.");
+      } catch (err) {
+        alert(err.message || "Lỗi khi đặt lại bảng xếp hạng.");
+      }
+    });
+  }
+}
+
+/**
+ * =========================================================================
+ * BỘ ĐIỀU PHỐI CỘNG ĐỒNG ĐẦU BẾP & BẢNG XẾP HẠNG TOP 100 (PLAYER & KITCHEN)
+ * =========================================================================
+ */
+export function initCommunityAndLeaderboardController() {
+  // --- A. Nút "Đưa Lên Cộng Đồng" tại Bàn Tiệc (Sau khi khách ăn xong & đánh giá) ---
+  const shareContainer = document.getElementById("share-community-container");
+  const btnShareToCommunity = document.getElementById("btn-share-to-community");
+  const modalConfirmShare = document.getElementById("modal-confirm-share-community");
+  const confirmShareDesc = document.getElementById("confirm-share-community-desc");
+  const btnConfirmShareYes = document.getElementById("btn-confirm-share-yes");
+  const btnConfirmShareNo = document.getElementById("btn-confirm-share-no");
+
+  if (btnShareToCommunity && modalConfirmShare) {
+    btnShareToCommunity.addEventListener("click", () => {
+      const meal = window.lastTastedMeal || (window.state && window.state.lastTastedMeal);
+      if (!meal) {
+        announceToScreenReader("Chưa có món ăn nào vừa được thực khách đánh giá để đưa lên cộng đồng.", true);
+        return;
+      }
+
+      const headingPreview = formatCommunityMealHeading(meal.dishes, meal.fallbackTitle);
+      if (confirmShareDesc) {
+        confirmShareDesc.textContent = `Tác phẩm: "${headingPreview}" (Điểm hài lòng: ${meal.satisfactionScore} điểm). Khi xác nhận, tác phẩm sẽ được đưa lên Cộng đồng Đầu bếp và cộng ${meal.satisfactionScore} điểm vào tổng điểm Bảng xếp hạng của bạn!`;
+      }
+
+      modalConfirmShare.showModal();
+      if (btnConfirmShareYes) btnConfirmShareYes.focus();
+      announceToScreenReader(`Bạn có muốn đưa lên cộng đồng đầu bếp không? Tác phẩm ${headingPreview}, điểm hài lòng ${meal.satisfactionScore} điểm. Nhấn Xác nhận để đưa lên.`);
+    });
+  }
+
+  if (btnConfirmShareNo && modalConfirmShare) {
+    btnConfirmShareNo.addEventListener("click", () => {
+      modalConfirmShare.close();
+      if (btnShareToCommunity) btnShareToCommunity.focus();
+      announceToScreenReader("Đã hủy đưa món ăn lên cộng đồng.");
+    });
+  }
+
+  if (btnConfirmShareYes && modalConfirmShare) {
+    btnConfirmShareYes.addEventListener("click", async () => {
+      const meal = window.lastTastedMeal || (window.state && window.state.lastTastedMeal);
+      if (!meal) {
+        modalConfirmShare.close();
+        return;
+      }
+
+      try {
+        btnConfirmShareYes.disabled = true;
+        btnConfirmShareYes.textContent = "Đang đưa lên...";
+
+        const result = await publishMealToCommunity(meal, getActiveProfileCache());
+
+        modalConfirmShare.close();
+
+        // Nút "Đưa lên cộng đồng" biến mất hoàn toàn (reset) cho đến khi bày bữa ăn mới và khách ăn xong đánh giá lại
+        if (shareContainer) {
+          shareContainer.classList.add("hidden");
+        }
+        window.lastTastedMeal = null;
+        if (window.state) {
+          window.state.lastTastedMeal = null;
+        }
+
+        // Chuyển focus về Tab Tủ Lạnh hoặc nút hợp lý để NVDA không bị mất điểm neo
+        const tabFridge = document.getElementById("tab-fridge");
+        if (tabFridge) tabFridge.focus();
+
+        announceToScreenReader(
+          `Đã đưa "${result.post.headingTitle}" lên Cộng đồng Đầu bếp thành công! Bạn được cộng ${result.addedScore} điểm hài lòng vào tổng điểm (Tổng điểm hiện tại: ${result.newTotalScore} điểm).`,
+          true
+        );
+      } catch (err) {
+        alert(err.message || "Không thể đưa món ăn lên cộng đồng. Vui lòng thử lại.");
+      } finally {
+        btnConfirmShareYes.disabled = false;
+        btnConfirmShareYes.textContent = "✅ Xác nhận";
+      }
+    });
+  }
+
+  // --- B. Trang "Cộng Đồng Đầu Bếp" ngoài Menu Chính & Hộp Thoại "Xem Chi Tiết" ---
+  const btnMenuCommunity = document.getElementById("btn-menu-community");
+  const modalCommunityHub = document.getElementById("modal-community-hub");
+  const btnCloseCommunityHub = document.getElementById("btn-close-community-hub");
+  const btnBackFromCommunity = document.getElementById("btn-back-from-community");
+  const communitySearchInput = document.getElementById("community-search-input");
+  const communityDishesListEl = document.getElementById("community-dishes-list");
+
+  const modalDishDetail = document.getElementById("modal-community-dish-detail");
+  const btnCloseDishDetail = document.getElementById("btn-close-community-detail");
+  const btnCloseDishDetailBottom = document.getElementById("btn-close-community-detail-bottom");
+  const detailTitleEl = document.getElementById("community-detail-title");
+  const detailMetaEl = document.getElementById("community-detail-meta");
+  const detailDishesListEl = document.getElementById("community-detail-dishes-list");
+  const detailCustomerEmojiEl = document.getElementById("community-detail-customer-emoji");
+  const detailCustomerNameEl = document.getElementById("community-detail-customer-name");
+  const detailCustomerSpeechEl = document.getElementById("community-detail-customer-speech");
+  const detailScoreEl = document.getElementById("community-detail-score");
+
+  let cachedCommunityPosts = [];
+  let lastFocusedViewDetailBtn = null;
+
+  const openCommunityDishDetail = (post, triggerBtn) => {
+    lastFocusedViewDetailBtn = triggerBtn || null;
+
+    if (detailTitleEl) detailTitleEl.textContent = post.headingTitle || "Món Ăn Sáng Tạo";
+    if (detailMetaEl) {
+      detailMetaEl.textContent = `Người chơi: ${post.chefDisplayName || "Bếp Trưởng"} • Được sản xuất bởi: ${post.kitchenName || "Nhà Bếp Sáng Tạo"}`;
+    }
+
+    // 1. Hiện danh sách những món ăn có trên cái dĩa được người chơi đưa lên cộng đồng
+    if (detailDishesListEl) {
+      detailDishesListEl.innerHTML = "";
+      const dishesOnPlate = Array.isArray(post.dishesOnPlate) && post.dishesOnPlate.length > 0
+        ? post.dishesOnPlate
+        : [{ name: post.headingTitle || "Món ăn", emoji: "🍽️", structureSummary: "Chế biến tự do" }];
+
+      dishesOnPlate.forEach((d, idx) => {
+        const li = document.createElement("li");
+        li.className = "p-2.5 bg-white rounded-xl border border-amber-200 flex items-start gap-2.5 shadow-2xs";
+
+        const emojiSpan = document.createElement("span");
+        emojiSpan.className = "text-xl shrink-0";
+        emojiSpan.setAttribute("aria-hidden", "true");
+        emojiSpan.textContent = d.emoji || "🍽️";
+
+        const textWrap = document.createElement("div");
+        textWrap.className = "min-w-0 flex-1";
+
+        const dishNameStrong = document.createElement("div");
+        dishNameStrong.className = "font-extrabold text-stone-900 font-game text-xs sm:text-sm";
+        dishNameStrong.textContent = `Món ${idx + 1}: ${d.name || "Món ăn"}`;
+
+        const dishDescP = document.createElement("div");
+        dishDescP.className = "text-xs text-stone-600 mt-0.5";
+        const detailText = d.structureSummary || d.ingredientsSummary || "";
+        dishDescP.textContent = detailText ? `Thành phần & Chế biến: ${detailText}` : "Món ăn sáng tạo tự do";
+
+        textWrap.appendChild(dishNameStrong);
+        textWrap.appendChild(dishDescP);
+        li.appendChild(emojiSpan);
+        li.appendChild(textWrap);
+        detailDishesListEl.appendChild(li);
+      });
+    }
+
+    // 2. Sau đó là đánh giá của khách hàng và điểm hài lòng
+    if (detailCustomerEmojiEl) detailCustomerEmojiEl.textContent = post.customerEmoji || "😋";
+    if (detailCustomerNameEl) {
+      detailCustomerNameEl.textContent = `Đánh giá của khách hàng (${post.customerName || "Thực Khách"}):`;
+    }
+    if (detailCustomerSpeechEl) {
+      detailCustomerSpeechEl.textContent = post.customerSpeech || "Món ăn rất ngon miệng!";
+    }
+    if (detailScoreEl) {
+      detailScoreEl.textContent = `${Number(post.satisfactionScore) || 0} / 100 điểm (${post.customerMoodTag || "Hài lòng"})`;
+    }
+
+    if (modalDishDetail) {
+      modalDishDetail.showModal();
+      if (btnCloseDishDetailBottom) btnCloseDishDetailBottom.focus();
+      announceToScreenReader(
+        `Chi tiết: ${post.headingTitle}. Gồm ${post.dishesOnPlate ? post.dishesOnPlate.length : 1} món trên dĩa. Đánh giá của ${post.customerName}: ${post.customerSpeech}. Điểm hài lòng: ${post.satisfactionScore} điểm.`
+      );
+    }
+  };
+
+  const closeCommunityDishDetail = () => {
+    if (modalDishDetail && modalDishDetail.open) {
+      modalDishDetail.close();
+      if (lastFocusedViewDetailBtn) {
+        lastFocusedViewDetailBtn.focus();
+      }
+    }
+  };
+
+  if (btnCloseDishDetail) btnCloseDishDetail.addEventListener("click", closeCommunityDishDetail);
+  if (btnCloseDishDetailBottom) btnCloseDishDetailBottom.addEventListener("click", closeCommunityDishDetail);
+  if (modalDishDetail) {
+    modalDishDetail.addEventListener("close", () => {
+      if (lastFocusedViewDetailBtn) lastFocusedViewDetailBtn.focus();
+    });
+  }
+
+  const renderCommunityHubList = (posts) => {
+    if (!communityDishesListEl) return;
+    communityDishesListEl.innerHTML = "";
+
+    if (!posts || posts.length === 0) {
+      communityDishesListEl.innerHTML = `
+        <div class="p-8 text-center text-stone-500 font-semibold text-sm bg-emerald-50/40 rounded-3xl border-2 border-dashed border-emerald-200">
+          Chưa có món ăn hoặc bữa ăn nào được đưa lên Cộng đồng Đầu bếp. Hãy vào nhà bếp nấu ăn và trở thành người đầu tiên chia sẻ tác phẩm nhé!
+        </div>
+      `;
+      return;
+    }
+
+    posts.forEach((post) => {
+      const card = document.createElement("article");
+      card.className = "p-4 sm:p-5 bg-gradient-to-r from-emerald-50/60 via-white to-amber-50/50 rounded-3xl border-2 border-emerald-200 hover:border-emerald-400 shadow-sm transition flex flex-col gap-2";
+
+      // 1. Đầu tiên là Heading tên món ăn (hoặc Bữa ăn với: tên món 1, tên món 2, ..., và tên món N)
+      const headingEl = document.createElement("h3");
+      headingEl.className = "text-base sm:text-lg font-extrabold font-game text-stone-900 leading-snug";
+      headingEl.textContent = post.headingTitle || "Món Ăn Sáng Tạo";
+
+      // 2. Ở dưới hiện tên người chơi
+      const playerEl = document.createElement("p");
+      playerEl.className = "text-xs sm:text-sm font-bold text-stone-700";
+      playerEl.textContent = `Người chơi: ${post.chefDisplayName || post.chefUsername || "Bếp Trưởng"}`;
+
+      // 3. Ở dưới nữa hiện: Được sản xuất bởi: tên nhà bếp
+      const kitchenEl = document.createElement("p");
+      kitchenEl.className = "text-xs sm:text-sm font-bold text-orange-800";
+      kitchenEl.textContent = `Được sản xuất bởi: ${post.kitchenName || "Nhà Bếp Sáng Tạo"}`;
+
+      // 4. Và nút Xem chi tiết để xem món ăn đó
+      const actionRow = document.createElement("div");
+      actionRow.className = "mt-1.5 pt-2 border-t border-emerald-100 flex items-center justify-between gap-2";
+
+      const scoreBadge = document.createElement("span");
+      scoreBadge.className = "text-xs font-extrabold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full";
+      scoreBadge.textContent = `⭐ Điểm hài lòng: ${Number(post.satisfactionScore) || 0} điểm`;
+
+      const viewBtn = document.createElement("button");
+      viewBtn.type = "button";
+      viewBtn.className = "px-4 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-game font-bold text-xs sm:text-sm shadow transition cursor-pointer";
+      viewBtn.textContent = "🔍 Xem chi tiết";
+      viewBtn.setAttribute("aria-label", `Xem chi tiết ${post.headingTitle} của ${post.chefDisplayName || "Bếp Trưởng"}`);
+
+      viewBtn.addEventListener("click", () => {
+        openCommunityDishDetail(post, viewBtn);
+      });
+
+      actionRow.appendChild(scoreBadge);
+      actionRow.appendChild(viewBtn);
+
+      card.appendChild(headingEl);
+      card.appendChild(playerEl);
+      card.appendChild(kitchenEl);
+      card.appendChild(actionRow);
+
+      communityDishesListEl.appendChild(card);
+    });
+  };
+
+  if (btnMenuCommunity && modalCommunityHub) {
+    btnMenuCommunity.addEventListener("click", async () => {
+      modalCommunityHub.showModal();
+      if (communitySearchInput) communitySearchInput.value = "";
+      if (communityDishesListEl) {
+        communityDishesListEl.innerHTML = `<div class="p-6 text-center text-stone-500 font-semibold text-sm">Đang tải danh sách món ăn từ Cộng đồng Đầu bếp...</div>`;
+      }
+
+      try {
+        cachedCommunityPosts = await getCommunityDishes();
+        renderCommunityHubList(cachedCommunityPosts);
+        if (communitySearchInput) communitySearchInput.focus();
+        announceToScreenReader(`Cộng đồng Đầu bếp: Hiện có ${cachedCommunityPosts.length} món ăn và bữa ăn. Dùng phím H hoặc số 3 để duyệt nhanh qua từng món ăn.`);
+      } catch (e) {
+        console.error("Lỗi tải Cộng đồng đầu bếp:", e);
+      }
+    });
+  }
+
+  if (communitySearchInput) {
+    communitySearchInput.addEventListener("input", (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      if (!q) {
+        renderCommunityHubList(cachedCommunityPosts);
+        return;
+      }
+      const filtered = cachedCommunityPosts.filter(p =>
+        (p.headingTitle && p.headingTitle.toLowerCase().includes(q)) ||
+        (p.chefDisplayName && p.chefDisplayName.toLowerCase().includes(q)) ||
+        (p.kitchenName && p.kitchenName.toLowerCase().includes(q))
+      );
+      renderCommunityHubList(filtered);
+    });
+  }
+
+  const closeCommunityHub = () => {
+    if (modalCommunityHub && modalCommunityHub.open) {
+      modalCommunityHub.close();
+      if (btnMenuCommunity) btnMenuCommunity.focus();
+    }
+  };
+  if (btnCloseCommunityHub) btnCloseCommunityHub.addEventListener("click", closeCommunityHub);
+  if (btnBackFromCommunity) btnBackFromCommunity.addEventListener("click", closeCommunityHub);
+
+  // --- C. Bảng Xếp Hạng Top 100 Đầu Bếp ngoài Menu Chính ---
+  const btnMenuLeaderboard = document.getElementById("btn-menu-leaderboard");
+  const modalLeaderboard = document.getElementById("modal-leaderboard");
+  const btnCloseLeaderboard = document.getElementById("btn-close-leaderboard");
+  const btnBackFromLeaderboard = document.getElementById("btn-back-from-leaderboard");
+  const leaderboardListEl = document.getElementById("leaderboard-list");
+
+  const renderLeaderboardTop100 = (topList) => {
+    if (!leaderboardListEl) return;
+    leaderboardListEl.innerHTML = "";
+
+    if (!topList || topList.length === 0) {
+      leaderboardListEl.innerHTML = `
+        <div class="p-8 text-center text-stone-600 font-bold text-base bg-amber-50/60 rounded-3xl border-2 border-dashed border-amber-300">
+          Chưa có ai trong bảng xếp hạng này.
+        </div>
+      `;
+      return;
+    }
+
+    topList.forEach((entry) => {
+      const row = document.createElement("div");
+      row.setAttribute("role", "listitem");
+
+      let bgStyle = "bg-stone-50 border-stone-200 text-stone-800";
+      let medalIcon = "🎖️";
+      if (entry.rank === 1) {
+        bgStyle = "bg-gradient-to-r from-amber-100 to-yellow-100 border-amber-400 text-amber-950 shadow-sm";
+        medalIcon = "🥇";
+      } else if (entry.rank === 2) {
+        bgStyle = "bg-gradient-to-r from-slate-100 to-stone-100 border-slate-300 text-slate-900";
+        medalIcon = "🥈";
+      } else if (entry.rank === 3) {
+        bgStyle = "bg-gradient-to-r from-orange-100/80 to-amber-50 border-orange-300 text-orange-950";
+        medalIcon = "🥉";
+      }
+
+      row.className = `p-3.5 sm:p-4 rounded-2xl border-2 ${bgStyle} flex items-center justify-between gap-3 transition`;
+
+      const headingLine = document.createElement("h3");
+      headingLine.className = "font-extrabold font-game text-sm sm:text-base leading-snug";
+      // Định dạng chuẩn 100% theo yêu cầu:
+      // Số hạng: tên đầu bếp, đến từ: tên nhà bếp, có số điểm
+      headingLine.textContent = `Hạng ${entry.rank}: ${entry.displayName}, đến từ: ${entry.kitchenName}, có ${entry.totalScore} điểm`;
+
+      const iconSpan = document.createElement("span");
+      iconSpan.className = "text-xl shrink-0";
+      iconSpan.setAttribute("aria-hidden", "true");
+      iconSpan.textContent = medalIcon;
+
+      const leftWrap = document.createElement("div");
+      leftWrap.className = "flex items-center gap-2.5 min-w-0";
+      leftWrap.appendChild(iconSpan);
+      leftWrap.appendChild(headingLine);
+
+      row.appendChild(leftWrap);
+      leaderboardListEl.appendChild(row);
+    });
+  };
+
+  if (btnMenuLeaderboard && modalLeaderboard) {
+    btnMenuLeaderboard.addEventListener("click", async () => {
+      modalLeaderboard.showModal();
+      if (leaderboardListEl) {
+        leaderboardListEl.innerHTML = `<div class="p-6 text-center text-stone-500 font-semibold text-sm">Đang tải Bảng xếp hạng Top 100 Đầu bếp...</div>`;
+      }
+
+      try {
+        const top100 = await getLeaderboardTop100();
+        renderLeaderboardTop100(top100);
+        if (btnBackFromLeaderboard) btnBackFromLeaderboard.focus();
+
+        if (!top100 || top100.length === 0) {
+          announceToScreenReader("Bảng xếp hạng: Chưa có ai trong bảng xếp hạng này.");
+        } else {
+          announceToScreenReader(`Bảng xếp hạng Top ${top100.length} đầu bếp nấu ăn ngon nhất. Đứng đầu là Hạng 1: ${top100[0].displayName}, đến từ: ${top100[0].kitchenName}, có ${top100[0].totalScore} điểm.`);
+        }
+      } catch (e) {
+        console.error("Lỗi tải Bảng xếp hạng:", e);
+      }
+    });
+  }
+
+  const closeLeaderboard = () => {
+    if (modalLeaderboard && modalLeaderboard.open) {
+      modalLeaderboard.close();
+      if (btnMenuLeaderboard) btnMenuLeaderboard.focus();
+    }
+  };
+  if (btnCloseLeaderboard) btnCloseLeaderboard.addEventListener("click", closeLeaderboard);
+  if (btnBackFromLeaderboard) btnBackFromLeaderboard.addEventListener("click", closeLeaderboard);
 }
 
 /**
@@ -1063,6 +1631,9 @@ export function initMainMenuController() {
 
   // 6.5. Khởi tạo Bảng Quản Trị Viên & Hệ Thống Thông Báo Máy Chủ
   initAdminPanelController();
+
+  // 6.6. Khởi tạo Hệ Thống Cộng Đồng Đầu Bếp & Bảng Xếp Hạng Top 100
+  initCommunityAndLeaderboardController();
 
   // 7. Lắng nghe Session ban đầu (Tự động đăng nhập nếu có duy trì đăng nhập)
   initAuthListener(async (profile) => {

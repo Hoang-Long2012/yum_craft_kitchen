@@ -492,3 +492,12 @@ export async function setMaintenanceMode(enabled, reason = "") {
 
   return config;
 }
+
+export {
+  getCommunityDishes,
+  deleteCommunityDish,
+  deleteAllCommunityDishes,
+  getLeaderboardTop100,
+  resetLeaderboardScores
+} from "./community-service.js";
+

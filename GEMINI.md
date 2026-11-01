@@ -12,6 +12,49 @@
 # NHẬT KÝ DỰ ÁN — YUMCRAFT KITCHEN
 
 ## 1. Thông Tin Phiên Làm Việc Mới Nhất
+- **Ngày thực hiện**: 01/11/2026 (Phiên Xây Dựng Hệ Thống Cộng Đồng Đầu Bếp, Bảng Xếp Hạng Top 100 & Quản Trị Cộng Đồng / Xếp Hạng)
+- **Người phát triển**: Vũ Anh Lộc (LC Boy) & Antigravity (Google DeepMind)
+- **Mục tiêu hoàn thành**:
+  1. **Xây dựng module dịch vụ Cộng Đồng & Bảng Xếp Hạng (`js/community-service.js` & mở rộng `js/admin-service.js`)**:
+     - `formatCommunityMealHeading(dishes)`:
+       - Nếu chỉ có **1 món ăn**: Hiện thẳng tên món ăn đó lên.
+       - Nếu bày **nhiều món ăn** (hiểu là bữa ăn): Hiển thị đầy đủ toàn bộ tên các món ăn trên dĩa dù 2, 10, 20 hay 100 món, ngăn cách bằng dấu phẩy và món cuối cùng nối bằng `, và `: `"Bữa ăn với: tên món 1, tên món 2, tên món 3, tên món 4, và tên món 5"`.
+     - `publishMealToCommunity(mealPayload, chefProfile)`:
+       - Lưu tác phẩm món ăn / bữa ăn vào Firestore collection `community_dishes` (và đồng bộ LocalStorage).
+       - Lấy **Điểm hài lòng (`satisfactionScore`)** cộng dồn vào **Tổng điểm (`totalScore`)** của người chơi trong Firestore `users/{uid}` để hiển thị lên Bảng Xếp Hạng.
+     - `getCommunityDishes()`: Tải toàn bộ món ăn và bữa ăn do người chơi làm ra, sắp xếp từ mới nhất.
+     - `getLeaderboardTop100()`: Tải danh sách những đầu bếp nấu ăn ngon nhất có điểm `totalScore > 0`, sắp xếp giảm dần theo điểm số (cao nhất đứng đầu), giới hạn **tối đa 100 đầu bếp (`slice(0, 100)`)**. Người đứng top cuối (Hạng 100) nếu bị một người chơi nhiều điểm hơn vượt qua sẽ tự động bị đẩy ra khỏi Bảng Xếp Hạng.
+     - `deleteCommunityDish(dishId)`, `deleteAllCommunityDishes()`, `resetLeaderboardScores()`: Các hàm dành cho Quản trị viên xóa 1 bài bất kỳ, xóa tất cả bài trên cộng đồng, và đặt lại Bảng Xếp Hạng về trống.
+  2. **Nút nổi bật `🌐 Đưa Lên Cộng Đồng` & Hộp thoại xác nhận tại Bàn Tiệc (`index.html` & `js/main-menu.js`)**:
+     - Ngay sau khi thực khách ăn xong và đưa ra đánh giá, nút nổi bật **`🌐 Đưa Lên Cộng Đồng`** (`#btn-share-to-community`) xuất hiện ở ngay dưới khung lời nhận xét & điểm hài lòng.
+     - Khi ấn vào, hiển thị hộp thoại xác nhận (`#modal-confirm-share-community`): *"Bạn có muốn đưa lên cộng đồng đầu bếp không?"*.
+     - Khi nhấn **Xác nhận**: Đưa món ăn / bữa ăn lên Cộng Đồng Đầu Bếp, cộng điểm hài lòng vào tổng điểm xếp hạng của người chơi, và **nút "Đưa lên cộng đồng" lập tức biến mất (reset)** cho đến khi người chơi bày ra bữa ăn mới và khách ăn xong đánh giá lại.
+  3. **Trang `🌐 Cộng Đồng Đầu Bếp` & Hộp thoại `🔍 Xem Chi Tiết` ngoài Menu Chính (`index.html` & `js/main-menu.js`)**:
+     - Tích hợp nút **`🌐 Cộng đồng đầu bếp`** (`#btn-menu-community`) trên Menu Chính.
+     - Mỗi bài đăng được chia **Heading `<h3>`** chuẩn trợ năng NVDA:
+       - Đầu tiên là **Heading tên món ăn** (hoặc `Bữa ăn với: tên món 1, ..., và tên món N`).
+       - Ở dưới hiện **Tên người chơi** (`Người chơi: [Tên hiển thị]`).
+       - Ở dưới nữa hiện **`Được sản xuất bởi: [Tên nhà bếp]`**.
+       - Kèm nút **`🔍 Xem chi tiết`** để mở hộp thoại `#modal-community-dish-detail`.
+     - Trong hộp thoại **Xem chi tiết**:
+       - Đầu tiên: Hiển thị **Danh sách những món ăn có trên cái dĩa** được người chơi đưa lên cộng đồng.
+       - Sau đó: Hiển thị **Đánh giá của khách hàng** và **Điểm hài lòng**.
+       - Ấn nút **Đóng (Close)** hoặc phím **Escape** thoát hộp thoại và trả focus chuẩn xác.
+  4. **Mục `🏆 Bảng Xếp Hạng` ngoài Menu Chính (`index.html` & `js/main-menu.js`)**:
+     - Tích hợp nút **`🏆 Bảng xếp hạng`** (`#btn-menu-leaderboard`) trên Menu Chính.
+     - Hiển thị Top những đầu bếp nấu ăn ngon nhất (tối đa 100 người, điểm cao nhất đứng đầu) theo đúng cấu trúc:
+       **`Hạng [Số hạng]: [Tên đầu bếp], đến từ: [Tên nhà bếp], có [Số điểm] điểm`**
+     - Khi bảng xếp hạng trống (hoặc vừa được Admin đặt lại), hiển thị rõ câu: **`"Chưa có ai trong bảng xếp hạng này."`**
+     - Có nút **`⬅️ Quay lại`** (và hỗ trợ Escape) để quay về Menu Chính.
+  5. **Tính năng Quản Lý Cộng Đồng & Đặt Lại Bảng Xếp Hạng trong Bảng Quản Trị (`#modal-admin-panel`)**:
+     - **`🌐 Quản lý cộng đồng`** (`#modal-admin-community`): Hiển thị toàn bộ những món ăn được đăng lên cộng đồng, có **ô tìm kiếm nhanh** (`#admin-search-community`), ở đầu có nút **`🗑️ Xóa tất cả`**, và ở từng món ăn có nút xóa riêng **`🗑️ Xóa [Tên món ăn]`**.
+     - **`🏆 Đặt lại bảng xếp hạng`** (`#btn-admin-reset-leaderboard`): Đưa toàn bộ điểm xếp hạng về 0 để làm trống Bảng Xếp Hạng.
+  6. **Kiểm thử tự động toàn diện**:
+     - Xây dựng và chạy bộ kiểm thử `tests/test_community_leaderboard.js` đạt kết quả tuyệt đối **10/10 BÀI TEST ĐẠT (100% PASS)**.
+
+---
+
+## 2. Thông Tin Phiên Làm Việc Trước (31/10/2026)
 - **Ngày thực hiện**: 31/10/2026 (Phiên Nâng Cấp Hệ Thống Bảng Quản Trị Máy Chủ & Thông Báo Trong Ngày - MOTD)
 - **Người phát triển**: Vũ Anh Lộc (LC Boy) & Antigravity (Google DeepMind)
 - **Mục tiêu hoàn thành**:
