@@ -1199,7 +1199,11 @@ export function initCommunityAndLeaderboardController() {
 
     if (modalDishDetail) {
       modalDishDetail.showModal();
-      if (btnCloseDishDetailBottom) btnCloseDishDetailBottom.focus();
+      if (btnCloseDishDetail) {
+        btnCloseDishDetail.focus();
+      } else if (btnCloseDishDetailBottom) {
+        btnCloseDishDetailBottom.focus();
+      }
       announceToScreenReader(
         `Chi tiết: ${post.headingTitle}. Gồm ${post.dishesOnPlate ? post.dishesOnPlate.length : 1} món trên dĩa. Đánh giá của ${post.customerName}: ${post.customerSpeech}. Điểm hài lòng: ${post.satisfactionScore} điểm.`
       );
@@ -1229,7 +1233,7 @@ export function initCommunityAndLeaderboardController() {
 
     if (!posts || posts.length === 0) {
       communityDishesListEl.innerHTML = `
-        <div class="p-8 text-center text-stone-500 font-semibold text-sm bg-emerald-50/40 rounded-3xl border-2 border-dashed border-emerald-200">
+        <div class="col-span-full p-10 text-center text-stone-600 font-semibold text-base bg-white/90 rounded-3xl border-2 border-dashed border-emerald-300 shadow-sm">
           Chưa có món ăn hoặc bữa ăn nào được đưa lên Cộng đồng Đầu bếp. Hãy vào nhà bếp nấu ăn và trở thành người đầu tiên chia sẻ tác phẩm nhé!
         </div>
       `;
@@ -1238,34 +1242,41 @@ export function initCommunityAndLeaderboardController() {
 
     posts.forEach((post) => {
       const card = document.createElement("article");
-      card.className = "p-4 sm:p-5 bg-gradient-to-r from-emerald-50/60 via-white to-amber-50/50 rounded-3xl border-2 border-emerald-200 hover:border-emerald-400 shadow-sm transition flex flex-col gap-2";
+      card.className = "p-5 sm:p-6 bg-white rounded-3xl border-2 border-emerald-200 hover:border-emerald-400 shadow-md hover:shadow-lg transition flex flex-col justify-between gap-3";
+
+      const topInfo = document.createElement("div");
+      topInfo.className = "flex flex-col gap-1.5";
 
       // 1. Đầu tiên là Heading tên món ăn (hoặc Bữa ăn với: tên món 1, tên món 2, ..., và tên món N)
       const headingEl = document.createElement("h3");
-      headingEl.className = "text-base sm:text-lg font-extrabold font-game text-stone-900 leading-snug";
+      headingEl.className = "text-lg sm:text-xl font-extrabold font-game text-stone-900 leading-snug";
       headingEl.textContent = post.headingTitle || "Món Ăn Sáng Tạo";
 
       // 2. Ở dưới hiện tên người chơi
       const playerEl = document.createElement("p");
-      playerEl.className = "text-xs sm:text-sm font-bold text-stone-700";
+      playerEl.className = "text-sm sm:text-base font-bold text-stone-700";
       playerEl.textContent = `Người chơi: ${post.chefDisplayName || post.chefUsername || "Bếp Trưởng"}`;
 
       // 3. Ở dưới nữa hiện: Được sản xuất bởi: tên nhà bếp
       const kitchenEl = document.createElement("p");
-      kitchenEl.className = "text-xs sm:text-sm font-bold text-orange-800";
+      kitchenEl.className = "text-sm sm:text-base font-bold text-orange-800";
       kitchenEl.textContent = `Được sản xuất bởi: ${post.kitchenName || "Nhà Bếp Sáng Tạo"}`;
+
+      topInfo.appendChild(headingEl);
+      topInfo.appendChild(playerEl);
+      topInfo.appendChild(kitchenEl);
 
       // 4. Và nút Xem chi tiết để xem món ăn đó
       const actionRow = document.createElement("div");
-      actionRow.className = "mt-1.5 pt-2 border-t border-emerald-100 flex items-center justify-between gap-2";
+      actionRow.className = "mt-2 pt-3 border-t border-emerald-100 flex items-center justify-between gap-3";
 
       const scoreBadge = document.createElement("span");
-      scoreBadge.className = "text-xs font-extrabold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full";
+      scoreBadge.className = "text-xs sm:text-sm font-extrabold text-emerald-800 bg-emerald-100 px-3.5 py-1.5 rounded-full border border-emerald-200";
       scoreBadge.textContent = `⭐ Điểm hài lòng: ${Number(post.satisfactionScore) || 0} điểm`;
 
       const viewBtn = document.createElement("button");
       viewBtn.type = "button";
-      viewBtn.className = "px-4 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-game font-bold text-xs sm:text-sm shadow transition cursor-pointer";
+      viewBtn.className = "px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-game font-bold text-xs sm:text-sm shadow transition cursor-pointer";
       viewBtn.textContent = "🔍 Xem chi tiết";
       viewBtn.setAttribute("aria-label", `Xem chi tiết ${post.headingTitle} của ${post.chefDisplayName || "Bếp Trưởng"}`);
 
@@ -1276,9 +1287,7 @@ export function initCommunityAndLeaderboardController() {
       actionRow.appendChild(scoreBadge);
       actionRow.appendChild(viewBtn);
 
-      card.appendChild(headingEl);
-      card.appendChild(playerEl);
-      card.appendChild(kitchenEl);
+      card.appendChild(topInfo);
       card.appendChild(actionRow);
 
       communityDishesListEl.appendChild(card);
@@ -1290,13 +1299,17 @@ export function initCommunityAndLeaderboardController() {
       modalCommunityHub.showModal();
       if (communitySearchInput) communitySearchInput.value = "";
       if (communityDishesListEl) {
-        communityDishesListEl.innerHTML = `<div class="p-6 text-center text-stone-500 font-semibold text-sm">Đang tải danh sách món ăn từ Cộng đồng Đầu bếp...</div>`;
+        communityDishesListEl.innerHTML = `<div class="col-span-full p-8 text-center text-stone-500 font-semibold text-base">Đang tải danh sách món ăn từ Cộng đồng Đầu bếp...</div>`;
       }
 
       try {
         cachedCommunityPosts = await getCommunityDishes();
         renderCommunityHubList(cachedCommunityPosts);
-        if (communitySearchInput) communitySearchInput.focus();
+        if (btnBackFromCommunity) {
+          btnBackFromCommunity.focus();
+        } else if (communitySearchInput) {
+          communitySearchInput.focus();
+        }
         announceToScreenReader(`Cộng đồng Đầu bếp: Hiện có ${cachedCommunityPosts.length} món ăn và bữa ăn. Dùng phím H hoặc số 3 để duyệt nhanh qua từng món ăn.`);
       } catch (e) {
         console.error("Lỗi tải Cộng đồng đầu bếp:", e);
@@ -1328,6 +1341,11 @@ export function initCommunityAndLeaderboardController() {
   };
   if (btnCloseCommunityHub) btnCloseCommunityHub.addEventListener("click", closeCommunityHub);
   if (btnBackFromCommunity) btnBackFromCommunity.addEventListener("click", closeCommunityHub);
+  if (modalCommunityHub) {
+    modalCommunityHub.addEventListener("close", () => {
+      if (btnMenuCommunity) btnMenuCommunity.focus();
+    });
+  }
 
   // --- C. Bảng Xếp Hạng Top 100 Đầu Bếp ngoài Menu Chính ---
   const btnMenuLeaderboard = document.getElementById("btn-menu-leaderboard");
@@ -1342,7 +1360,7 @@ export function initCommunityAndLeaderboardController() {
 
     if (!topList || topList.length === 0) {
       leaderboardListEl.innerHTML = `
-        <div class="p-8 text-center text-stone-600 font-bold text-base bg-amber-50/60 rounded-3xl border-2 border-dashed border-amber-300">
+        <div class="p-10 text-center text-stone-600 font-bold text-base sm:text-lg bg-white/90 rounded-3xl border-2 border-dashed border-amber-300 shadow-sm">
           Chưa có ai trong bảng xếp hạng này.
         </div>
       `;
@@ -1353,34 +1371,34 @@ export function initCommunityAndLeaderboardController() {
       const row = document.createElement("div");
       row.setAttribute("role", "listitem");
 
-      let bgStyle = "bg-stone-50 border-stone-200 text-stone-800";
+      let bgStyle = "bg-white border-stone-200 text-stone-800 shadow-xs";
       let medalIcon = "🎖️";
       if (entry.rank === 1) {
-        bgStyle = "bg-gradient-to-r from-amber-100 to-yellow-100 border-amber-400 text-amber-950 shadow-sm";
+        bgStyle = "bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 border-amber-400 text-amber-950 shadow-md";
         medalIcon = "🥇";
       } else if (entry.rank === 2) {
-        bgStyle = "bg-gradient-to-r from-slate-100 to-stone-100 border-slate-300 text-slate-900";
+        bgStyle = "bg-gradient-to-r from-slate-100 via-white to-stone-100 border-slate-300 text-slate-900 shadow-sm";
         medalIcon = "🥈";
       } else if (entry.rank === 3) {
-        bgStyle = "bg-gradient-to-r from-orange-100/80 to-amber-50 border-orange-300 text-orange-950";
+        bgStyle = "bg-gradient-to-r from-orange-100/80 via-amber-50 to-orange-50 border-orange-300 text-orange-950 shadow-sm";
         medalIcon = "🥉";
       }
 
-      row.className = `p-3.5 sm:p-4 rounded-2xl border-2 ${bgStyle} flex items-center justify-between gap-3 transition`;
+      row.className = `p-4 sm:p-5 rounded-3xl border-2 ${bgStyle} flex items-center justify-between gap-4 transition`;
 
       const headingLine = document.createElement("h3");
-      headingLine.className = "font-extrabold font-game text-sm sm:text-base leading-snug";
+      headingLine.className = "font-extrabold font-game text-base sm:text-lg leading-snug";
       // Định dạng chuẩn 100% theo yêu cầu:
       // Số hạng: tên đầu bếp, đến từ: tên nhà bếp, có số điểm
       headingLine.textContent = `Hạng ${entry.rank}: ${entry.displayName}, đến từ: ${entry.kitchenName}, có ${entry.totalScore} điểm`;
 
       const iconSpan = document.createElement("span");
-      iconSpan.className = "text-xl shrink-0";
+      iconSpan.className = "text-2xl sm:text-3xl shrink-0";
       iconSpan.setAttribute("aria-hidden", "true");
       iconSpan.textContent = medalIcon;
 
       const leftWrap = document.createElement("div");
-      leftWrap.className = "flex items-center gap-2.5 min-w-0";
+      leftWrap.className = "flex items-center gap-3.5 min-w-0";
       leftWrap.appendChild(iconSpan);
       leftWrap.appendChild(headingLine);
 
@@ -1393,7 +1411,7 @@ export function initCommunityAndLeaderboardController() {
     btnMenuLeaderboard.addEventListener("click", async () => {
       modalLeaderboard.showModal();
       if (leaderboardListEl) {
-        leaderboardListEl.innerHTML = `<div class="p-6 text-center text-stone-500 font-semibold text-sm">Đang tải Bảng xếp hạng Top 100 Đầu bếp...</div>`;
+        leaderboardListEl.innerHTML = `<div class="p-8 text-center text-stone-500 font-semibold text-base">Đang tải Bảng xếp hạng Top 100 Đầu bếp...</div>`;
       }
 
       try {
@@ -1420,6 +1438,11 @@ export function initCommunityAndLeaderboardController() {
   };
   if (btnCloseLeaderboard) btnCloseLeaderboard.addEventListener("click", closeLeaderboard);
   if (btnBackFromLeaderboard) btnBackFromLeaderboard.addEventListener("click", closeLeaderboard);
+  if (modalLeaderboard) {
+    modalLeaderboard.addEventListener("close", () => {
+      if (btnMenuLeaderboard) btnMenuLeaderboard.focus();
+    });
+  }
 }
 
 /**

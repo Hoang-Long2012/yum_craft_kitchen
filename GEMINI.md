@@ -12,6 +12,27 @@
 # NHẬT KÝ DỰ ÁN — YUMCRAFT KITCHEN
 
 ## 1. Thông Tin Phiên Làm Việc Mới Nhất
+- **Ngày thực hiện**: 01/11/2026 (Phiên Thiết Kế Lại Hộp Thoại Full Màn Hình, Mở Rộng Bảng Quản Trị & Chuẩn Hóa Nút Quay Lại Góc Trên Bên Trái)
+- **Người phát triển**: Vũ Anh Lộc (LC Boy) & Antigravity (Google DeepMind)
+- **Mục tiêu hoàn thành**:
+  1. **Thiết kế Full Màn Hình 100% (`100vw x 100dvh`) cho `🌐 Cộng Đồng Đầu Bếp` (`#modal-community-hub`) và `🏆 Bảng Xếp Hạng` (`#modal-leaderboard`)**:
+     - Xây dựng class `.dialog-fullscreen` ghi đè triệt để giới hạn `max-width`/`max-height` mặc định của trình duyệt trên thẻ `<dialog>`, giúp hai hộp thoại bung toàn màn hình 100% từ cạnh tới cạnh.
+     - Vùng danh sách bài đăng cộng đồng (`#community-dishes-list`) hiển thị dạng lưới 2 cột rộng rãi trên màn hình lớn (`grid-cols-1 lg:grid-cols-2`), tận dụng tối đa diện tích hiển thị mà vẫn giữ nguyên cấu trúc thẻ `<article>` và Heading `<h3>` chuẩn trợ năng NVDA.
+     - Vùng danh sách Top 100 đầu bếp (`#leaderboard-list`) co giãn toàn bộ chiều cao còn lại (`flex-1 overflow-y-auto`), các thẻ xếp hạng được làm lớn, rõ ràng và giữ nguyên 100% định dạng câu đọc chuẩn NVDA trong `<h3>`.
+  2. **Chuyển nút `⬅️ Quay lại` lên trên đầu, góc trên bên trái (Top-Left Header)**:
+     - Loại bỏ thanh Footer chứa nút Quay lại ở dưới đáy của **Cộng Đồng Đầu Bếp** và **Bảng Xếp Hạng**.
+     - Đưa nút **`⬅️ Quay lại Menu Chính`** (`#btn-back-from-community` và `#btn-back-from-leaderboard`) lên **đầu tiên ở góc trên bên trái** trong thanh Header cố định (`<header>`), nằm trước tiêu đề `<h2>` và danh sách nội dung.
+     - Khi mở hộp thoại, focus được đặt ngay tại nút Quay lại ở đầu trang, giúp người dùng NVDA không còn bị nhảy xuống đáy hộp thoại mà có thể bấm mũi tên xuống hoặc phím `H`/`3` để duyệt xuôi từ đầu trang xuống danh sách món ăn / bảng xếp hạng một cách tự nhiên.
+  3. **Mở rộng kích thước lớn (`.dialog-xl` & `.dialog-lg`) và đồng bộ nút Quay lại Góc Trên Bên Trái cho hệ thống `🛡️ Bảng Quản Trị` & `🔍 Xem Chi Tiết`**:
+     - `#modal-admin-panel` (Bảng Quản Trị Máy Chủ): Mở rộng lên `.dialog-xl` (`96vw`, tối đa `1200px`), bố trí 5 chức năng quản trị theo lưới 2 cột (`md:grid-cols-2`) rộng thoáng, nút **`⬅️ Quay Lại Menu Chính`** nằm ở góc trên bên trái.
+     - `#modal-admin-users` (Danh sách tài khoản) & `#modal-admin-community` (Quản lý cộng đồng): Mở rộng lên `.dialog-xl` với chiều cao `90vh`, vùng danh sách cuộn tự động co giãn `flex-1`, nút **`⬅️ Quay lại Bảng Quản Trị`** đặt ở góc trên bên trái.
+     - `#modal-admin-user-action`, `#modal-admin-motd`, `#modal-motd-broadcast` và `#modal-community-dish-detail` (Xem chi tiết món ăn): Mở rộng lên `.dialog-lg` (`94vw`, tối đa `960px`), đưa nút Quay lại / Đóng lên góc trên bên trái.
+  4. **Kiểm thử tự động**:
+     - Xác minh toàn bộ 11 tiêu chí cấu trúc DOM, CSS Fullscreen, thứ tự nút Quay lại góc trên bên trái và cú pháp JavaScript đạt **100% PASS**.
+
+---
+
+## 2. Thông Tin Phiên Làm Việc Trước (01/11/2026 - Xây Dựng Cộng Đồng & Bảng Xếp Hạng)
 - **Ngày thực hiện**: 01/11/2026 (Phiên Xây Dựng Hệ Thống Cộng Đồng Đầu Bếp, Bảng Xếp Hạng Top 100 & Quản Trị Cộng Đồng / Xếp Hạng)
 - **Người phát triển**: Vũ Anh Lộc (LC Boy) & Antigravity (Google DeepMind)
 - **Mục tiêu hoàn thành**:
