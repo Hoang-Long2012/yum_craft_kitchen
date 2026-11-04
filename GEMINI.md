@@ -11,6 +11,49 @@
 
 # NHẬT KÝ DỰ ÁN — YUMCRAFT KITCHEN
 
+## 1. Thông Tin Phiên Làm Việc Mới Nhất (04/11/2026 - Bổ Sung 26 Nguyên Liệu: Rượu, Xi-rô, Sữa Chua, Pha Chế & Các Loại Bột)
+- **Ngày thực hiện**: 04/11/2026 (Phiên Mở Rộng Kho Nguyên Liệu Lên 113 Món: Các Loại Rượu, Xi-rô, Sữa Chua, Nguyên Liệu Pha Chế & Các Loại Bột Đa Dụng)
+- **Người phát triển**: Vũ Anh Lộc (LC Boy) & Antigravity (Google DeepMind)
+- **Mục tiêu hoàn thành**:
+  1. **Mở rộng kho nguyên liệu Tủ Lạnh từ 87 lên 113 nguyên liệu (+26 nguyên liệu mới) và thêm Ngăn Tủ Lạnh chuyên biệt**:
+     - Thêm danh mục mới `drinks_mixology`: **`🍷🍹 Rượu, Xi-rô & Pha Chế`** vào `FRIDGE_CATEGORIES` và nâng cấp tên danh mục `noodles_flour` thành **`🍜 Mì & Các Loại Bột`**.
+     - **7 Loại Rượu & Thức Uống Lên Men (`drinks_mixology`)**:
+       1. 🍷 **Rượu vang đỏ thượng hạng** (`red_wine`): Sắc đỏ ruby, vị chát dịu thanh lịch, hậu ngọt sâu và hương gỗ sồi ngào ngạt (`texture: 'drink'`).
+       2. 🥂 **Rượu vang trắng thanh lịch** (`white_wine`): Vị chua thanh mát dịu, hương trái cây tươi (`texture: 'drink'`, `isFreshBalancer: true`).
+       3. 🍶 **Rượu đế nếp cái hoa vàng** (`rice_wine_de`): Rượu gạo truyền thống Việt Nam nồng đượm, thơm nức hương nếp mới, vị cay nồng ấm áp (`texture: 'drink'`).
+       4. 🍶 **Rượu nếp cẩm lên men ngọt dịu** (`purple_rice_wine`): Sánh đặc sắc tím hồng, hạt nếp cẩm dẻo bùi quyện men rượu ngọt thanh chua dịu (`texture: 'soft'`).
+       5. 🏺 **Rượu nấu ăn Mirin ngọt đằm** (`cooking_wine_mirin`): Giàu vị Umami và hương thơm nồng ấm khi kho, rim, nướng (`texture: 'drink'`).
+       6. 🥃 **Rượu Rum hương mía** (`dark_rum`): Thơm nồng mật mía nướng và vani gỗ sồi ấm áp, dùng pha chế hoặc làm bánh (`texture: 'drink'`).
+       7. 🍺 **Bia tươi lúa mạch mát lạnh** (`craft_beer`): Sủi bọt vàng óng, thơm hương lúa mạch và hoa bia đắng dịu mát lành (`texture: 'drink'`, `isFreshBalancer: true`).
+     - **12 Nguyên Liệu Xi-rô, Sữa Chua & Pha Chế (`drinks_mixology`)**:
+       8. 🥣 **Sữa chua trắng lên men dẻo mịn** (`plain_yogurt`, `texture: 'soft'`, `isFreshBalancer: true`).
+       9. 🍶 **Sữa chua Hy Lạp đặc béo** (`greek_yogurt`, `texture: 'soft'`, `isFreshBalancer: true`).
+       10. 🍁 **Xi-rô Lá Phong (Maple Syrup)** (`maple_syrup`, `texture: 'drink'`).
+       11. 🍓 **Xi-rô Dâu Tây đỏ mọng** (`strawberry_syrup`, `texture: 'drink'`).
+       12. 🌿 **Xi-rô Bạc Hà the mát** (`mint_syrup`, `texture: 'drink'`, `isFreshBalancer: true`).
+       13. 🍯 **Xi-rô Caramel đường đen** (`caramel_syrup`, `texture: 'drink'`).
+       14. 🍊 **Xi-rô Cam Vàng thơm mát** (`orange_syrup`, `texture: 'drink'`, `isFreshBalancer: true`).
+       15. 🥥 **Nước cốt dừa sánh béo** (`coconut_milk`, `texture: 'drink'`).
+       16. 🫧 **Nước Soda có ga sủi bọt** (`club_soda`, `texture: 'drink'`, `isFreshBalancer: true`).
+       17. 🧋 **Trân châu đen dẻo dai** (`tapioca_pearls`, `texture: 'soft'`).
+       18. 🍵 **Bột Trà Xanh Matcha Nhật Bản** (`matcha_powder`, `texture: 'soft'`).
+       19. 🍨 **Kem Tươi Whipping Cream béo ngậy** (`whipping_cream`, `texture: 'soft'`).
+     - **7 Loại Bột Đa Dụng & Truyền Thống (`noodles_flour`)**:
+       20. ⚪ **Bột năng (Tinh bột sắn)** (`tapioca_starch`, `needsCooking: true`, `canBeWrapper: true`).
+       21. 🌽 **Bột bắp (Tinh bột ngô) mịn màng** (`corn_starch`, `needsCooking: true`).
+       22. 🌾 **Bột nếp cái dẻo thơm** (`glutinous_rice_flour`, `needsCooking: true`, `canBeWrapper: true`).
+       23. 🍞 **Bột chiên xù Panko giòn rụm** (`panko_breadcrumbs`, `needsCooking: true`, `texture: 'crispy'`).
+       24. 🥞 **Bột bánh xèo hương nghệ cốt dừa** (`banh_xeo_mix`, `needsCooking: true`, `canBeWrapper: true`).
+       25. 🌰 **Bột hạnh nhân bùi béo** (`almond_flour`, `needsCooking: true`).
+       26. 🍮 **Bột rau câu (Agar) giòn mát** (`agar_powder`, `needsCooking: true`, `isFreshBalancer: true`).
+  2. **Nâng cấp Động cơ Hóa học Vị giác Động (100% Zero Hardcoded Recipes)**:
+     - Bổ sung phản ứng vật lý **`🍷🔥 Hương Men Chuyển Hóa Qua Nhiệt (Cồn bay hơi làm dậy tầng hương thơm nồng đượm và chiều sâu vị giác)`** khi rượu/bia được nấu qua nhiệt.
+     - Bổ sung phản ứng vật lý **`🌾✨ Tinh Bột Hồ Hóa Qua Nhiệt (Tạo kết cấu sánh mịn dẻo quyện ôm trọn hương vị)`** khi bột năng, bột bắp, bột nếp hoặc bột rau câu được đun nấu.
+  3. **Kiểm thử tự động toàn diện**:
+     - Xây dựng và chạy bộ kiểm thử `tests/test_new_alcohol_syrup_flour.js` đạt kết quả tuyệt đối **42/42 BÀI TEST ĐẠT (100% PASS)**.
+
+---
+
 ## 1. Thông Tin Phiên Làm Việc Mới Nhất
 - **Ngày thực hiện**: 01/11/2026 (Phiên Thiết Kế Lại Hộp Thoại Full Màn Hình, Mở Rộng Bảng Quản Trị & Chuẩn Hóa Nút Quay Lại Góc Trên Bên Trái)
 - **Người phát triển**: Vũ Anh Lộc (LC Boy) & Antigravity (Google DeepMind)

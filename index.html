@@ -761,10 +761,10 @@
               <h2 class="text-base sm:text-lg font-extrabold text-slate-800 font-game leading-tight">
                 Tủ Lạnh &amp; Kho Nguyên Liệu
               </h2>
-              <p class="text-xs text-slate-500 font-medium">Đậu hạt, củ sen, các loại hành, mì, bột làm bánh, vỏ cuốn, đồ ngọt &amp; đạm</p>
+              <p class="text-xs text-slate-500 font-medium">Rượu vang, rượu đế, xi-rô, sữa chua pha chế, các loại bột năng, bột bắp, đậu hạt, mì &amp; đạm</p>
             </div>
           </div>
-          <span id="fridge-total-count-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700">85 món</span>
+          <span id="fridge-total-count-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700">113 món</span>
         </div>
 
         <!-- Target Destination Selector: CHỈ BỎ VÀO BẾP HOẶC KHAY TẠM (BỎ NÚT RA DĨA) -->
@@ -785,7 +785,7 @@
         <!-- Search Bar -->
         <div>
           <label for="fridge-search-input" class="sr-only">Tìm nhanh nguyên liệu trong tủ</label>
-          <input id="fridge-search-input" type="search" placeholder="🔍 Tìm nguyên liệu (vd: đậu xanh, củ sen, hành phi, mỡ hành, mì ý, xúc xích...)" class="w-full px-4 py-2.5 rounded-2xl border border-slate-300 text-xs sm:text-sm focus:border-orange-500 bg-white shadow-inner font-medium" />
+          <input id="fridge-search-input" type="search" placeholder="🔍 Tìm nguyên liệu (vd: rượu vang, rượu đế, xi-rô, sữa chua, bột năng, bột bắp...)" class="w-full px-4 py-2.5 rounded-2xl border border-slate-300 text-xs sm:text-sm focus:border-orange-500 bg-white shadow-inner font-medium" />
         </div>
 
         <!-- Ingredients Shelf Grid -->
@@ -2160,9 +2160,10 @@
 
     const FRIDGE_CATEGORIES = [
       { id: 'all', name: 'Tất cả' },
+      { id: 'drinks_mixology', name: '🍷🍹 Rượu, Xi-rô & Pha Chế' },
       { id: 'beans_seeds', name: '🫘 Đậu, Hạt & Củ Sen' },
       { id: 'veg', name: '🥬 Rau Củ & Các Loại Hành' },
-      { id: 'noodles_flour', name: '🍜 Mì & Bột Làm Bánh' },
+      { id: 'noodles_flour', name: '🍜 Mì & Các Loại Bột' },
       { id: 'wrappers', name: '🥖 Vỏ Bánh & Đồ Cuốn' },
       { id: 'sweets', name: '☕🍫 Cà Phê, Đường & Đồ Ngọt' },
       { id: 'meat', name: '🥩 Thịt, Xúc Xích & Pate' },
@@ -2896,6 +2897,88 @@
         needsCooking: true,
         flavorDesc: 'Áo lớp bột nhúng tôm, mực, xúc xích rồi chiên ngập dầu giòn tan béo ngậy',
         flavors: { umami: 1.4, salty: 0.8, sweet: 0.9, sour: 0.0, spicy: 0.0, fatty: 1.8, bitter: 0.0, aroma: 2.8, crunch: 4.5 }
+      },
+      {
+        id: 'tapioca_starch',
+        name: 'Bột năng (Tinh bột sắn)',
+        category: 'noodles_flour',
+        emoji: '⚪',
+        color: '#ffffff',
+        cookedColor: '#f8fafc',
+        needsCooking: true,
+        canBeWrapper: true,
+        flavorDesc: 'Trắng tinh mịn màng, khi nấu chín chuyển thành kết cấu trong suốt dẻo dai sần sật, làm vỏ bánh bột lọc, trân châu hoặc sánh súp',
+        flavors: { umami: 0.4, salty: 0.1, sweet: 1.4, sour: 0.0, spicy: 0.0, fatty: 0.1, bitter: 0.0, aroma: 1.8, crunch: 1.2 }
+      },
+      {
+        id: 'corn_starch',
+        name: 'Bột bắp (Tinh bột ngô) mịn màng',
+        category: 'noodles_flour',
+        emoji: '🌽',
+        color: '#fef9c3',
+        cookedColor: '#fde047',
+        needsCooking: true,
+        flavorDesc: 'Bột ngô vàng nhạt nhẹ tơi, tạo độ sánh mượt óng ả cho súp, nước sốt hoặc áo ngoài nguyên liệu để chiên giòn rụm',
+        flavors: { umami: 0.6, salty: 0.1, sweet: 1.9, sour: 0.0, spicy: 0.0, fatty: 0.3, bitter: 0.0, aroma: 2.2, crunch: 2.0 }
+      },
+      {
+        id: 'glutinous_rice_flour',
+        name: 'Bột nếp cái dẻo thơm',
+        category: 'noodles_flour',
+        emoji: '🌾',
+        color: '#fafaf9',
+        cookedColor: '#f5f5f4',
+        needsCooking: true,
+        canBeWrapper: true,
+        flavorDesc: 'Trắng ngần thơm hương lúa nếp mới, dẻo quánh mềm mại, dùng bọc nhân làm bánh trôi, bánh ít, bánh rán hoặc mochi',
+        flavors: { umami: 0.7, salty: 0.1, sweet: 2.2, sour: 0.0, spicy: 0.0, fatty: 0.4, bitter: 0.0, aroma: 3.0, crunch: 0.2 }
+      },
+      {
+        id: 'panko_breadcrumbs',
+        name: 'Bột chiên xù Panko giòn rụm',
+        category: 'noodles_flour',
+        emoji: '🍞',
+        color: '#fde68a',
+        cookedColor: '#d97706',
+        needsCooking: true,
+        texture: 'crispy',
+        flavorDesc: 'Từng vảy bột bánh mì sấy khô xốp nhẹ, khi chiên ngập dầu tạo lớp vỏ vàng ươm giòn rụm rôm rốp',
+        flavors: { umami: 1.2, salty: 0.7, sweet: 1.3, sour: 0.0, spicy: 0.0, fatty: 1.6, bitter: 0.0, aroma: 3.1, crunch: 4.8 }
+      },
+      {
+        id: 'banh_xeo_mix',
+        name: 'Bột bánh xèo hương nghệ cốt dừa',
+        category: 'noodles_flour',
+        emoji: '🥞',
+        color: '#facc15',
+        cookedColor: '#eab308',
+        needsCooking: true,
+        canBeWrapper: true,
+        flavorDesc: 'Pha quyện bột gạo, nghệ vàng óng và cốt dừa thơm béo, tráng chảo giòn rụm làm vỏ cuốn nhân tôm thịt',
+        flavors: { umami: 1.5, salty: 0.8, sweet: 1.8, sour: 0.0, spicy: 0.1, fatty: 2.4, bitter: 0.0, aroma: 3.8, crunch: 3.5 }
+      },
+      {
+        id: 'almond_flour',
+        name: 'Bột hạnh nhân bùi béo',
+        category: 'noodles_flour',
+        emoji: '🌰',
+        color: '#fef3c7',
+        cookedColor: '#d97706',
+        needsCooking: true,
+        flavorDesc: 'Xay mịn từ hạt hạnh nhân bùi ngậy thơm lừng, dùng nướng bánh ngọt cao cấp, bánh quy bơ hoặc rắc lên món tráng miệng',
+        flavors: { umami: 1.1, salty: 0.2, sweet: 2.1, sour: 0.0, spicy: 0.0, fatty: 3.5, bitter: 0.1, aroma: 3.9, crunch: 0.8 }
+      },
+      {
+        id: 'agar_powder',
+        name: 'Bột rau câu (Agar) giòn mát',
+        category: 'noodles_flour',
+        emoji: '🍮',
+        color: '#f1f5f9',
+        cookedColor: '#e2e8f0',
+        needsCooking: true,
+        isFreshBalancer: true,
+        flavorDesc: 'Chiết xuất từ tảo biển tự nhiên, đun sôi kết tinh thành thạch rau câu giòn sần sật thanh mát giải nhiệt',
+        flavors: { umami: 0.3, salty: 0.1, sweet: 1.0, sour: 0.0, spicy: 0.0, fatty: 0.0, bitter: 0.0, aroma: 1.5, crunch: 2.2 }
       }
     
       ,
@@ -3193,6 +3276,243 @@
         needsCooking: false,
         flavorDesc: 'Thân trắng dày mọng nước ngọt thanh đậm đà, xào thịt bò, nấu súp hầm kem béo kiểu Âu hoặc nướng bơ tỏi thơm nức mũi',
         flavors: { umami: 1.7, salty: 0.1, sweet: 2.4, sour: 0.0, spicy: 0.4, fatty: 0.1, bitter: 0.0, aroma: 3.2, crunch: 3.0 }
+      },
+
+      // 13. CÁC LOẠI RƯỢU, XI-RÔ, SỮA CHUA & NGUYÊN LIỆU PHA CHẾ (WINES, SPIRITS, SYRUPS, YOGURTS & MIXOLOGY - NEW!)
+      {
+        id: 'red_wine',
+        name: 'Rượu vang đỏ thượng hạng',
+        category: 'drinks_mixology',
+        emoji: '🍷',
+        color: '#7f1d1d',
+        cookedColor: '#450a0a',
+        needsCooking: false,
+        texture: 'drink',
+        flavorDesc: 'Sắc đỏ ruby quyến rũ, vị chát dịu thanh lịch, hậu ngọt sâu và hương gỗ sồi ngào ngạt, dùng hầm bò sốt vang, áp chảo bít tết hoặc pha cocktail',
+        flavors: { umami: 1.8, salty: 0.1, sweet: 2.0, sour: 1.6, spicy: 0.4, fatty: 0.0, bitter: 1.4, aroma: 4.8, crunch: 0.0 }
+      },
+      {
+        id: 'white_wine',
+        name: 'Rượu vang trắng thanh lịch',
+        category: 'drinks_mixology',
+        emoji: '🥂',
+        color: '#fef08a',
+        cookedColor: '#fde047',
+        needsCooking: false,
+        texture: 'drink',
+        isFreshBalancer: true,
+        flavorDesc: 'Sắc vàng óng ánh, vị chua thanh mát dịu và hương trái cây tươi, chuyên hấp hải sản khử tanh, làm sốt kem cá hồi hoặc pha chế',
+        flavors: { umami: 1.4, salty: 0.1, sweet: 1.8, sour: 2.2, spicy: 0.2, fatty: 0.0, bitter: 0.6, aroma: 4.5, crunch: 0.0 }
+      },
+      {
+        id: 'rice_wine_de',
+        name: 'Rượu đế nếp cái hoa vàng',
+        category: 'drinks_mixology',
+        emoji: '🍶',
+        color: '#f8fafc',
+        cookedColor: '#e2e8f0',
+        needsCooking: false,
+        texture: 'drink',
+        flavorDesc: 'Rượu gạo truyền thống Việt Nam trong vắt nồng đượm, thơm nức hương nếp mới, vị cay nồng ấm áp, khử mùi tanh hải sản hoặc nhâm nhi',
+        flavors: { umami: 1.2, salty: 0.0, sweet: 1.6, sour: 0.4, spicy: 2.4, fatty: 0.0, bitter: 0.8, aroma: 4.6, crunch: 0.0 }
+      },
+      {
+        id: 'purple_rice_wine',
+        name: 'Rượu nếp cẩm lên men ngọt dịu',
+        category: 'drinks_mixology',
+        emoji: '🍶',
+        color: '#581c87',
+        cookedColor: '#3b0764',
+        needsCooking: false,
+        texture: 'soft',
+        flavorDesc: 'Sánh đặc sắc tím hồng, hạt nếp cẩm dẻo bùi quyện men rượu ngọt thanh chua dịu, đánh cùng sữa chua đá hoặc ăn tráng miệng',
+        flavors: { umami: 1.1, salty: 0.1, sweet: 3.8, sour: 1.4, spicy: 0.5, fatty: 0.6, bitter: 0.3, aroma: 4.4, crunch: 0.4 }
+      },
+      {
+        id: 'cooking_wine_mirin',
+        name: 'Rượu nấu ăn Mirin ngọt đằm',
+        category: 'drinks_mixology',
+        emoji: '🏺',
+        color: '#f59e0b',
+        cookedColor: '#b45309',
+        needsCooking: false,
+        texture: 'drink',
+        flavorDesc: 'Rượu gia vị ngọt đằm giàu Umami và hương thơm nồng ấm, giúp thịt cá bóng bẩy và dậy hương quyến rũ khi kho, rim hoặc nướng',
+        flavors: { umami: 2.8, salty: 0.4, sweet: 3.2, sour: 0.3, spicy: 0.3, fatty: 0.1, bitter: 0.2, aroma: 4.3, crunch: 0.0 }
+      },
+      {
+        id: 'dark_rum',
+        name: 'Rượu Rum hương mía',
+        category: 'drinks_mixology',
+        emoji: '🥃',
+        color: '#92400e',
+        cookedColor: '#78350f',
+        needsCooking: false,
+        texture: 'drink',
+        flavorDesc: 'Thơm nồng hương mật mía nướng và vani gỗ sồi ấm áp, dùng lắc bình shaker pha Mojito, cocktail hoặc trộn cốt bột làm bánh nướng',
+        flavors: { umami: 0.6, salty: 0.0, sweet: 2.8, sour: 0.2, spicy: 1.4, fatty: 0.2, bitter: 0.9, aroma: 4.7, crunch: 0.0 }
+      },
+      {
+        id: 'craft_beer',
+        name: 'Bia tươi lúa mạch mát lạnh',
+        category: 'drinks_mixology',
+        emoji: '🍺',
+        color: '#facc15',
+        cookedColor: '#eab308',
+        needsCooking: false,
+        texture: 'drink',
+        isFreshBalancer: true,
+        flavorDesc: 'Sủi bọt vàng óng, thơm hương lúa mạch và hoa bia đắng dịu mát lành, dùng hấp tôm mực ngọt nước, pha bột chiên giòn hoặc giải khát',
+        flavors: { umami: 1.5, salty: 0.2, sweet: 1.2, sour: 0.5, spicy: 0.0, fatty: 0.0, bitter: 1.8, aroma: 4.0, crunch: 0.5 }
+      },
+      {
+        id: 'plain_yogurt',
+        name: 'Sữa chua trắng lên men dẻo mịn',
+        category: 'drinks_mixology',
+        emoji: '🥣',
+        color: '#ffffff',
+        cookedColor: '#f8fafc',
+        needsCooking: false,
+        texture: 'soft',
+        isFreshBalancer: true,
+        flavorDesc: 'Trắng ngần sánh mịn, vị chua thanh dịu quyện ngọt béo nhẹ nhàng, đánh đá sữa chua, dầm trái cây hoặc ướp thịt nướng mềm mọng',
+        flavors: { umami: 1.0, salty: 0.2, sweet: 2.6, sour: 2.4, spicy: 0.0, fatty: 2.0, bitter: 0.0, aroma: 2.8, crunch: 0.0 }
+      },
+      {
+        id: 'greek_yogurt',
+        name: 'Sữa chua Hy Lạp đặc béo',
+        category: 'drinks_mixology',
+        emoji: '🍶',
+        color: '#fafaf9',
+        cookedColor: '#f5f5f4',
+        needsCooking: false,
+        texture: 'soft',
+        isFreshBalancer: true,
+        flavorDesc: 'Đặc quánh sánh mịn giàu đạm, béo ngậy thanh tao ít chua, chuyên phết bánh mì, trộn mật ong hạt khô hoặc làm cốt bánh phô mai',
+        flavors: { umami: 1.5, salty: 0.3, sweet: 1.8, sour: 1.6, spicy: 0.0, fatty: 3.4, bitter: 0.0, aroma: 2.6, crunch: 0.0 }
+      },
+      {
+        id: 'maple_syrup',
+        name: 'Xi-rô Lá Phong (Maple Syrup)',
+        category: 'drinks_mixology',
+        emoji: '🍁',
+        color: '#d97706',
+        cookedColor: '#92400e',
+        needsCooking: false,
+        texture: 'drink',
+        flavorDesc: 'Sánh vàng hổ phách óng ả, thơm nồng hương gỗ phong đặc trưng và vị ngọt thanh tao, rưới bánh nướng, pha cà phê hoặc phết thịt nướng',
+        flavors: { umami: 0.5, salty: 0.1, sweet: 4.9, sour: 0.0, spicy: 0.0, fatty: 0.3, bitter: 0.0, aroma: 4.3, crunch: 0.0 }
+      },
+      {
+        id: 'strawberry_syrup',
+        name: 'Xi-rô Dâu Tây đỏ mọng',
+        category: 'drinks_mixology',
+        emoji: '🍓',
+        color: '#e11d48',
+        cookedColor: '#9f1239',
+        needsCooking: false,
+        texture: 'drink',
+        flavorDesc: 'Đỏ hồng óng ả sánh mịn, vị chua ngọt thơm lừng hương dâu chín mọng, pha soda, trà trái cây, sữa tươi dâu hoặc rưới đá bào',
+        flavors: { umami: 0.2, salty: 0.0, sweet: 4.6, sour: 1.8, spicy: 0.0, fatty: 0.0, bitter: 0.0, aroma: 4.2, crunch: 0.0 }
+      },
+      {
+        id: 'mint_syrup',
+        name: 'Xi-rô Bạc Hà the mát',
+        category: 'drinks_mixology',
+        emoji: '🌿',
+        color: '#10b981',
+        cookedColor: '#059669',
+        needsCooking: false,
+        texture: 'drink',
+        isFreshBalancer: true,
+        flavorDesc: 'Sắc xanh ngọc bích mát mắt, hương bạc hà the mát sảng khoái bừng tỉnh vị giác, chuyên lắc bình shaker pha cocktail, soda hoặc đá xay',
+        flavors: { umami: 0.1, salty: 0.0, sweet: 4.0, sour: 0.3, spicy: 0.6, fatty: 0.0, bitter: 0.0, aroma: 4.7, crunch: 0.0 }
+      },
+      {
+        id: 'caramel_syrup',
+        name: 'Xi-rô Caramel đường đen',
+        category: 'drinks_mixology',
+        emoji: '🍯',
+        color: '#78350f',
+        cookedColor: '#451a03',
+        needsCooking: false,
+        texture: 'drink',
+        flavorDesc: 'Sánh đặc màu hổ phách sẫm, thơm nức mùi đường thắng caramel quyện bơ béo dịu, pha sữa tươi trân châu, cà phê đá xay hoặc rưới bánh',
+        flavors: { umami: 0.4, salty: 0.3, sweet: 5.2, sour: 0.0, spicy: 0.0, fatty: 1.2, bitter: 0.3, aroma: 4.5, crunch: 0.0 }
+      },
+      {
+        id: 'orange_syrup',
+        name: 'Xi-rô Cam Vàng thơm mát',
+        category: 'drinks_mixology',
+        emoji: '🍊',
+        color: '#f97316',
+        cookedColor: '#ea580c',
+        needsCooking: false,
+        texture: 'drink',
+        isFreshBalancer: true,
+        flavorDesc: 'Thơm nồng tinh dầu vỏ cam tươi và vị chua ngọt thanh mát, dùng pha chế cocktail, trà cam sả hoặc làm sốt vịt áp chảo',
+        flavors: { umami: 0.3, salty: 0.0, sweet: 4.3, sour: 2.1, spicy: 0.0, fatty: 0.0, bitter: 0.2, aroma: 4.4, crunch: 0.0 }
+      },
+      {
+        id: 'coconut_milk',
+        name: 'Nước cốt dừa sánh béo',
+        category: 'drinks_mixology',
+        emoji: '🥥',
+        color: '#ffffff',
+        cookedColor: '#fef3c7',
+        needsCooking: false,
+        texture: 'drink',
+        flavorDesc: 'Trắng ngần sánh đặc béo ngậy thơm nức hương dừa tươi Bến Tre, nấu chè đậu, pha cà phê cốt dừa, kho thịt hoặc nấu cà ri',
+        flavors: { umami: 1.4, salty: 0.3, sweet: 2.8, sour: 0.0, spicy: 0.0, fatty: 4.4, bitter: 0.0, aroma: 4.2, crunch: 0.0 }
+      },
+      {
+        id: 'club_soda',
+        name: 'Nước Soda có ga sủi bọt',
+        category: 'drinks_mixology',
+        emoji: '🫧',
+        color: '#e0f2fe',
+        cookedColor: '#bae6fd',
+        needsCooking: false,
+        texture: 'drink',
+        isFreshBalancer: true,
+        flavorDesc: 'Nước khoáng có ga sủi tăm lăn tăn tê đầu lưỡi, mang lại cảm giác giòn tan sảng khoái khi pha cùng xi-rô, chanh tươi hoặc rượu',
+        flavors: { umami: 0.0, salty: 0.2, sweet: 0.2, sour: 0.5, spicy: 0.0, fatty: 0.0, bitter: 0.1, aroma: 1.5, crunch: 2.5 }
+      },
+      {
+        id: 'tapioca_pearls',
+        name: 'Trân châu đen dẻo dai',
+        category: 'drinks_mixology',
+        emoji: '🧋',
+        color: '#1c1917',
+        cookedColor: '#09090b',
+        needsCooking: false,
+        texture: 'soft',
+        flavorDesc: 'Từng viên trân châu nấu từ bột năng dẻo dai sần sật, ngào đường nâu thơm phức, thả vào trà sữa, sữa chua hoặc chè mát lạnh',
+        flavors: { umami: 0.4, salty: 0.1, sweet: 3.6, sour: 0.0, spicy: 0.0, fatty: 0.2, bitter: 0.0, aroma: 3.2, crunch: 1.5 }
+      },
+      {
+        id: 'matcha_powder',
+        name: 'Bột Trà Xanh Matcha Nhật Bản',
+        category: 'drinks_mixology',
+        emoji: '🍵',
+        color: '#16a34a',
+        cookedColor: '#15803d',
+        needsCooking: false,
+        texture: 'soft',
+        flavorDesc: 'Bột trà xanh ngọc bích mịn màng, thơm ngát hương trà non thanh khiết, vị đắng thanh tao và hậu ngọt sâu, khuấy Matcha Latte hoặc làm bánh',
+        flavors: { umami: 1.6, salty: 0.0, sweet: 0.8, sour: 0.1, spicy: 0.0, fatty: 0.2, bitter: 2.6, aroma: 4.7, crunch: 0.0 }
+      },
+      {
+        id: 'whipping_cream',
+        name: 'Kem Tươi Whipping Cream béo ngậy',
+        category: 'drinks_mixology',
+        emoji: '🍨',
+        color: '#fffbeb',
+        cookedColor: '#fef3c7',
+        needsCooking: false,
+        texture: 'soft',
+        flavorDesc: 'Kem sữa tươi đánh bông mềm mượt béo ngậy tan ngay đầu lưỡi, phủ lên đồ uống đá xay, làm sốt kem mì Ý hoặc nướng bánh ngọt',
+        flavors: { umami: 1.2, salty: 0.2, sweet: 3.0, sour: 0.0, spicy: 0.0, fatty: 4.8, bitter: 0.0, aroma: 3.6, crunch: 0.0 }
       }
     ];
 
@@ -3741,7 +4061,7 @@
     function determineDefaultTexture(ing) {
       if (ing.texture) return ing.texture;
       if (ing.id === 'milk' || ing.id === 'ice_cubes' || ing.id === 'pure_water' || ing.id === 'brewed_coffee' || ing.id === 'espresso') return 'drink';
-      const crispyIds = ['instant_ramen', 'roasted_peanuts', 'taco_shell', 'banh_mi_vn', 'croissant', 'oreo', 'cucumber', 'guava', 'june_plum', 'fried_shallots', 'lotus_root'];
+      const crispyIds = ['instant_ramen', 'roasted_peanuts', 'taco_shell', 'banh_mi_vn', 'croissant', 'oreo', 'cucumber', 'guava', 'june_plum', 'fried_shallots', 'lotus_root', 'panko_breadcrumbs'];
       if (crispyIds.includes(ing.id) || (ing.flavors && ing.flavors.crunch >= 2.5)) {
         return 'crispy';
       }
@@ -3906,6 +4226,10 @@
       let hasBeansOrLotus = false;
       let hasCaramelizedOnion = false;
       let hasStarchOrGrains = false;
+      let hasHeatedAlcohol = false;
+      let hasGelatinizedStarch = false;
+      const alcoholIds = ['red_wine', 'white_wine', 'rice_wine_de', 'purple_rice_wine', 'cooking_wine_mirin', 'dark_rum', 'craft_beer'];
+      const gelatinStarchIds = ['tapioca_starch', 'corn_starch', 'glutinous_rice_flour', 'agar_powder'];
       const allStructures = new Set();
 
       function walkItem(it, weight = 1.0) {
@@ -3934,6 +4258,16 @@
         }
         if (it.baseId === 'onion' && it.cookLevel >= 1) hasCaramelizedOnion = true;
         if (it.category === 'starch' || it.category === 'noodles_flour' || it.baseId === 'rice_paper' || it.baseId === 'sweet_corn') hasStarchOrGrains = true;
+        if (alcoholIds.includes(it.baseId) || alcoholIds.includes(it.id)) {
+          if (it.cookLevel >= 1 || ['fried', 'deep_fried', 'baked', 'grilled', 'boiled', 'brewed'].includes(it.cookMethod) || (it.actionHistory && it.actionHistory.some(a => ['fried', 'deep_fried', 'baked', 'grilled', 'boiled', 'brewed'].includes(a)))) {
+            hasHeatedAlcohol = true;
+          }
+        }
+        if (gelatinStarchIds.includes(it.baseId) || gelatinStarchIds.includes(it.id)) {
+          if (it.cookLevel >= 1 || ['boiled', 'fried', 'baked', 'deep_fried', 'grilled'].includes(it.cookMethod)) {
+            hasGelatinizedStarch = true;
+          }
+        }
 
         Object.keys(totals).forEach(k => {
           totals[k] += (it.flavors[k] || 0) * weight;
@@ -3961,6 +4295,16 @@
             }
             if (sub.baseId === 'onion' && (sub.cookLevel >= 1 || it.cookLevel >= 1)) hasCaramelizedOnion = true;
             if (sub.category === 'starch' || sub.category === 'noodles_flour' || sub.baseId === 'rice_paper' || sub.baseId === 'sweet_corn') hasStarchOrGrains = true;
+            if (alcoholIds.includes(sub.baseId) || alcoholIds.includes(sub.id)) {
+              if (sub.cookLevel >= 1 || it.cookLevel >= 1 || ['fried', 'deep_fried', 'baked', 'grilled', 'boiled', 'brewed'].includes(it.cookMethod)) {
+                hasHeatedAlcohol = true;
+              }
+            }
+            if (gelatinStarchIds.includes(sub.baseId) || gelatinStarchIds.includes(sub.id)) {
+              if (sub.cookLevel >= 1 || it.cookLevel >= 1) {
+                hasGelatinizedStarch = true;
+              }
+            }
             if (sub.spicesApplied) {
               sub.spicesApplied.forEach(sp => {
                 if (sp.id === 'cheese_powder') hasCheese = true;
@@ -4056,6 +4400,18 @@
         blended.sweet += 0.4;
         blended.aroma += 1.0;
         synergies.push('🔥🧅 Vị Ngọt Thực Vật Chuyển Hóa Qua Nhiệt (Vị hăng cay chuyển hóa thành ngọt thanh đượm đà)');
+      }
+      // 12. Hương men rượu/bia chuyển hóa qua nhiệt (Flambé / De-glaze Physics - Zero Recipe Assumption)
+      if (hasHeatedAlcohol) {
+        blended.aroma += 1.5;
+        blended.umami += 0.6;
+        synergies.push('🍷🔥 Hương Men Chuyển Hóa Qua Nhiệt (Cồn bay hơi làm dậy tầng hương thơm nồng đượm và chiều sâu vị giác)');
+      }
+      // 13. Tinh bột hồ hóa qua nhiệt (Starch Gelatinization Physics - Zero Recipe Assumption)
+      if (hasGelatinizedStarch) {
+        blended.aroma += 0.8;
+        blended.umami += 0.5;
+        synergies.push('🌾✨ Tinh Bột Hồ Hóa Qua Nhiệt (Tạo kết cấu sánh mịn dẻo quyện ôm trọn hương vị)');
       }
 
       if (hasRawMeat) {
@@ -4660,7 +5016,12 @@
         if (hasIce) beverageEmoji = '🧋';
         else if (actionId === 'brew_infuse') beverageEmoji = '☕';
         else if (state.stationItems.some(i => i.baseId === 'milk' || i.baseId === 'condensed_milk')) beverageEmoji = '🥛';
-        else if (state.stationItems.some(i => i.baseId === 'green_tea_leaves')) beverageEmoji = '🍵';
+        else if (state.stationItems.some(i => i.baseId === 'green_tea_leaves' || i.baseId === 'matcha_powder')) beverageEmoji = '🍵';
+        else if (state.stationItems.some(i => i.baseId === 'red_wine')) beverageEmoji = '🍷';
+        else if (state.stationItems.some(i => i.baseId === 'white_wine')) beverageEmoji = '🥂';
+        else if (state.stationItems.some(i => i.baseId === 'craft_beer')) beverageEmoji = '🍺';
+        else if (state.stationItems.some(i => i.baseId === 'dark_rum')) beverageEmoji = '🥃';
+        else if (state.stationItems.some(i => i.baseId === 'rice_wine_de' || i.baseId === 'purple_rice_wine')) beverageEmoji = '🍶';
 
         const currentBatchId = state.nextBatchId++;
         const beverageItem = {
