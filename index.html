@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
@@ -677,8 +677,12 @@
     <!-- Top Kitchen Game Bar -->
     <header class="bg-gradient-to-r from-amber-700 via-orange-600 to-emerald-700 text-white shadow-lg px-3 py-2 sticky top-0 z-40">
       <div class="max-w-[1500px] mx-auto flex flex-wrap items-center justify-between gap-2">
-        <!-- Left: Back to Start Screen (Reset kitchen) -->
+        <!-- Left: Back to Main Menu & Back to Start Screen (Reset kitchen) -->
         <div class="flex items-center gap-2">
+          <button id="btn-kitchen-back-to-mainmenu" type="button" class="game-btn btn-3d-slate px-3 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-1.5 transition text-stone-900 border border-stone-300" title="Quay lại Menu Chính (Bếp sẽ được dọn sạch)" aria-label="Quay lại Menu Chính">
+            <span aria-hidden="true">🏠</span>
+            <span class="hidden sm:inline">Menu Chính</span>
+          </button>
           <button id="btn-back-to-select" type="button" class="game-btn btn-3d-slate px-3 py-1.5 rounded-xl text-xs sm:text-sm font-extrabold flex items-center gap-1.5 transition text-stone-900 border border-stone-300" title="Quay lại màn hình chính chọn thực khách khác (Bếp sẽ được dọn sạch)">
             <span aria-hidden="true">⬅️</span>
             <span>Đổi Thực Khách (Quay lại)</span>
@@ -1188,6 +1192,29 @@
         </button>
         <button id="btn-do-reset-and-back" type="button" class="game-btn btn-3d-orange px-5 py-2 rounded-xl text-xs font-extrabold text-white">
           Đồng Ý Quay Lại &amp; Dọn Bếp
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: XAC NHAN QUAY LAI MENU CHINH TU NHA BEP                           -->
+  <!-- ========================================================================= -->
+  <dialog id="modal-confirm-back-to-menu" class="backdrop:bg-black/60 backdrop:backdrop-blur-sm bg-transparent p-4 z-50 max-w-md w-full m-auto" role="dialog" aria-modal="true" aria-labelledby="confirm-back-to-menu-title">
+    <div class="bg-white rounded-3xl p-5 shadow-2xl border-4 border-amber-400 flex flex-col gap-3.5 text-stone-800 text-center">
+      <div class="text-4xl" aria-hidden="true">🏠</div>
+      <h2 id="confirm-back-to-menu-title" class="text-lg font-extrabold text-stone-900 font-game">
+        Quay Lại Menu Chính?
+      </h2>
+      <p class="text-xs sm:text-sm text-stone-600 leading-relaxed">
+        Khi bạn quay lại Menu Chính, toàn bộ nguyên liệu và món ăn đang làm trong bếp sẽ được <strong>dọn dẹp sạch sẽ</strong>. Bạn có chắc chắn muốn rời nhà bếp không?
+      </p>
+      <div class="flex items-center justify-center gap-2.5 pt-2">
+        <button id="btn-cancel-back-to-menu" type="button" class="game-btn btn-3d-slate px-4 py-2 rounded-xl text-xs font-bold text-stone-700">
+          Ở Lại Nấu Tiếp
+        </button>
+        <button id="btn-do-back-to-mainmenu" type="button" class="game-btn btn-3d-orange px-5 py-2 rounded-xl text-xs font-extrabold text-white">
+          🏠 Về Menu Chính &amp; Dọn Bếp
         </button>
       </div>
     </div>
@@ -7283,6 +7310,33 @@
         if (state.sfxEnabled) playSoundEffect('pick');
         announceNVDA(`Âm thanh: ${state.sfxEnabled ? 'Bật' : 'Tắt'}. Giọng đọc: ${state.ttsEnabled ? 'Bật' : 'Tắt'}.`, 'polite');
       }
+
+      // Back to Main Menu from Kitchen
+      const modalConfirmBackToMenu = document.getElementById('modal-confirm-back-to-menu');
+      document.getElementById('btn-kitchen-back-to-mainmenu').addEventListener('click', () => {
+        modalConfirmBackToMenu.showModal();
+        document.getElementById('btn-cancel-back-to-menu').focus();
+      });
+      document.getElementById('btn-cancel-back-to-menu').addEventListener('click', () => modalConfirmBackToMenu.close());
+      document.getElementById('btn-do-back-to-mainmenu').addEventListener('click', () => {
+        // Reset toàn bộ trạng thái bếp
+        state.stationItems = [];
+        state.stagingItems = [];
+        state.plateItems = [];
+        state.servedDishes = [];
+        state.customDishName = '';
+        state.selectedWrapperUid = null;
+        state.selectedVesselUid = null;
+        state.lastTastedMeal = null;
+        window.lastTastedMeal = null;
+        const shareContainer = document.getElementById('share-community-container');
+        if (shareContainer) shareContainer.classList.add('hidden');
+        modalConfirmBackToMenu.close();
+        if (typeof window.showScreen === 'function') {
+          window.showScreen('main-menu');
+        }
+        announceNVDA('Đã dọn dẹp sạch sẽ nhà bếp và quay lại Menu Chính.', 'polite');
+      });
 
       // Back to Character Select (Reset Kitchen) Modal
       const modalConfirmBack = document.getElementById('modal-confirm-back');
