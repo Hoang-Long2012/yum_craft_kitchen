@@ -14,9 +14,9 @@
 - [1. Triết Lý Thiết Kế Cốt Lõi (Sandbox Philosophy)](#-1-triết-lý-thiết-kế-cốt-lõi-sandbox-philosophy)
 - [2. Các Tính Năng Nổi Bật](#-2-các-tính-năng-nổi-bật)
   - [2.1. Bộ Máy Hóa Học Vị Giác Cảm Quan (Dynamic Sensory Chemistry)](#21-bộ-máy-hóa-học-vị-giác-cảm-quan-dynamic-sensory-chemistry)
-  - [2.2. Kho 85 Nguyên Liệu & 18 Gia Vị](#22-kho-85-nguyên-liệu--18-gia-vị)
-  - [2.3. Hệ Thống 9 Trạm Chế Biến Toàn Năng](#23-hệ-thống-9-trạm-chế-biến-toàn-năng)
-  - [2.4. 4 Thực Khách Cá Tính & Nhận Xét 4 Tầng Sống Động](#24-4-thực-khách-cá-tính--nhận-xét-4-tầng-sống-động)
+  - [2.2. Kho 200 Nguyên Liệu & 29 Gia Vị](#22-kho-200-nguyên-liệu--29-gia-vị)
+  - [2.3. Hệ Thống 17 Dụng Cụ Chế Biến](#23-hệ-thống-17-dụng-cụ-chế-biến)
+  - [2.4. 6 Thực Khách Cá Tính & Nhận Xét 4 Tầng Sống Động](#24-6-thực-khách-cá-tính--nhận-xét-4-tầng-sống-động)
   - [2.5. Bộ Tổng Hợp Âm Thanh Foley (Web Audio API Synthesizer)](#25-bộ-tổng-hợp-âm-thanh-foley-web-audio-api-synthesizer)
 - [3. Thiết Kế Trợ Năng Toàn Diện (Accessibility & NVDA First)](#-3-thiết-kế-trợ-năng-toàn-diện-accessibility--nvda-first)
 - [4. Bảng Phím Tắt Toàn Năng (Keyboard Shortcuts)](#-4-bảng-phím-tắt-toàn-năng-keyboard-shortcuts)
@@ -61,7 +61,7 @@ Mỗi nguyên liệu và gia vị trong YumCraft Kitchen đều chứa các ch�
 - 🔥🧅 **Vị Ngọt Thực Vật Chuyển Hóa Qua Nhiệt**: Nhiệt độ chuyển hóa vị hăng cay tự nhiên trong củ hành thành vị ngọt thanh đượm đà và hương thơm ấm áp.
 - ⚠️ **Hệ Thống Cảnh Báo Nguy Cơ**: Cảnh báo tức thì nếu món ăn còn **thịt sống tanh**, **cháy khét đen**, **mặn chát** hoặc **cay bốc khói**.
 
-### 2.2. Kho 85 Nguyên Liệu & 18 Gia Vị
+### 2.2. Kho 200 Nguyên Liệu & 29 Gia Vị
 Hệ thống nguyên liệu được phân loại trực quan trong Tủ Lạnh:
 - 🫘 **Đậu, Hạt & Củ Sen (10 món)**: Đậu xanh bở bùi, Đậu đen xanh lòng bùi đậm, Đậu trắng hạt to dẻo bùi, Đậu đỏ hạt ngọc bùi ngọt, Đậu nành giàu đạm, Hạt sen tươi thanh tao, Củ sen tươi giòn ngọt (`canBeVessel` nhồi nhân), Đậu phộng rang bùi thơm, Đậu que giòn ngọt mọng nước, Đậu Hà Lan ngọt mọng hạt.
 - 🥬 **Rau Củ & Các Loại Hành (22 món)**: Củ hành tây giòn mọng nước (`canBeVessel` nhồi nhân nướng), Hành tím củ thơm nồng, Hành lá tươi xanh (`canBeWrapper` buộc túm cuộn chả), Hành phi vàng giòn rụm thơm lừng (kết cấu giòn `crispy`), Mỡ hành béo ngậy óng ánh, Hẹ lá xanh ngọt thanh, Tỏi tây Bo-rô ngọt dày, Xà lách & rau thơm, Dưa leo giòn, Cà chua mọng, Ớt chuông, Nấm hương tươi, Nấm kim châm, Chuối chín, Dâu tây, Xoài xanh giòn chua, Xoài chín vàng, Cóc non, Ổi giòn, Bơ sáp dẻo béo, Bắp ngô ngọt, Đồ chua cà rốt củ cải.
@@ -74,18 +74,18 @@ Hệ thống nguyên liệu được phân loại trực quan trong Tủ Lạnh:
 - 🥩 **Thịt, Xúc Xích & Pate (7 món)**: Thịt bò thăn tươi, Thịt ba chỉ heo mỡ màng, Ức gà tươi phi lê, Thịt nạc băm tươi, Xúc xích hun khói, Pate gan heo béo bùi, Chả lụa Việt Nam.
 - 🦐 **Hải Sản & Trứng (4 món)**: Tôm sú tươi sống, Mực ống tươi giòn, Trứng gà tươi lòng đỏ vàng óng, Cá hồi Nauy tươi béo ngậy.
 - 🍚 **Cơm, Khoai & Phô Mai (8 món)**: Cơm trắng dẻo, Bún tươi sợi trắng, Khoai tây Đà Lạt, Khoai lang mật tươi, Khoai môn củ tươi, Đậu hũ non thanh mát, Phô mai Cheddar lát, Phô mai khối Mozzarella.
-- 🧂 **18 Loại Gia Vị Phong Phú**: Muối biển, Tiêu đen, Chanh tươi, Đường mía, Ớt hiểm cay, Nước mắm nhĩ, Nước tương đậu nành, Tương ớt cay ngọt, Mật ong rừng, Tỏi băm phi thơm, Gừng tươi sợi, Sả băm nồng, Sốt Mayonnaise, Bơ lạt Pháp, Ngũ vị hương, Dầu hào đậm đặc, Giấm gạo lên men, Phô mai bột.
+- 🧂 **29 Loại Gia Vị Phong Phú**: Muối biển, tiêu đen, chanh, đường mía, ớt hiểm, nước mắm, nước tương, tương ớt, mật ong, tỏi, gừng, sả, mayonnaise, bơ lạt, ngũ vị hương, dầu hào, giấm gạo, phô mai bột, sa tế tôm, dầu mè, ketchup, sốt bơ đậu phộng, muối tiêu chanh, quế, hoa hồi, nghệ, cà ri, mù tạt và xi-rô lá phong.
 
-### 2.3. Hệ Thống Bàn Chế Biến 3 Khu Vực & 9 Trạm Nấu Toàn Năng
+### 2.3. Hệ Thống 17 Dụng Cụ Chế Biến
 Tại **Tab 2 (Bàn Chế Biến)**, không gian bếp được tái cấu trúc thành **3 Khu Vực Ngữ Nghĩa Độc Lập** với các thẻ Heading H3 chuẩn trợ năng quốc tế WCAG AA/AAA:
-- **Khu 1 (`1. Chọn Dụng Cụ Nấu`)**: Toolbar gồm 9 nút chọn công cụ bếp trực quan.
+- **Khu 1 (`1. Chọn Dụng Cụ Nấu`)**: Toolbar gồm 17 nút chọn công cụ bếp trực quan, từ dao thớt và bàn cuốn đến nồi cơm điện, nồi chiên không dầu và lò vi sóng.
 - **Khu 2 (`2. Thao Tác Với [Tên Dụng Cụ]`)**: Tiêu đề tự động mang tên và emoji của công cụ đang chọn (ví dụ: *2. Thao Tác Với 🍳 Chảo Chiên Xào*, *2. Thao Tác Với 🌪️ Máy Xay Sinh Tố*...). Dưới heading này là các nút chế biến chính (áp chảo, đun sôi, bật lò, cuộn tròn, băm nhỏ...) và bộ chọn vỏ cuốn/nhồi.
 - **Khu 3 (`3. Nguyên Liệu Đang Có Trong Bếp`)**: Danh sách thực phẩm đang nấu trong dụng cụ, nhiệt độ, trạng thái chín và cặp nút thao tác nhanh *Cất ra Khay Tạm (T)* cùng *Dọn sạch bếp*.
 > **💡 Trợ năng NVDA**: Người chơi chỉ cần nhấn phím **`H`** hoặc phím số **`3`** để nhảy tức thì qua 3 khu vực; sau khi chọn công cụ ở Khu 1, ấn `H` một lần rồi ấn `Tab` là chạm ngay vào các nút chế biến!
 ```mermaid
 graph LR
-    Fridge["❄️ Tủ Lạnh (85 món)"] --> Prep["🔪 Thớt / 🌯 Bàn Cuốn / 🥖 Trạm Nhồi"]
-    Prep --> Heat["🍳 Chảo Xào / 🍲 Nồi Luộc / 🍟 Chiên Giòn / ♨️ Lò Nướng / 🔥 Nướng Than / 🌪️ Máy Xay"]
+    Fridge["❄️ Tủ Lạnh (200 nguyên liệu)"] --> Prep["🔪 Thớt / 🌯 Bàn Cuốn / 🥖 Trạm Nhồi"]
+    Prep --> Heat["🍳 Chảo / 🍲 Nồi / 🍟 Chiên / ♨️ Lò / 🌪️ Máy Xay / 🍚 Nồi Cơm / 📡 Vi Sóng"]
     Heat --> Staging["📦 Khay Tạm Chờ Sơ Chế"]
     Heat --> Finish["⭐ Hoàn Thành Món (Phím P)"]
     Staging --> Finish
@@ -101,13 +101,23 @@ graph LR
 7. ♨️ **Lò Nướng Đa Năng (`oven`)**: Nướng đối lưu vàng ruộm bánh mì, làm tan chảy phô mai và kẹo dẻo.
 8. 🔥 **Vỉ Nướng Than Hoa (`charcoal_grill`)**: Nướng thịt xiên, bò lá lốt trên than hồng dậy mùi khói BBQ thơm nức mũi.
 9. 🌪️ **Máy Xay Sinh Tố (`blender`)**: Xay nhuyễn trái cây, sữa, oreo thành sinh tố đá tuyết hoặc pha chế nước sốt sánh mịn.
+10. 🍹 **Trạm Pha Chế Đồ Uống (`beverage_station`)**: Khuấy, lắc shaker hoặc hãm trà và cà phê nóng.
+11. ♨️ **Xửng Hấp Cách Thủy (`steamer`)**: Hấp chín nhẹ nhàng bằng hơi nước.
+12. 🥘 **Chảo Wok Đáy Sâu (`wok`)**: Đảo nhanh nguyên liệu trên lửa lớn.
+13. 🍖 **Chảo Gang Vân Nướng (`grill_pan`)**: Áp nướng tạo mặt xém thơm.
+14. ♨️ **Nồi Áp Suất (`pressure_cooker`)**: Ninh mềm nguyên liệu trong hơi nóng áp suất.
+15. 🍚 **Nồi Cơm Điện (`rice_cooker`)**: Nấu chín dẻo bằng hơi nước kín.
+16. 🍟 **Nồi Chiên Không Dầu (`air_fryer`)**: Làm giòn bằng luồng khí nóng, tạo phương pháp `air_fried`.
+17. 📡 **Lò Vi Sóng (`microwave`)**: Làm nóng nhanh, tạo phương pháp `microwaved`.
 
-### 2.4. 4 Thực Khách Cá Tính & Nhận Xét 4 Tầng Sống Động
+### 2.4. 6 Thực Khách Cá Tính & Nhận Xét 4 Tầng Sống Động
 Mỗi thực khách có khẩu vị, sở thích và giới hạn chịu cay riêng biệt:
 - 🐻‍❄️ **Bếp Trưởng Gấu Bự**: Đam mê vị đậm đà, thịt bò, bánh mì nhồi đẫm nhân, món nướng than hoa và đồ ngọt đậm vị ca-cao/sữa.
 - 🐱 **Cô Bé Mèo Miu**: Tín đồ gỏi cuốn, kimbap rong biển, hải sản, sinh tố mát lạnh và vị chua ngọt thanh dịu (chịu cay thấp).
 - 🐲 **Anh Chàng Rồng Lửa**: Vua ăn cay và chiên nướng than hồng, mê ớt hiểm, tiêu đen và món chiên giòn rụm (chịu cay tối đa 10/10).
 - 🦉 **Giáo Sư Cú Thông Thái**: Nhà phê bình ẩm thực khắt khe sự cân bằng âm dương ngũ hành, chuộng vị thanh tao và độ hòa quyện tinh tế.
+- 🦊 **Chàng Cáo Sành Điệu**: Ưa hải sản, món hấp thanh ngọt và hương vị biển dịu nhẹ.
+- 🐰 **Thỏ Trắng Vườn Rau**: Mê rau củ, nấm, trái cây và các món cuốn thanh mát.
 
 **Bộ máy đánh giá cảm quan 4 tầng (`generateSensoryTastingReview`)**:
 1. *Cấu trúc & Kỹ thuật chế biến*: Phân tích tỉ mỉ lớp vỏ ngoài (áp chảo, nướng than, chiên giòn...) và lớp nhân cuộn/nhồi bên trong.

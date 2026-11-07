@@ -612,7 +612,7 @@
 
     <!-- Skip navigation for Screen 1 -->
     <nav aria-label="Nhảy nhanh cho màn hình chọn thực khách">
-      <a href="#char-cards-list" class="skip-link">Nhảy tới Danh sách 4 Thực Khách (Alt+1)</a>
+      <a href="#char-cards-list" class="skip-link">Nhảy tới Danh sách 6 Thực Khách (Alt+1)</a>
       <a href="#btn-start-kitchen" class="skip-link">Nhảy tới Nút Bắt Đầu Vào Bếp (Enter)</a>
     </nav>
 
@@ -768,7 +768,7 @@
               <p class="text-xs text-slate-500 font-medium">Rượu vang, rượu đế, xi-rô, sữa chua pha chế, các loại bột năng, bột bắp, đậu hạt, mì &amp; đạm</p>
             </div>
           </div>
-          <span id="fridge-total-count-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700">113 món</span>
+          <span id="fridge-total-count-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700">200 món</span>
         </div>
 
         <!-- Target Destination Selector: CHỈ BỎ VÀO BẾP HOẶC KHAY TẠM (BỎ NÚT RA DĨA) -->
@@ -808,7 +808,7 @@
             <span class="text-3xl" aria-hidden="true">🔥</span>
             <div>
               <h2 class="text-base sm:text-lg font-extrabold text-stone-900 font-game leading-tight">
-                Bàn Chế Biến &amp; 9 Dụng Cụ
+                Bàn Chế Biến &amp; 17 Dụng Cụ
               </h2>
               <p id="station-desc-sub" class="text-xs text-stone-500 font-medium">Chọn dụng cụ nấu, cuốn hoặc nhồi</p>
             </div>
@@ -825,11 +825,11 @@
           <div class="flex items-center justify-between">
             <h3 id="heading-station-picker" class="text-xs sm:text-sm font-extrabold text-stone-700 uppercase tracking-wider font-game flex items-center gap-1.5">
               <span aria-hidden="true">🛠️</span>
-              <span>1. Chọn Dụng Cụ Nấu (10 Dụng Cụ)</span>
+              <span>1. Chọn Dụng Cụ Nấu (17 Dụng Cụ)</span>
             </h3>
           </div>
-          <!-- 10 Cooking Tools Grid -->
-          <div id="station-selector-grid" class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-1.5" role="toolbar" aria-label="Chọn 1 trong 10 công cụ nấu ăn">
+          <!-- Cooking tools grid -->
+          <div id="station-selector-grid" class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-1.5" role="toolbar" aria-label="Chọn 1 trong 17 công cụ nấu ăn">
             <!-- Populated by JS -->
           </div>
         </section>
@@ -952,7 +952,7 @@
             <span class="text-3xl" aria-hidden="true">🧂</span>
             <div>
               <h2 class="text-base sm:text-lg font-extrabold text-stone-900 font-game leading-tight">
-                Khay 18 Gia Vị &amp; Nước Sốt
+                Khay 29 Gia Vị &amp; Nước Sốt
               </h2>
               <p class="text-xs text-stone-500 font-medium">Nêm trước khi nấu giúp ngấm sâu dậy vị</p>
             </div>
@@ -969,7 +969,7 @@
           </div>
         </div>
 
-        <div id="spices-grid" class="grid grid-cols-3 sm:grid-cols-6 gap-2.5" role="region" aria-label="18 hũ gia vị và chai sốt">
+        <div id="spices-grid" class="grid grid-cols-3 sm:grid-cols-6 gap-2.5" role="region" aria-label="29 hũ gia vị và chai sốt">
           <!-- Populated by JS -->
         </div>
       </div>
@@ -1299,7 +1299,7 @@
             <div class="font-extrabold text-amber-950 mb-1.5 font-game">Phím Nhảy Nhanh 5 Tab:</div>
             <ul class="space-y-1 font-medium">
               <li><kbd class="px-1.5 py-0.5 bg-white rounded border text-xs font-mono font-bold">Alt + 1</kbd>: Tab 1 Tủ Lạnh &amp; Kho Đồ</li>
-              <li><kbd class="px-1.5 py-0.5 bg-white rounded border text-xs font-mono font-bold">Alt + 2</kbd>: Tab 2 Bàn Chế Biến &amp; 9 Dụng Cụ</li>
+              <li><kbd class="px-1.5 py-0.5 bg-white rounded border text-xs font-mono font-bold">Alt + 2</kbd>: Tab 2 Bàn Chế Biến &amp; 17 Dụng Cụ</li>
               <li><kbd class="px-1.5 py-0.5 bg-white rounded border text-xs font-mono font-bold">Alt + 3</kbd>: Tab 3 Khay Tạm Chờ Sơ Chế</li>
               <li><kbd class="px-1.5 py-0.5 bg-white rounded border text-xs font-mono font-bold">Alt + 4</kbd>: Tab 4 Khay Gia Vị &amp; Nước Sốt</li>
               <li><kbd class="px-1.5 py-0.5 bg-white rounded border text-xs font-mono font-bold">Alt + 5</kbd>: Tab 5 Bàn Tiệc &amp; Thưởng Thức</li>
@@ -2119,10 +2119,10 @@
         color: '#d97706',
         desc: 'Mê thịt bò, xúc xích, bánh mì nhồi đầy nhân, món nướng than hoa và đồ ngọt đậm vị cacao/sữa.',
         cravings: [
-          'Hôm nay tôi thèm một ổ Bánh Mì Việt Nam nhồi Thịt bò áp chảo, Xúc xích, Pate và nêm chút Tiêu đen, Chanh, Muối!',
-          'Đầu bếp thử làm món Thịt bò cuộn Pate gan đem nướng trên vỉ than hoa thơm lừng xem sao!',
-          'Tôi đang thèm một ly Sữa tươi Ca-cao đá tuyết mát lạnh cùng bánh quy Oreo giòn rụm!',
-          'Làm cho tôi một ly Cà Phê Sữa Đậm Đà béo ngậy từ Cà phê phin và Sữa đặc thơm nức mũi nhé!'
+          'Hôm nay tôi thèm một ổ bánh mì Việt Nam nhồi thịt bò áp chảo, xúc xích và pa-tê, thêm chút tiêu đen, chanh với muối nhé!',
+          'Đầu bếp thử cuộn pa-tê gan trong lát thịt bò rồi nướng trên vỉ than hoa thơm lừng xem sao!',
+          'Tôi đang thèm một ly sinh tố sữa ca-cao đá mát lạnh, ăn kèm bánh quy Oreo giòn rụm!',
+          'Pha cho tôi ly cà phê sữa đậm đà với cà phê phin và sữa đặc, béo ngậy thơm nức mũi nhé!'
         ],
         likes: ['umami', 'aroma', 'salty', 'sweet'],
         lovesStructures: ['stuffed', 'rolled'],
@@ -2137,10 +2137,10 @@
         color: '#ec4899',
         desc: 'Cực thích gỏi cuốn bánh tráng, kimbap rong biển cá hồi, đồ ngọt (sữa tươi, sô-cô-la, oreo) và vị chua ngọt thanh mát.',
         cravings: [
-          'Miu thèm một cuốn Gỏi Cuốn Bánh Tráng có Tôm luộc, Bún tươi, Xà lách rau thơm chấm vị chua ngọt!',
-          'Làm cho Miu món Cơm Cuộn Rong Biển cá hồi và bơ sáp béo ngậy nha!',
-          'Miu thích một ly Sinh tố Dâu tây + Sô-cô-la + Sữa đặc ngọt ngào mát lạnh từ Máy Xay!',
-          'Miu muốn ăn Kẹo Hồ Lô xiên Dâu Tây bọc Đường cát trắng caramel giòn tan óng ánh!'
+          'Miu thèm một cuốn gỏi cuốn bánh tráng với tôm luộc, bún tươi và xà lách rau thơm, chấm nước sốt chua ngọt!',
+          'Làm cho Miu món cơm cuộn rong biển nhân cá hồi và bơ sáp béo ngậy nha!',
+          'Miu muốn một ly sinh tố dâu tây, sô-cô-la và sữa đặc ngọt ngào, xay cùng đá viên mát lạnh!',
+          'Miu muốn ăn kẹo hồ lô xiên dâu tây, phủ lớp đường caramel óng ánh giòn tan!'
         ],
         likes: ['sweet', 'sour', 'umami', 'fatty'],
         lovesStructures: ['rolled'],
@@ -2155,10 +2155,10 @@
         color: '#dc2626',
         desc: 'Đam mê vị cay nồng của ớt, tiêu đen, tỏi phi, xúc xích nhồi thịt nướng than và các món chiên giòn rụm.',
         cravings: [
-          'Ta thèm Xúc Xích nhồi Thịt băm nướng than hoa, thêm thật nhiều Ớt hiểm và Tương ớt cay nồng!',
-          'Hãy cuốn Bánh tráng nhân Thịt ba chỉ, Tôm rồi đem nhúng Chảo Chiên Ngập Dầu làm Chả Giò giòn tan!',
-          'Làm cho ta một chiếc Bánh Taco ngô giòn nhồi Thịt bò xào cay xè lưỡi nhé!',
-          'Hãy pha cho ta một tách Cà phê Espresso đậm đặc bốc khói để bừng bừng ngọn lửa nhiệt huyết!'
+          'Ta thèm xúc xích nhồi thịt băm, nướng trên than hoa rồi rưới thật nhiều ớt hiểm và tương ớt cay nồng!',
+          'Hãy cuốn bánh tráng nhân thịt ba chỉ và tôm, rồi chiên ngập dầu thành chả giò giòn tan!',
+          'Làm cho ta chiếc taco ngô giòn nhồi thịt bò xào cay xè lưỡi nhé!',
+          'Pha cho ta tách espresso đậm đặc, nóng hổi để bừng bừng ngọn lửa nhiệt huyết!'
         ],
         likes: ['spicy', 'aroma', 'umami', 'salty'],
         lovesStructures: ['stuffed', 'loose'],
@@ -2173,14 +2173,50 @@
         color: '#4f46e5',
         desc: 'Đánh giá khắt khe sự cân bằng âm dương ngũ hành: thịt phải ướp gia vị, đồ béo ngọt phải có độ chua/thơm giải ngấy.',
         cravings: [
-          'Tôi muốn thưởng thức Phở Cuốn Hà Nội nhân Thịt bò xào tỏi tiêu và rau thơm thanh tao.',
-          'Hãy thử làm Quả Ớt Chuông nhồi Thịt bò băm, Nấm hương và Phô mai rồi đút Lò Nướng!',
-          'Một món tráng miệng từ Sô-cô-la đắng, Bột ca-cao và Kẹo Marshmallow nướng chảy sẽ rất hoàn mỹ.',
-          'Một chén Chè Hạt Sen hầm Đường Phèn thanh tao mát lành sẽ bồi bổ tinh thần tuyệt hảo.'
+          'Tôi muốn thưởng thức phở cuốn Hà Nội nhân thịt bò xào tỏi, tiêu và rau thơm thanh tao.',
+          'Hãy thử nhồi thịt bò băm, nấm hương và phô mai vào ớt chuông rồi nướng trong lò nhé!',
+          'Món tráng miệng với sô-cô-la đắng, bột ca-cao và marshmallow nướng chảy hẳn sẽ rất tuyệt.',
+          'Một chén chè hạt sen hầm đường phèn thanh mát sẽ bồi bổ tinh thần tuyệt hảo.'
         ],
         likes: ['aroma', 'umami', 'sour', 'sweet'],
         lovesStructures: ['rolled', 'stuffed'],
         maxSpiceTolerance: 6.5,
+        hatesRawMeat: true
+      },
+      {
+        id: 'fox_gourmet',
+        name: 'Chàng Cáo Sành Điệu',
+        title: 'Nhà Ẩm thực Hải Sản & Tươi Mát',
+        emoji: '🦊',
+        color: '#ea580c',
+        desc: 'Mê mẩn hải sản tươi sống và các món hấp thanh ngọt tự nhiên; đặc biệt yêu thích vị Umami thuần khiết từ biển cả, ghét món quá khét hoặc quá mặn chát.',
+        cravings: [
+          'Tôi muốn nếm thử tôm hùm biển hoặc bào ngư hấp cách thủy để cảm nhận vị ngọt thanh tự nhiên!',
+          'Hãy cuốn cá hồi với bánh tráng, ăn kèm rong nho biển và muối tiêu chanh nhé!',
+          'Một phần cơm gói lá sen hấp thơm mùi thảo mộc sẽ khiến tôi vô cùng thán phục!',
+          'Pha cho tôi ly trà đào cam sả mát lạnh, ăn kèm vài miếng đào giòn ngọt nhé!'
+        ],
+        likes: ['umami', 'sweet', 'aroma'],
+        lovesStructures: ['rolled', 'stuffed'],
+        maxSpiceTolerance: 5.0,
+        hatesRawMeat: true
+      },
+      {
+        id: 'rabbit_gardener',
+        name: 'Thỏ Trắng Vườn Rau',
+        title: 'Người mê rau củ & món thanh nhẹ',
+        emoji: '🐰',
+        color: '#16a34a',
+        desc: 'Yêu rau củ tươi, nấm, trái cây và những món cuốn thanh mát; thích vị chua dịu cùng hương thơm thảo mộc.',
+        cravings: [
+          'Làm cho tôi cuốn bánh tráng với xà lách, dưa leo, cà rốt và rau thơm, chấm chút sốt bơ đậu phộng nhé!',
+          'Tôi muốn thử nấm hương và đậu hũ non hấp mềm, nêm nhẹ nước tương với gừng thơm.',
+          'Xay giúp tôi ly sinh tố dâu tây, xoài chín và sữa tươi mát lạnh nha!',
+          'Một phần khoai lang mật nướng thơm, rắc chút mè rang sẽ hợp buổi chiều làm vườn đấy!'
+        ],
+        likes: ['sweet', 'sour', 'aroma', 'umami'],
+        lovesStructures: ['rolled', 'loose'],
+        maxSpiceTolerance: 2.5,
         hatesRawMeat: true
       }
     ];
@@ -2198,7 +2234,7 @@
       { id: 'starch', name: '🍚 Cơm, Khoai & Phô Mai' }
     ];
 
-    // EXPANDED 85 INGREDIENTS INCLUDING BEANS, SEEDS, LOTUS, ONIONS, SCALLION OIL, FRIED SHALLOTS, NOODLES, FLOURS, WRAPPERS, BREADS, SNACKS, FRUITS & DRINKS
+    // EXPANDED PANTRY WITH 200 INGREDIENTS ACROSS FOOD, DRINKS, FLOURS, WRAPPERS, SNACKS AND PRODUCE
     const INGREDIENTS = [
       // 1. VỎ BÁNH & ĐỒ CUỐN (WRAPPERS & VESSELS) - NOW IN THE PANTRY!
       {
@@ -3540,6 +3576,1069 @@
         texture: 'soft',
         flavorDesc: 'Kem sữa tươi đánh bông mềm mượt béo ngậy tan ngay đầu lưỡi, phủ lên đồ uống đá xay, làm sốt kem mì Ý hoặc nướng bánh ngọt',
         flavors: { umami: 1.2, salty: 0.2, sweet: 3.0, sour: 0.0, spicy: 0.0, fatty: 4.8, bitter: 0.0, aroma: 3.6, crunch: 0.0 }
+      },
+
+      // --- BỔ SUNG 50 NGUYÊN LIỆU MỚI: HẢI SẢN CAO CẤP, THỊT ĐẶC SẢN, RAU CỦ TRÁI CÂY, TINH BỘT & PHA CHẾ (TỔNG KHO 163 MÓN) ---
+      {
+        id: 'crab_meat',
+        name: 'Thịt Cua Biển Tươi Ngọt Bùi',
+        category: 'seafood',
+        emoji: '🦀',
+        color: '#fed7aa',
+        cookedColor: '#f97316',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Thịt cua biển hấp gỡ sẵn thơm lừng, thớ thịt trắng ngọt đượm vị mặn mòi của biển cả, giàu đạm và vị Umami sâu lắng',
+        flavors: { umami: 4.2, salty: 1.1, sweet: 2.4, sour: 0.0, spicy: 0.0, fatty: 0.8, bitter: 0.0, aroma: 3.6, crunch: 0.4 }
+      },
+      {
+        id: 'fresh_octopus',
+        name: 'Bạch Tuộc Tươi Giòn Sần Sật',
+        category: 'seafood',
+        emoji: '🐙',
+        color: '#e2e8f0',
+        cookedColor: '#c026d3',
+        needsCooking: true,
+        texture: 'crispy',
+        flavorDesc: 'Xúc tu bạch tuộc tươi giòn sần sật, ngọt nước tự nhiên, nướng sa tế hoặc xào cay dậy hương thơm ngút ngàn',
+        flavors: { umami: 3.7, salty: 1.4, sweet: 1.8, sour: 0.0, spicy: 0.0, fatty: 0.4, bitter: 0.0, aroma: 3.0, crunch: 3.4 }
+      },
+      {
+        id: 'scallop',
+        name: 'Cồi Sò Điệp Áp Chảo Béo Ngọt',
+        category: 'seafood',
+        emoji: '🦪',
+        color: '#ffedd5',
+        cookedColor: '#ea580c',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Cồi sò điệp đại dương dày thịt, mềm ngọt bùi béo tự nhiên, khi áp chảo cháy cạnh tỏa hương bơ nồng nàn',
+        flavors: { umami: 4.3, salty: 0.9, sweet: 2.6, sour: 0.0, spicy: 0.0, fatty: 1.2, bitter: 0.0, aroma: 3.4, crunch: 0.5 }
+      },
+      {
+        id: 'fresh_clams',
+        name: 'Nghêu Trắng Tươi Ngọt Nước',
+        category: 'seafood',
+        emoji: '🐚',
+        color: '#f1f5f9',
+        cookedColor: '#fbbf24',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Nghêu tươi sống mọng nước, khi hấp sả hoặc nấu canh nhả ra nước súp ngọt thanh đậm đà vị khoáng biển',
+        flavors: { umami: 3.9, salty: 1.6, sweet: 2.1, sour: 0.0, spicy: 0.0, fatty: 0.3, bitter: 0.0, aroma: 3.2, crunch: 0.3 }
+      },
+      {
+        id: 'fresh_oyster',
+        name: 'Hàu Sữa Mọng Nước Béo Ngậy',
+        category: 'seafood',
+        emoji: '🦪',
+        color: '#e0f2fe',
+        cookedColor: '#fef08a',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Hàu sữa béo ngậy tan ngay trong miệng, vị ngọt đậm đà giàu kẽm, nướng mỡ hành phô mai hoặc nấu cháo bồi bổ',
+        flavors: { umami: 4.6, salty: 1.5, sweet: 1.9, sour: 0.0, spicy: 0.0, fatty: 3.4, bitter: 0.0, aroma: 3.5, crunch: 0.1 }
+      },
+      {
+        id: 'tuna_fillet',
+        name: 'Cá Ngừ Đại Dương Đỏ Au',
+        category: 'seafood',
+        emoji: '🐟',
+        color: '#be123c',
+        cookedColor: '#991b1b',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Thịt cá ngừ đại dương chắc nịch đỏ thắm như thịt bò, vị Umami thuần khiết thanh khiết không tanh, áp chảo tái hoặc cuộn sushi',
+        flavors: { umami: 4.1, salty: 0.8, sweet: 1.3, sour: 0.0, spicy: 0.0, fatty: 1.4, bitter: 0.0, aroma: 2.7, crunch: 0.2 }
+      },
+      {
+        id: 'fish_paste',
+        name: 'Chả Cá Thác Lác Dai Giòn',
+        category: 'seafood',
+        emoji: '🐟',
+        color: '#f8fafc',
+        cookedColor: '#d97706',
+        needsCooking: true,
+        texture: 'crispy',
+        flavorDesc: 'Thịt cá thác lác quết kỹ dai giòn tự nhiên, nêm tiêu thì là thơm ngát, chiên vàng phồng rộp hoặc vò viên nấu canh ngọt mát',
+        flavors: { umami: 3.9, salty: 1.2, sweet: 1.6, sour: 0.0, spicy: 0.2, fatty: 1.1, bitter: 0.0, aroma: 3.2, crunch: 2.7 }
+      },
+      {
+        id: 'quail_egg',
+        name: 'Trứng Cút Tươi Nhỏ Xinh',
+        category: 'seafood',
+        emoji: '🥚',
+        color: '#fef9c3',
+        cookedColor: '#facc15',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Từng quả trứng cút nhỏ xinh bùi béo, lòng đỏ đậm đà, luộc chín bóc vỏ kho thịt hoặc thả vào các món xào, nướng chén',
+        flavors: { umami: 2.4, salty: 0.4, sweet: 0.9, sour: 0.0, spicy: 0.0, fatty: 2.5, bitter: 0.0, aroma: 1.6, crunch: 0.2 }
+      },
+      {
+        id: 'pork_ribs',
+        name: 'Sườn Non Heo Mềm Ngọt Thịt',
+        category: 'meat',
+        emoji: '🥩',
+        color: '#f87171',
+        cookedColor: '#991b1b',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Sườn non dẻ sườn mềm ngọt mọng nước, nhiều sụn non sần sật, nướng mật ong than hoa hoặc rim chua ngọt đậm đà vét sạch nồi cơm',
+        flavors: { umami: 4.4, salty: 0.8, sweet: 1.6, sour: 0.0, spicy: 0.0, fatty: 2.9, bitter: 0.0, aroma: 3.0, crunch: 0.8 }
+      },
+      {
+        id: 'duck_breast',
+        name: 'Ức Vịt Tươi Da Béo Giòn',
+        category: 'meat',
+        emoji: '🦆',
+        color: '#b91c1c',
+        cookedColor: '#7f1d1d',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Thịt ức vịt đượm vị đậm đà, lớp da dày béo ngậy áp chảo cháy cạnh giòn tan bốc mùi thơm quyến rũ nức mũi',
+        flavors: { umami: 4.3, salty: 0.7, sweet: 1.1, sour: 0.0, spicy: 0.0, fatty: 3.8, bitter: 0.0, aroma: 3.4, crunch: 0.6 }
+      },
+      {
+        id: 'lamb_chops',
+        name: 'Sườn Cừu Phi Lê Thượng Hạng',
+        category: 'meat',
+        emoji: '🍖',
+        color: '#991b1b',
+        cookedColor: '#450a0a',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Sườn cừu non mềm mướt không hôi, nướng cùng hương thảo và tỏi tiêu, vị ngọt đậm Umami hòa quyện béo ngậy quý phái',
+        flavors: { umami: 4.6, salty: 0.8, sweet: 1.0, sour: 0.0, spicy: 0.0, fatty: 3.5, bitter: 0.0, aroma: 4.2, crunch: 0.4 }
+      },
+      {
+        id: 'crispy_bacon',
+        name: 'Thịt Ba Rọi Xông Khói Giòn Rụm',
+        category: 'meat',
+        emoji: '🥓',
+        color: '#ef4444',
+        cookedColor: '#b45309',
+        needsCooking: true,
+        texture: 'crispy',
+        flavorDesc: 'Ba rọi xông khói gỗ sồi đậm đà, áp chảo mỡ chảy xèo xèo giòn tan thơm lừng, kẹp bánh mì burger hoặc rắc lên mì Ý',
+        flavors: { umami: 4.3, salty: 3.4, sweet: 0.9, sour: 0.0, spicy: 0.0, fatty: 4.6, bitter: 0.0, aroma: 4.7, crunch: 3.6 }
+      },
+      {
+        id: 'lap_cheong',
+        name: 'Lạp Xưởng Mai Quế Lộ Thơm Nồng',
+        category: 'meat',
+        emoji: '🌭',
+        color: '#dc2626',
+        cookedColor: '#991b1b',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Lạp xưởng truyền thống đượm hương rượu Mai Quế Lộ và ngũ vị hương, ngọt bùi béo ngậy, thái lát xào cơm chiên hoặc hấp xôi',
+        flavors: { umami: 3.6, salty: 2.3, sweet: 3.4, sour: 0.0, spicy: 0.5, fatty: 3.9, bitter: 0.0, aroma: 4.4, crunch: 0.8 }
+      },
+      {
+        id: 'beef_meatballs',
+        name: 'Bò Viên Gân Giòn Sần Sật',
+        category: 'meat',
+        emoji: '🧆',
+        color: '#a8a29e',
+        cookedColor: '#57534e',
+        needsCooking: true,
+        texture: 'crispy',
+        flavorDesc: 'Bò viên quết nhuyễn xen kẽ gân bò giòn sần sật, thơm lừng tiêu sọ và tỏi phi, thả vào nồi nước dùng phở bò sôi sùng sục',
+        flavors: { umami: 4.0, salty: 1.5, sweet: 1.3, sour: 0.0, spicy: 0.3, fatty: 1.8, bitter: 0.0, aroma: 3.0, crunch: 2.9 }
+      },
+      {
+        id: 'foie_gras',
+        name: 'Gan Ngỗng Béo Pháp Thượng Hạng',
+        category: 'meat',
+        emoji: '🧈',
+        color: '#fed7aa',
+        cookedColor: '#b45309',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Gan ngỗng Pháp trứ danh béo ngậy tan chảy như nhung lụa trên đầu lưỡi, áp chảo lửa lớn thơm nức mũi mùi bơ hạt dẻ quý tộc',
+        flavors: { umami: 4.9, salty: 0.9, sweet: 1.9, sour: 0.0, spicy: 0.0, fatty: 5.9, bitter: 0.0, aroma: 4.8, crunch: 0.0 }
+      },
+      {
+        id: 'carrot',
+        name: 'Cà Rốt Tươi Giòn Ngọt Đỏ Cam',
+        category: 'veg',
+        emoji: '🥕',
+        color: '#f97316',
+        cookedColor: '#ea580c',
+        needsCooking: false,
+        texture: 'crispy',
+        flavorDesc: 'Cà rốt tươi giòn ngọt mọng nước, giàu beta-carotene, thái sợi làm gỏi, ninh hầm canh thịt hoặc ép nước mát lành',
+        flavors: { umami: 0.5, salty: 0.1, sweet: 2.5, sour: 0.1, spicy: 0.0, fatty: 0.0, bitter: 0.0, aroma: 1.8, crunch: 3.8 }
+      },
+      {
+        id: 'cabbage',
+        name: 'Bắp Cải Trắng Giòn Ngọt Thanh',
+        category: 'veg',
+        emoji: '🥬',
+        color: '#dcfce7',
+        cookedColor: '#86efac',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Lá bắp cải cuộn chặt dày dặn giòn rụm, vị ngọt thanh tự nhiên, thái sợi trộn salad giải ngấy hoặc cuộn thịt băm hấp súp',
+        flavors: { umami: 0.5, salty: 0.1, sweet: 1.9, sour: 0.2, spicy: 0.0, fatty: 0.0, bitter: 0.0, aroma: 1.3, crunch: 3.7 }
+      },
+      {
+        id: 'broccoli',
+        name: 'Bông Cải Xanh Tươi Giòn Ngọt Bùi',
+        category: 'veg',
+        emoji: '🥦',
+        color: '#15803d',
+        cookedColor: '#166534',
+        needsCooking: true,
+        texture: 'crispy',
+        flavorDesc: 'Bông cải xanh giòn ngọt bùi giàu chất xơ, giữ trọn màu ngọc bích khi xào bò tỏi hoặc luộc chấm kho quẹt đậm đà',
+        flavors: { umami: 1.5, salty: 0.2, sweet: 1.6, sour: 0.1, spicy: 0.0, fatty: 0.1, bitter: 0.3, aroma: 2.1, crunch: 2.6 }
+      },
+      {
+        id: 'asparagus',
+        name: 'Măng Tây Xanh Giòn Ngọt Non Tơ',
+        category: 'veg',
+        emoji: '🎋',
+        color: '#16a34a',
+        cookedColor: '#15803d',
+        needsCooking: true,
+        texture: 'crispy',
+        flavorDesc: 'Đọt măng tây xanh mướt non tơ giòn sần sật, vị ngọt thảo mộc thanh tao khi xào tỏi hoặc cuộn thịt ba chỉ nướng phô mai',
+        flavors: { umami: 1.7, salty: 0.1, sweet: 2.1, sour: 0.1, spicy: 0.0, fatty: 0.1, bitter: 0.3, aroma: 2.5, crunch: 2.9 }
+      },
+      {
+        id: 'king_oyster_mushroom',
+        name: 'Nấm Đùi Gà Dày Thịt Dai Ngọt',
+        category: 'veg',
+        emoji: '🍄',
+        color: '#fef3c7',
+        cookedColor: '#d97706',
+        needsCooking: true,
+        texture: 'crispy',
+        flavorDesc: 'Nấm đùi gà thân to dày cùi, ngọt đậm và dai giòn như thịt gà, áp chảo bơ tỏi hoặc nướng mỡ hành đậm đà vị Umami nấm',
+        flavors: { umami: 3.7, salty: 0.3, sweet: 1.9, sour: 0.0, spicy: 0.0, fatty: 0.2, bitter: 0.0, aroma: 3.0, crunch: 2.0 }
+      },
+      {
+        id: 'straw_mushroom',
+        name: 'Nấm Rơm Tươi Tròn Mọng Nước',
+        category: 'veg',
+        emoji: '🍄',
+        color: '#a8a29e',
+        cookedColor: '#78716c',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Búp nấm rơm tròn xoe mọng nước ngọt thanh, thả vào lẩu hải sản, súp cua hoặc xào sả ớt mang lại vị ngọt thuần khiết của đất mẹ',
+        flavors: { umami: 3.4, salty: 0.2, sweet: 1.7, sour: 0.0, spicy: 0.0, fatty: 0.1, bitter: 0.0, aroma: 2.6, crunch: 1.2 }
+      },
+      {
+        id: 'bitter_melon',
+        name: 'Mướp Đắng Giòn Thanh Đắng Hậu Ngọt',
+        category: 'veg',
+        emoji: '🥒',
+        color: '#16a34a',
+        cookedColor: '#15803d',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Mướp đắng cùi dày giòn sần sật, vị đắng thanh ban đầu biến chuyển thành hậu ngọt thanh khiết, bào mỏng ướp đá chấm chà bông hoặc nhồi thịt hấp',
+        flavors: { umami: 0.7, salty: 0.1, sweet: 0.9, sour: 0.2, spicy: 0.0, fatty: 0.0, bitter: 4.4, aroma: 2.1, crunch: 3.5 }
+      },
+      {
+        id: 'pumpkin',
+        name: 'Bí Đỏ Mật Dẻo Bùi Ngọt Lịm',
+        category: 'veg',
+        emoji: '🎃',
+        color: '#fb923c',
+        cookedColor: '#c2410c',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Thịt bí đỏ mật vàng ươm dẻo quánh bùi bùi, ngọt đậm đà tự nhiên, nấu súp kem bí đỏ, hầm sườn non hoặc nấu chè đậu xanh béo ngậy',
+        flavors: { umami: 1.3, salty: 0.2, sweet: 3.9, sour: 0.0, spicy: 0.0, fatty: 0.4, bitter: 0.0, aroma: 2.7, crunch: 0.2 }
+      },
+      {
+        id: 'pineapple',
+        name: 'Dứa Thơm Mật Vàng Chua Ngọt Mọng Nước',
+        category: 'veg',
+        emoji: '🍍',
+        color: '#fde047',
+        cookedColor: '#eab308',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Trái thơm mật vàng óng mọng nước tràn trề, vị chua thanh ngọt đậm bốc hương thơm nhiệt đới nồng nàn, nướng caramel hoặc xào hải sản giải ngấy',
+        flavors: { umami: 0.7, salty: 0.1, sweet: 3.8, sour: 3.5, spicy: 0.0, fatty: 0.0, bitter: 0.0, aroma: 4.0, crunch: 2.7 }
+      },
+      {
+        id: 'watermelon',
+        name: 'Dưa Hấu Đỏ Mọng Nước Giải Nhiệt',
+        category: 'veg',
+        emoji: '🍉',
+        color: '#ef4444',
+        cookedColor: '#dc2626',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Miếng dưa hấu đỏ mọng hạt đen giòn ngọt tan ngay trên đầu lưỡi, giải nhiệt tức thì, xay sinh tố mát lạnh hoặc ép nước giải khát mùa hè',
+        flavors: { umami: 0.2, salty: 0.0, sweet: 3.6, sour: 0.3, spicy: 0.0, fatty: 0.0, bitter: 0.0, aroma: 2.9, crunch: 2.9 }
+      },
+      {
+        id: 'passion_fruit',
+        name: 'Chanh Dây Ruột Vàng Hạt Giòn Chua Thanh',
+        category: 'veg',
+        emoji: '🍈',
+        color: '#f59e0b',
+        cookedColor: '#d97706',
+        needsCooking: false,
+        texture: 'drink',
+        isFreshBalancer: true,
+        flavorDesc: 'Nước cốt chanh dây chua thanh kích thích gai vị giác cực đỉnh, hương thơm quyến rũ ngào ngạt quyện hạt giòn lách tách, pha soda hoặc rưới sốt bơ',
+        flavors: { umami: 0.4, salty: 0.0, sweet: 2.5, sour: 5.0, spicy: 0.0, fatty: 0.1, bitter: 0.2, aroma: 4.9, crunch: 1.6 }
+      },
+      {
+        id: 'crispy_apple',
+        name: 'Táo Đỏ Giòn Ngọt Mát Lành',
+        category: 'veg',
+        emoji: '🍎',
+        color: '#dc2626',
+        cookedColor: '#fef08a',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Táo đỏ nhập khẩu cắn ngập răng giòn rụm phát ra âm thanh thích tai, vị ngọt thanh mát dịu, nướng quế hoặc thái hạt lựu trộn sốt kem',
+        flavors: { umami: 0.3, salty: 0.0, sweet: 3.3, sour: 1.2, spicy: 0.0, fatty: 0.0, bitter: 0.0, aroma: 3.1, crunch: 3.7 }
+      },
+      {
+        id: 'water_spinach',
+        name: 'Rau Muống Cọng Giòn Xanh Mướt',
+        category: 'veg',
+        emoji: '🥬',
+        color: '#22c55e',
+        cookedColor: '#15803d',
+        needsCooking: true,
+        texture: 'crispy',
+        flavorDesc: 'Cọng rau muống nước giòn sần sật xanh mướt, xào tỏi ớt lửa lớn bốc khói ngùn ngụt hoặc luộc dầm sấu nước canh trong veo mát ruột',
+        flavors: { umami: 1.0, salty: 0.2, sweet: 1.4, sour: 0.1, spicy: 0.0, fatty: 0.1, bitter: 0.2, aroma: 2.2, crunch: 3.3 }
+      },
+      {
+        id: 'banh_hoi',
+        name: 'Bánh Hỏi Lá Sen Trắng Mịn Dẻo',
+        category: 'starch',
+        emoji: '🫓',
+        color: '#f8fafc',
+        cookedColor: '#fef08a',
+        needsCooking: false,
+        canBeWrapper: true,
+        flavorDesc: 'Từng thếp bánh hỏi gạo đan sợi lưới mỏng như tơ dẻo mềm thơm ngát bột gạo, quét mỡ hành cuộn thịt nướng heo quay chuẩn vị Nam Bộ',
+        flavors: { umami: 0.7, salty: 0.2, sweet: 1.7, sour: 0.0, spicy: 0.0, fatty: 0.3, bitter: 0.0, aroma: 1.9, crunch: 0.2 }
+      },
+      {
+        id: 'banh_canh',
+        name: 'Bánh Canh Bột Gạo Dẻo Dai',
+        category: 'starch',
+        emoji: '🍜',
+        color: '#ffffff',
+        cookedColor: '#fef08a',
+        needsCooking: true,
+        flavorDesc: 'Sợi bánh canh tròn mập trắng muốt dẻo dai sần sật, hòa quyện trọn vẹn nước lèo súp cua giò heo sánh đậm nóng hổi húp sột soạt',
+        flavors: { umami: 0.9, salty: 0.2, sweet: 1.9, sour: 0.0, spicy: 0.0, fatty: 0.1, bitter: 0.0, aroma: 1.5, crunch: 0.5 }
+      },
+      {
+        id: 'tokbokki',
+        name: 'Bánh Gạo Tokbokki Dẻo Quánh',
+        category: 'starch',
+        emoji: '🥢',
+        color: '#f1f5f9',
+        cookedColor: '#dc2626',
+        needsCooking: true,
+        flavorDesc: 'Từng thỏi bánh gạo Tokbokki Hàn Quốc dẻo quánh mềm mịn nhai đã miệng, xào cùng tương ớt cay Gochujang và chả cá phô mai kéo sợi',
+        flavors: { umami: 0.8, salty: 0.3, sweet: 2.0, sour: 0.0, spicy: 0.0, fatty: 0.2, bitter: 0.0, aroma: 1.6, crunch: 0.3 }
+      },
+      {
+        id: 'scorched_rice',
+        name: 'Cơm Cháy Vàng Ươm Giòn Rụm',
+        category: 'starch',
+        emoji: '🍘',
+        color: '#fbbf24',
+        cookedColor: '#d97706',
+        needsCooking: false,
+        texture: 'crispy',
+        flavorDesc: 'Tảng cơm cháy đáy nồi chiên phồng xốp giòn tan rôm rốp, rưới mỡ hành béo ngậy kèm chà bông sốt ớt cay ngọt rộn rã đầu lưỡi',
+        flavors: { umami: 1.3, salty: 0.6, sweet: 1.6, sour: 0.0, spicy: 0.0, fatty: 1.4, bitter: 0.0, aroma: 3.8, crunch: 4.9 }
+      },
+      {
+        id: 'purple_yam',
+        name: 'Khoai Mỡ Tím Dẻo Bùi Nấu Canh',
+        category: 'starch',
+        emoji: '🍠',
+        color: '#a855f7',
+        cookedColor: '#7e22ce',
+        needsCooking: true,
+        flavorDesc: 'Củ khoai mỡ nạo nhuyễn sắc tím mộng mơ, nấu canh tôm thịt bùi ngậy sánh dẻo trơn tuột cuống họng, bổ dưỡng ấm bụng',
+        flavors: { umami: 1.1, salty: 0.1, sweet: 2.9, sour: 0.0, spicy: 0.0, fatty: 0.8, bitter: 0.0, aroma: 2.5, crunch: 0.1 }
+      },
+      {
+        id: 'parmesan_cheese',
+        name: 'Phô Mai Parmesan Khối Thơm Nồng',
+        category: 'starch',
+        emoji: '🧀',
+        color: '#fef08a',
+        cookedColor: '#f59e0b',
+        needsCooking: false,
+        texture: 'crispy',
+        flavorDesc: 'Phô mai Parmesan ủ lâu năm tinh thể muối lạo xạo giòn ngọt, giàu đạm Umami bùng nổ, bào mỏng phủ lên mì Ý, bít tết hoặc xốt kem',
+        flavors: { umami: 4.9, salty: 3.5, sweet: 0.9, sour: 0.4, spicy: 0.0, fatty: 4.3, bitter: 0.1, aroma: 4.6, crunch: 1.2 }
+      },
+      {
+        id: 'cashew_nuts',
+        name: 'Hạt Điều Rang Muối Bùi Ngậy Giòn Tan',
+        category: 'beans_seeds',
+        emoji: '🥜',
+        color: '#fef3c7',
+        cookedColor: '#d97706',
+        needsCooking: false,
+        texture: 'crispy',
+        flavorDesc: 'Hạt điều Bình Phước rang muối vỏ lụa giòn tan, vị bùi béo ngậy ngọt sâu tự nhiên, nhâm nhi ăn vặt hoặc xào gà cung bảo cay thơm',
+        flavors: { umami: 1.9, salty: 1.3, sweet: 1.9, sour: 0.0, spicy: 0.0, fatty: 4.3, bitter: 0.0, aroma: 3.9, crunch: 3.9 }
+      },
+      {
+        id: 'chestnut',
+        name: 'Hạt Dẻ Nướng Nứt Vỏ Bùi Ngọt Lịm',
+        category: 'beans_seeds',
+        emoji: '🌰',
+        color: '#78350f',
+        cookedColor: '#d97706',
+        needsCooking: false,
+        flavorDesc: 'Hạt dẻ Trùng Khánh nướng khói nứt vỏ thơm lừng góc phố, nhân hạt vàng ươm bở bùi ngọt lịm như khoai mật tan trong miệng',
+        flavors: { umami: 1.3, salty: 0.1, sweet: 3.5, sour: 0.0, spicy: 0.0, fatty: 1.5, bitter: 0.0, aroma: 3.7, crunch: 1.3 }
+      },
+      {
+        id: 'lima_beans',
+        name: 'Đậu Ngự Hạt To Bùi Dẻo Mịn',
+        category: 'beans_seeds',
+        emoji: '🫘',
+        color: '#f8fafc',
+        cookedColor: '#fef08a',
+        needsCooking: true,
+        flavorDesc: 'Đậu ngự tiến vua hạt to mập mạp, khi hầm chín mềm bở như bơ sáp, bùi thơm thanh đạm, chuyên nấu chè cung đình Huế hoặc tiềm gà',
+        flavors: { umami: 1.5, salty: 0.1, sweet: 2.3, sour: 0.0, spicy: 0.0, fatty: 0.6, bitter: 0.0, aroma: 2.1, crunch: 0.4 }
+      },
+      {
+        id: 'chia_seeds',
+        name: 'Hạt Chia Dinh Dưỡng Nở Mềm Mượt',
+        category: 'beans_seeds',
+        emoji: '🫘',
+        color: '#292524',
+        cookedColor: '#44403c',
+        needsCooking: false,
+        texture: 'soft',
+        flavorDesc: 'Hạt chia siêu thực phẩm giàu Omega-3, khi ngâm nước nở bung lớp gel trong veo mềm mượt lướt nhẹ trong cổ họng, khuấy cùng nước trái cây trà sữa',
+        flavors: { umami: 0.9, salty: 0.1, sweet: 0.6, sour: 0.0, spicy: 0.0, fatty: 2.1, bitter: 0.0, aroma: 1.5, crunch: 1.3 }
+      },
+      {
+        id: 'oat_milk',
+        name: 'Sữa Yến Mạch Nguyên Chất Bùi Béo',
+        category: 'sweets',
+        emoji: '🥛',
+        color: '#fef3c7',
+        cookedColor: '#fde68a',
+        needsCooking: false,
+        texture: 'drink',
+        flavorDesc: 'Sữa yến mạch tự nhiên thanh mát dịu lành, ngậy béo bùi bùi không ngấy, phối hợp hoàn hảo với cà phê hoặc sinh tố trái cây',
+        flavors: { umami: 0.9, salty: 0.2, sweet: 2.5, sour: 0.0, spicy: 0.0, fatty: 2.3, bitter: 0.0, aroma: 2.9, crunch: 0.0 }
+      },
+      {
+        id: 'oolong_tea',
+        name: 'Trà Ô Long Hảo Hạng Thơm Hoa Cỏ',
+        category: 'drinks_mixology',
+        emoji: '🍵',
+        color: '#fef08a',
+        cookedColor: '#ca8a04',
+        needsCooking: false,
+        texture: 'drink',
+        isFreshBalancer: true,
+        flavorDesc: 'Trà Ô Long ủ men bán phần tỏa hương hoa lan cỏ dại ngọt ngào, vị chát dịu êm mượt và hậu ngọt sâu lắng kéo dài nơi cuống họng',
+        flavors: { umami: 1.3, salty: 0.0, sweet: 1.1, sour: 0.2, spicy: 0.0, fatty: 0.0, bitter: 2.1, aroma: 4.8, crunch: 0.0 }
+      },
+      {
+        id: 'earl_grey_tea',
+        name: 'Trà Đen Bá Tước Earl Grey Hương Cam',
+        category: 'drinks_mixology',
+        emoji: '🫖',
+        color: '#b45309',
+        cookedColor: '#78350f',
+        needsCooking: false,
+        texture: 'drink',
+        isFreshBalancer: true,
+        flavorDesc: 'Trà đen Bá Tước nước Anh ướp tinh dầu vỏ cam Bergamot thơm ngát quý phái, vị đắng thanh tao, tuyệt đỉnh khi pha trà sữa hoặc uống đá',
+        flavors: { umami: 0.9, salty: 0.0, sweet: 0.9, sour: 0.3, spicy: 0.0, fatty: 0.0, bitter: 2.3, aroma: 4.9, crunch: 0.0 }
+      },
+      {
+        id: 'butterfly_pea_syrup',
+        name: 'Xi-rô Hoa Đậu Biếc Biếc Xanh Kỳ Ảo',
+        category: 'drinks_mixology',
+        emoji: '🌺',
+        color: '#2563eb',
+        cookedColor: '#7c3aed',
+        needsCooking: false,
+        texture: 'drink',
+        flavorDesc: 'Xi-rô nấu từ hoa đậu biếc tươi mang sắc xanh biếc huyền ảo, ngọt ngào thanh mát, đổi sang màu tím biếc khi vắt chanh tạo hiệu ứng mắt nhìn kỳ thú',
+        flavors: { umami: 0.3, salty: 0.0, sweet: 4.6, sour: 0.1, spicy: 0.0, fatty: 0.0, bitter: 0.0, aroma: 3.7, crunch: 0.0 }
+      },
+      {
+        id: 'vanilla_ice_cream',
+        name: 'Kem Vani Viên Mát Lạnh Béo Ngậy',
+        category: 'sweets',
+        emoji: '🍨',
+        color: '#fefce8',
+        cookedColor: '#fef08a',
+        needsCooking: false,
+        texture: 'soft',
+        flavorDesc: 'Viên kem vani Madagascar dẻo mịn béo ngậy ngập tràn kem sữa tươi, thơm lừng hương hoa vani tự nhiên, phủ lên bánh sừng bò hoặc đồ uống đá xay',
+        flavors: { umami: 0.9, salty: 0.2, sweet: 4.7, sour: 0.0, spicy: 0.0, fatty: 4.7, bitter: 0.0, aroma: 4.3, crunch: 0.0 }
+      },
+      {
+        id: 'grass_jelly',
+        name: 'Thạch Sương Sáo Giòn Mát Thanh Nhiệt',
+        category: 'sweets',
+        emoji: '🍮',
+        color: '#18181b',
+        cookedColor: '#27272a',
+        needsCooking: false,
+        texture: 'soft',
+        isFreshBalancer: true,
+        flavorDesc: 'Thạch sương sáo thảo mộc đen tuyền giòn mát núng nính, vị ngọt thanh thoang thoảng đắng nhẹ giải nhiệt cực đã, thả vào chè hoặc trà sữa đá',
+        flavors: { umami: 0.4, salty: 0.0, sweet: 1.6, sour: 0.0, spicy: 0.0, fatty: 0.0, bitter: 1.1, aroma: 3.6, crunch: 1.4 }
+      },
+      {
+        id: 'coconut_water',
+        name: 'Nước Dừa Tươi Xiêm Thanh Mát Ngọt Lành',
+        category: 'drinks_mixology',
+        emoji: '🥥',
+        color: '#f8fafc',
+        cookedColor: '#f1f5f9',
+        needsCooking: false,
+        texture: 'drink',
+        isFreshBalancer: true,
+        flavorDesc: 'Nước dừa xiêm Bến Tre ngọt thanh tự nhiên mát rượi, dồi dào khoáng chất điện giải, kho thịt heo thơm bùi hoặc pha mocktail mát lịm',
+        flavors: { umami: 0.6, salty: 0.2, sweet: 3.0, sour: 0.2, spicy: 0.0, fatty: 0.2, bitter: 0.0, aroma: 3.5, crunch: 0.0 }
+      },
+      {
+        id: 'cheese_foam',
+        name: 'Lớp Kem Cheese Mặn Ngọt Béo Bông',
+        category: 'sweets',
+        emoji: '🧋',
+        color: '#fffbeb',
+        cookedColor: '#fef3c7',
+        needsCooking: false,
+        texture: 'soft',
+        flavorDesc: 'Lớp bọt sữa phô mai đánh bông bồng bềnh, vị béo ngậy mặn ngọt hòa quyện hài hòa đọng lại ria mép khi nhấp ngụm trà sữa mát lạnh',
+        flavors: { umami: 2.2, salty: 2.0, sweet: 2.8, sour: 0.3, spicy: 0.0, fatty: 4.9, bitter: 0.0, aroma: 3.8, crunch: 0.0 }
+      },
+      {
+        id: 'dumpling_wrapper',
+        name: 'Vỏ Sủi Cảo Bột Mì Trắng Dai',
+        category: 'wrappers',
+        emoji: '🥟',
+        color: '#f5f5f4',
+        cookedColor: '#fef08a',
+        needsCooking: true,
+        canBeWrapper: true,
+        flavorDesc: 'Vỏ bột mì cán mỏng tròn trịa dẻo dai, xếp nếp gói trọn nhân tôm thịt rau củ, đem hấp xửng bốc khói hoặc chiên áp chảo giòn đáy',
+        flavors: { umami: 0.7, salty: 0.3, sweet: 1.3, sour: 0.0, spicy: 0.0, fatty: 0.2, bitter: 0.0, aroma: 1.6, crunch: 0.4 }
+      },
+      {
+        id: 'wonton_wrapper',
+        name: 'Vỏ Hoành Thánh Vàng Óng Chiên Giòn',
+        category: 'wrappers',
+        emoji: '🥟',
+        color: '#fef08a',
+        cookedColor: '#ea580c',
+        needsCooking: true,
+        canBeWrapper: true,
+        flavorDesc: 'Vỏ hoành thánh cán mỏng màu vàng ươm từ trứng gà, chiên ngập dầu giòn rụm tan ngay trong miệng hoặc nấu súp ngọt nước',
+        flavors: { umami: 0.9, salty: 0.4, sweet: 1.1, sour: 0.0, spicy: 0.0, fatty: 0.3, bitter: 0.0, aroma: 1.9, crunch: 0.6 }
+      },
+      {
+        id: 'glass_noodles',
+        name: 'Miến Dong Làng So Dai Trong Veo',
+        category: 'noodles_flour',
+        emoji: '🥢',
+        color: '#e2e8f0',
+        cookedColor: '#cbd5e1',
+        needsCooking: true,
+        flavorDesc: 'Sợi miến làm từ củ dong riềng dai ngon không bị nát nhũn, ngấm trọn vị ngọt của nước luộc gà tôm cua hoặc xào lòng mề giòn sần sật',
+        flavors: { umami: 0.7, salty: 0.2, sweet: 1.3, sour: 0.0, spicy: 0.0, fatty: 0.0, bitter: 0.0, aroma: 1.5, crunch: 0.6 }
+      },
+      {
+        id: 'pasta_penne',
+        name: 'Nui Ống Penne Luộc Dai Sần Sật',
+        category: 'noodles_flour',
+        emoji: '🍝',
+        color: '#fef08a',
+        cookedColor: '#fde047',
+        needsCooking: true,
+        flavorDesc: 'Nui ống vát chéo có vân rãnh giữ trọn nước sốt bò băm phô mai, luộc chuẩn dẻo dai Al Dente sần sật cắn đã miệng',
+        flavors: { umami: 1.0, salty: 0.2, sweet: 1.7, sour: 0.0, spicy: 0.0, fatty: 0.2, bitter: 0.0, aroma: 1.7, crunch: 0.5 }
+      },
+
+      // --- BỔ SUNG 22 NGUYÊN LIỆU MỚI: TÔM HÙM, BÀO NGƯ, BÒ WAGYU, KIM CHI, MĂNG RỪNG & TRÁI CÂY (TỔNG KHO 185 MÓN) ---
+      {
+        id: 'lobster',
+        name: 'Tôm Hùm Biển Thượng Hạng',
+        category: 'seafood',
+        emoji: '🦞',
+        color: '#ef4444',
+        cookedColor: '#dc2626',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Thớ thịt tôm hùm săn chắc nịch trắng muốt, ngọt đậm đà vị biển, gạch tôm béo ngậy nồng nàn nướng bơ tỏi phô mai',
+        flavors: { umami: 4.8, salty: 1.0, sweet: 2.8, sour: 0.0, spicy: 0.0, fatty: 1.5, bitter: 0.0, aroma: 3.8, crunch: 0.5 }
+      },
+      {
+        id: 'abalone',
+        name: 'Bào Ngư Tươi Quý Tộc',
+        category: 'seafood',
+        emoji: '🦪',
+        color: '#fde047',
+        cookedColor: '#ca8a04',
+        needsCooking: true,
+        texture: 'crispy',
+        flavorDesc: 'Bào ngư sống giòn sần sật mọng nước, vị ngọt Umami thượng hạng bổ dưỡng bậc nhất, hầm súp canh gà hoặc xào dầu hào thơm lừng',
+        flavors: { umami: 4.9, salty: 1.2, sweet: 2.2, sour: 0.0, spicy: 0.0, fatty: 0.8, bitter: 0.0, aroma: 3.6, crunch: 3.0 }
+      },
+      {
+        id: 'fresh_eel',
+        name: 'Lươn Đồng Tươi Bổ Dưỡng',
+        category: 'seafood',
+        emoji: '🐟',
+        color: '#475569',
+        cookedColor: '#d97706',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Thịt lươn đồng vàng ươm béo ngậy ngọt đượm thịt, xào lăn sả ớt nước cốt dừa, cuộn lá lốt nướng than hoa hoặc nấu cháo lươn xứ Nghệ',
+        flavors: { umami: 4.4, salty: 0.8, sweet: 1.8, sour: 0.0, spicy: 0.0, fatty: 2.4, bitter: 0.0, aroma: 3.2, crunch: 0.3 }
+      },
+      {
+        id: 'blue_crab',
+        name: 'Ghẹ Xanh Phan Thiết Ngọt Thịt',
+        category: 'seafood',
+        emoji: '🦀',
+        color: '#38bdf8',
+        cookedColor: '#ea580c',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Ghẹ xanh tươi sống mai xanh đốm trắng, thớ thịt ngọt thanh khiết nhả nước súp trong veo ngọt đậm đà, hấp bia sả hoặc nấu bánh canh ghẹ',
+        flavors: { umami: 4.3, salty: 1.3, sweet: 2.5, sour: 0.0, spicy: 0.0, fatty: 0.6, bitter: 0.0, aroma: 3.5, crunch: 0.3 }
+      },
+      {
+        id: 'wagyu_beef',
+        name: 'Thịt Bò Wagyu Cẩm Thạch',
+        category: 'meat',
+        emoji: '🥩',
+        color: '#f87171',
+        cookedColor: '#7f1d1d',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Bò Wagyu thượng hạng vân mỡ cẩm thạch xen kẽ như tuyết, áp chảo lửa lớn lớp mỡ tan chảy ngay nơi đầu lưỡi béo ngậy thơm nức hương bơ',
+        flavors: { umami: 5.0, salty: 0.6, sweet: 1.6, sour: 0.0, spicy: 0.0, fatty: 5.2, bitter: 0.0, aroma: 4.8, crunch: 0.0 }
+      },
+      {
+        id: 'pigeon_meat',
+        name: 'Chim Bồ Câu Non Tiềm Bổ Dưỡng',
+        category: 'meat',
+        emoji: '🍗',
+        color: '#dc2626',
+        cookedColor: '#78350f',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Thịt bồ câu ra ràng mềm ngọt đậm vị bổ khí huyết, tiềm hạt sen táo đỏ hoặc quay ngũ vị giòn da thơm nức góc phố',
+        flavors: { umami: 4.6, salty: 0.7, sweet: 1.8, sour: 0.0, spicy: 0.0, fatty: 2.6, bitter: 0.0, aroma: 3.6, crunch: 0.2 }
+      },
+      {
+        id: 'pork_trotter',
+        name: 'Chân Giò Heo Giòn Béo Sần Sật',
+        category: 'meat',
+        emoji: '🍖',
+        color: '#fca5a5',
+        cookedColor: '#b45309',
+        needsCooking: true,
+        texture: 'crispy',
+        flavorDesc: 'Khoanh giò heo nhiều gân sụn non sần sật béo ngậy giàu collagen, nấu giả cầy rơm rạ, hầm bún bò Huế hoặc luộc chấm mắm tôm tỏi ớt',
+        flavors: { umami: 4.3, salty: 0.8, sweet: 1.4, sour: 0.0, spicy: 0.0, fatty: 4.2, bitter: 0.0, aroma: 3.2, crunch: 2.6 }
+      },
+      {
+        id: 'salami',
+        name: 'Xúc Xích Salami Lên Men Ý',
+        category: 'meat',
+        emoji: '🥓',
+        color: '#b91c1c',
+        cookedColor: '#881337',
+        needsCooking: false,
+        texture: 'crispy',
+        flavorDesc: 'Xúc xích khô Ý lên men tự nhiên lốm đốm hạt tiêu sọ và tỏi thảo mộc, vị mặn mòi chua dịu đượm khói, ăn kèm phô mai hoặc kẹp bánh pizza',
+        flavors: { umami: 4.2, salty: 3.8, sweet: 0.8, sour: 1.2, spicy: 0.8, fatty: 4.5, bitter: 0.0, aroma: 4.5, crunch: 1.8 }
+      },
+      {
+        id: 'fresh_bamboo_shoot',
+        name: 'Măng Tươi Non Giòn Sần Sật',
+        category: 'veg',
+        emoji: '🎋',
+        color: '#fef08a',
+        cookedColor: '#facc15',
+        needsCooking: true,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Măng nứa măng tre rừng giòn sần sật, vị đắng ngọt thanh tao giải ngấy cực tốt, hầm canh sườn vịt béo hoặc xào thịt bò ớt cay',
+        flavors: { umami: 1.2, salty: 0.1, sweet: 1.8, sour: 0.3, spicy: 0.0, fatty: 0.0, bitter: 1.5, aroma: 2.5, crunch: 3.6 }
+      },
+      {
+        id: 'eggplant',
+        name: 'Cà Tím Mỡ Ngọt Xốp Bùi',
+        category: 'veg',
+        emoji: '🍆',
+        color: '#7e22ce',
+        cookedColor: '#581c87',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Trái cà tím thịt mềm xốp như miếng bọt biển hút trọn nước sốt mỡ hành, nướng than cháy xém vỏ thơm phức hoặc om thịt đậu tía tô',
+        flavors: { umami: 1.2, salty: 0.1, sweet: 2.2, sour: 0.0, spicy: 0.0, fatty: 0.3, bitter: 0.3, aroma: 2.4, crunch: 0.2 }
+      },
+      {
+        id: 'daikon_radish',
+        name: 'Củ Cải Trắng Giòn Ngọt Mọng Nước',
+        category: 'veg',
+        emoji: '🥔',
+        color: '#f8fafc',
+        cookedColor: '#e2e8f0',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Củ cải trắng ví như nhân sâm mùa đông mọng nước ngọt mát, hầm xương ngọt lịm nước dùng hoặc kho thịt ba chỉ đậm đà mềm tan',
+        flavors: { umami: 0.6, salty: 0.1, sweet: 2.6, sour: 0.2, spicy: 0.3, fatty: 0.0, bitter: 0.2, aroma: 1.6, crunch: 3.7 }
+      },
+      {
+        id: 'bok_choy',
+        name: 'Cải Thìa Cải Chíp Xanh Giòn',
+        category: 'veg',
+        emoji: '🥬',
+        color: '#22c55e',
+        cookedColor: '#15803d',
+        needsCooking: true,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Bẹ cải thìa mập mạp xanh mướt giòn ngọt mọng nước, giữ trọn độ giòn khi xào nấm đông cô dầu hào hoặc nhúng nồi lẩu nghi ngút khói',
+        flavors: { umami: 0.8, salty: 0.1, sweet: 1.8, sour: 0.1, spicy: 0.0, fatty: 0.0, bitter: 0.2, aroma: 1.8, crunch: 3.2 }
+      },
+      {
+        id: 'wood_ear_mushroom',
+        name: 'Mộc Nhĩ Đen Giòn Sần Sật',
+        category: 'veg',
+        emoji: '🍄',
+        color: '#1c1917',
+        cookedColor: '#292524',
+        needsCooking: true,
+        texture: 'crispy',
+        flavorDesc: 'Nấm mèo đen giòn sần sật nhai vui tai rộn rã, thành phần linh hồn trong nhân nem rán, chả giò, canh bóng thả hoặc chè sâm bổ lượng',
+        flavors: { umami: 1.4, salty: 0.2, sweet: 0.8, sour: 0.0, spicy: 0.0, fatty: 0.1, bitter: 0.0, aroma: 2.0, crunch: 4.2 }
+      },
+      {
+        id: 'kimchi',
+        name: 'Kim Chi Cải Thảo Chua Cay Nồng',
+        category: 'veg',
+        emoji: '🥬',
+        color: '#dc2626',
+        cookedColor: '#991b1b',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Bẹ cải thảo lên men truyền thống Hàn Quốc giòn sần sật, vị chua cay mặn nồng đánh thức mọi giác quan, nấu canh lẩu thịt ba chỉ giải ngấy đỉnh cao',
+        flavors: { umami: 3.5, salty: 2.6, sweet: 1.5, sour: 3.8, spicy: 3.5, fatty: 0.2, bitter: 0.0, aroma: 4.2, crunch: 3.6 }
+      },
+      {
+        id: 'olives',
+        name: 'Trái Ô-liu Muối Béo Ngậy Địa Trung Hải',
+        category: 'veg',
+        emoji: '🫒',
+        color: '#15803d',
+        cookedColor: '#14532d',
+        needsCooking: false,
+        texture: 'soft',
+        flavorDesc: 'Quả ô-liu ngâm muối mằn mặn béo ngậy chua dịu thơm dầu tự nhiên, thái lát rắc lên bánh pizza, trộn salad cá hồi hoặc kẹp bánh mì',
+        flavors: { umami: 2.4, salty: 3.2, sweet: 0.4, sour: 1.8, spicy: 0.0, fatty: 3.8, bitter: 1.2, aroma: 3.5, crunch: 1.2 }
+      },
+      {
+        id: 'pickled_eggplant',
+        name: 'Cà Pháo Muối Giòn Tan Rôm Rốp',
+        category: 'veg',
+        emoji: '🍆',
+        color: '#ffffff',
+        cookedColor: '#f1f5f9',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Quả cà pháo tròn xoe muối nén giòn tan rôm rốp lách tách, vị chua cay giòn sảng khoái đánh tan cái nóng, cặp đôi hoàn hảo cùng canh cua rau đay',
+        flavors: { umami: 1.0, salty: 2.8, sweet: 0.6, sour: 3.2, spicy: 1.2, fatty: 0.0, bitter: 0.4, aroma: 2.8, crunch: 4.8 }
+      },
+      {
+        id: 'peach_slices',
+        name: 'Đào Miếng Giòn Vàng Chua Ngọt',
+        category: 'drinks_mixology',
+        emoji: '🍑',
+        color: '#fb923c',
+        cookedColor: '#f97316',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Miếng đào vàng ngâm giòn sần sật mọng nước, chua ngọt hài hòa thơm lừng hương đào chín, linh hồn của ly Trà Đào Cam Sả mát lạnh',
+        flavors: { umami: 0.4, salty: 0.0, sweet: 3.8, sour: 2.2, spicy: 0.0, fatty: 0.0, bitter: 0.0, aroma: 4.4, crunch: 2.8 }
+      },
+      {
+        id: 'coconut_meat',
+        name: 'Cơm Dừa Non Bến Tre Dẻo Bùi',
+        category: 'sweets',
+        emoji: '🥥',
+        color: '#f8fafc',
+        cookedColor: '#f1f5f9',
+        needsCooking: false,
+        texture: 'soft',
+        flavorDesc: 'Cơm dừa bánh tẻ dẻo mềm bùi ngậy sần sật, nạo sợi thả chè sương sa, làm xôi kem dừa hoặc kho thịt heo nước dừa đậm đà béo ngậy',
+        flavors: { umami: 0.8, salty: 0.1, sweet: 2.2, sour: 0.0, spicy: 0.0, fatty: 3.6, bitter: 0.0, aroma: 3.6, crunch: 1.5 }
+      },
+      {
+        id: 'kiwi_fruit',
+        name: 'Trái Kiwi Xanh Chua Dịu Giòn Hạt',
+        category: 'sweets',
+        emoji: '🥝',
+        color: '#84cc16',
+        cookedColor: '#65a30d',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Thịt kiwi xanh ngọc chua thanh kích thích tuyến nước bọt, hạt đen lách tách giòn tan, xay sinh tố đá tuyết hoặc trang trí bánh ngọt giải ngấy',
+        flavors: { umami: 0.4, salty: 0.0, sweet: 2.4, sour: 3.8, spicy: 0.0, fatty: 0.1, bitter: 0.1, aroma: 3.5, crunch: 2.4 }
+      },
+      {
+        id: 'grapes',
+        name: 'Nho Đen Không Hạt Mọng Nước Ngọt Lịm',
+        category: 'sweets',
+        emoji: '🍇',
+        color: '#581c87',
+        cookedColor: '#3b0764',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Từng quả nho đen vỏ mỏng căng tròn mọng nước, cắn bụp ngọt lịm tan chảy không hạt, ép nước mocktail giải khát hoặc ăn kèm đĩa thịt nguội phô mai',
+        flavors: { umami: 0.3, salty: 0.0, sweet: 4.2, sour: 1.0, spicy: 0.0, fatty: 0.0, bitter: 0.1, aroma: 3.6, crunch: 2.6 }
+      },
+      {
+        id: 'lotus_leaf',
+        name: 'Lá Sen Tươi Gói Cơm Hấp Hương Thảo',
+        category: 'wrappers',
+        emoji: '🍃',
+        color: '#15803d',
+        cookedColor: '#14532d',
+        needsCooking: true,
+        canBeWrapper: true,
+        flavorDesc: 'Lá sen Đồng Tháp xanh ngát tỏa hương sen thanh tao dịu mát, gói trọn cơm chiên hạt sen tôm thịt đem hấp chín cách thủy ngát hương cung đình',
+        flavors: { umami: 0.8, salty: 0.1, sweet: 0.6, sour: 0.0, spicy: 0.0, fatty: 0.0, bitter: 0.3, aroma: 4.6, crunch: 0.2 }
+      },
+      {
+        id: 'soba_noodles',
+        name: 'Mì Kiều Mạch Soba Nhật Bản',
+        category: 'noodles_flour',
+        emoji: '🍜',
+        color: '#78716c',
+        cookedColor: '#57534e',
+        needsCooking: true,
+        flavorDesc: 'Sợi mì kiều mạch màu nâu xám dẻo thơm hương ngũ cốc mộc mạc, ăn lạnh nhúng nước tương dashi mát rượi mùa hè hoặc nấu nước súp nóng ấm lòng',
+        flavors: { umami: 1.4, salty: 0.2, sweet: 1.4, sour: 0.0, spicy: 0.0, fatty: 0.2, bitter: 0.3, aroma: 3.2, crunch: 0.5 }
+      },
+
+      // --- BỔ SUNG 15 NGUYÊN LIỆU MỚI: TRỨNG MUỐI, THANH CUA, NẤM TUYẾT, VIỆT QUẤT, BƯỞI DA XANH, LÁ CHUỐI (ĐẠT MỐC 200 MÓN HOÀN HẢO) ---
+      {
+        id: 'salted_egg_yolk',
+        name: 'Lòng Đỏ Trứng Muối Hoàng Kim',
+        category: 'seafood',
+        emoji: '🥚',
+        color: '#f59e0b',
+        cookedColor: '#d97706',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Lòng đỏ trứng muối bùi béo ngậy mằn mặn vàng ươm, tán nhuyễn làm sốt trứng muối tôm cua hoặc hấp chín làm nhân bánh',
+        flavors: { umami: 4.6, salty: 3.2, sweet: 1.0, sour: 0.0, spicy: 0.0, fatty: 4.6, bitter: 0.0, aroma: 3.8, crunch: 0.2 }
+      },
+      {
+        id: 'kani_crab_stick',
+        name: 'Thanh Cua Kani Nhật Bản',
+        category: 'seafood',
+        emoji: '🦀',
+        color: '#f87171',
+        cookedColor: '#ef4444',
+        needsCooking: false,
+        texture: 'soft',
+        flavorDesc: 'Thanh cua thịt cá tuyết vị ngọt thanh mềm mọng, xé sợi cuộn kimbap, kẹp sushi hoặc trộn salad rong biển',
+        flavors: { umami: 3.5, salty: 1.0, sweet: 2.2, sour: 0.0, spicy: 0.0, fatty: 0.5, bitter: 0.0, aroma: 2.6, crunch: 0.3 }
+      },
+      {
+        id: 'snow_fungus',
+        name: 'Nấm Tuyết Trắng (Ngân Nhĩ)',
+        category: 'veg',
+        emoji: '🍄',
+        color: '#ffffff',
+        cookedColor: '#f1f5f9',
+        needsCooking: true,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Đóa nấm tuyết trắng muốt giòn sần sật mọng nước, bổ phế thanh nhiệt, nấu súp cua vi cá hoặc chè hạt sen táo đỏ',
+        flavors: { umami: 1.2, salty: 0.1, sweet: 1.4, sour: 0.0, spicy: 0.0, fatty: 0.0, bitter: 0.0, aroma: 2.2, crunch: 4.3 }
+      },
+      {
+        id: 'banana_leaf',
+        name: 'Lá Chuối Tươi Lau Sạch',
+        category: 'wrappers',
+        emoji: '🍃',
+        color: '#16a34a',
+        cookedColor: '#15803d',
+        needsCooking: true,
+        canBeWrapper: true,
+        flavorDesc: 'Lá chuối bánh tẻ mềm dai thơm mùi đồng quê, gói giò lụa, nem chua, cá nướng hoặc gói xôi hấp bốc khói ngào ngạt',
+        flavors: { umami: 0.6, salty: 0.1, sweet: 0.5, sour: 0.0, spicy: 0.0, fatty: 0.0, bitter: 0.2, aroma: 4.5, crunch: 0.2 }
+      },
+      {
+        id: 'blueberries',
+        name: 'Trái Việt Quất Mọng Nước',
+        category: 'sweets',
+        emoji: '🫐',
+        color: '#3b82f6',
+        cookedColor: '#1d4ed8',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Từng quả việt quất tròn mọng sắc lam tím, cắn bụp vị chua ngọt thanh tao quý phái, trộn sữa chua hoặc làm sốt bít tết',
+        flavors: { umami: 0.4, salty: 0.0, sweet: 3.4, sour: 2.6, spicy: 0.0, fatty: 0.0, bitter: 0.1, aroma: 4.1, crunch: 2.5 }
+      },
+      {
+        id: 'pomelo',
+        name: 'Bưởi Da Xanh Tép Mọng Nước',
+        category: 'veg',
+        emoji: '🍈',
+        color: '#84cc16',
+        cookedColor: '#65a30d',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Tép bưởi hồng giòn tan lách tách tràn trề nước ngọt thanh hơi chua dịu, trộn gỏi tôm thịt hoặc chấm muối ớt giải ngấy',
+        flavors: { umami: 0.4, salty: 0.0, sweet: 3.2, sour: 2.8, spicy: 0.0, fatty: 0.0, bitter: 0.3, aroma: 4.2, crunch: 3.2 }
+      },
+      {
+        id: 'cream_cheese',
+        name: 'Phô Mai Kem Cream Cheese Mềm Mượt',
+        category: 'starch',
+        emoji: '🧀',
+        color: '#fefce8',
+        cookedColor: '#fef08a',
+        needsCooking: false,
+        texture: 'soft',
+        flavorDesc: 'Phô mai kem tươi mềm mịn béo ngậy chua dịu tan chảy, phết bánh mì nướng, làm bánh kem Tiramisu hoặc sốt phô mai đút lò',
+        flavors: { umami: 3.2, salty: 1.5, sweet: 1.8, sour: 1.4, spicy: 0.0, fatty: 5.4, bitter: 0.0, aroma: 3.8, crunch: 0.0 }
+      },
+      {
+        id: 'sea_grapes',
+        name: 'Rong Nho Biển Giòn Tươi Tách Tách',
+        category: 'veg',
+        emoji: '🍇',
+        color: '#22c55e',
+        cookedColor: '#16a34a',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Rong nho biển tựa trứng cá xanh mướt ngậm nước biển mằn mặn giòn lách tách rộn ràng trong miệng, chấm sốt mè rang giải nhiệt',
+        flavors: { umami: 2.6, salty: 2.2, sweet: 0.6, sour: 0.1, spicy: 0.0, fatty: 0.1, bitter: 0.0, aroma: 3.2, crunch: 4.7 }
+      },
+      {
+        id: 'mashed_potatoes',
+        name: 'Khoai Tây Nghiền Bơ Sữa Mịn Mượt',
+        category: 'starch',
+        emoji: '🥔',
+        color: '#fef9c3',
+        cookedColor: '#fde047',
+        needsCooking: false,
+        texture: 'soft',
+        flavorDesc: 'Khoai tây hấp chín nghiền nhuyễn mịn quyện bơ lạt và sữa tươi, béo ngậy ngọt bùi êm mượt, ăn kèm sườn cừu bít tết',
+        flavors: { umami: 2.0, salty: 0.8, sweet: 2.0, sour: 0.0, spicy: 0.0, fatty: 3.8, bitter: 0.0, aroma: 3.2, crunch: 0.0 }
+      },
+      {
+        id: 'cinnamon_stick',
+        name: 'Vỏ Quế Khô Rừng Trà Bồng',
+        category: 'noodles_flour',
+        emoji: '🪵',
+        color: '#92400e',
+        cookedColor: '#78350f',
+        needsCooking: true,
+        flavorDesc: 'Thanh vỏ quế cuộn tròn nồng ấm hương tinh dầu ngọt cay ấm áp, ninh nước dùng phở bò, hầm gà tiềm hoặc pha cà phê thảo mộc',
+        flavors: { umami: 0.5, salty: 0.0, sweet: 2.2, sour: 0.0, spicy: 1.8, fatty: 0.0, bitter: 0.4, aroma: 5.0, crunch: 0.5 }
+      },
+      {
+        id: 'star_anise',
+        name: 'Hoa Hồi Khô Thơm Ngát',
+        category: 'noodles_flour',
+        emoji: '⭐',
+        color: '#713f12',
+        cookedColor: '#451a03',
+        needsCooking: true,
+        flavorDesc: 'Búp hoa hồi hình sao 8 cánh tỏa hương thơm ngào ngạt ấm áp của cam thảo, linh hồn nước dùng phở truyền thống và món kho tàu',
+        flavors: { umami: 0.8, salty: 0.0, sweet: 1.8, sour: 0.0, spicy: 1.2, fatty: 0.0, bitter: 0.3, aroma: 5.0, crunch: 0.5 }
+      },
+      {
+        id: 'peanut_butter_jam',
+        name: 'Bơ Đậu Phộng Mịn Béo Bùi',
+        category: 'sweets',
+        emoji: '🥜',
+        color: '#d97706',
+        cookedColor: '#b45309',
+        needsCooking: false,
+        texture: 'soft',
+        flavorDesc: 'Bơ đậu phộng rang xay mịn quánh béo ngậy ngọt bùi đậm đà, phết bánh mì kẹp hoặc pha sinh tố chuối năng lượng',
+        flavors: { umami: 2.2, salty: 0.9, sweet: 2.8, sour: 0.0, spicy: 0.0, fatty: 4.8, bitter: 0.0, aroma: 4.0, crunch: 0.2 }
+      },
+      {
+        id: 'lotus_stem_pickled',
+        name: 'Ngó Sen Chua Ngọt Giòn Rụm',
+        category: 'veg',
+        emoji: '🎋',
+        color: '#ffffff',
+        cookedColor: '#f8fafc',
+        needsCooking: false,
+        texture: 'crispy',
+        isFreshBalancer: true,
+        flavorDesc: 'Cọng ngó sen trắng muốt ngâm chua ngọt giòn tan rôm rốp rỗng ruột hút nước, trộn gỏi tai heo tôm thịt thanh mát giòn rụm',
+        flavors: { umami: 0.8, salty: 1.2, sweet: 2.8, sour: 3.5, spicy: 0.3, fatty: 0.0, bitter: 0.0, aroma: 2.6, crunch: 4.6 }
+      },
+      {
+        id: 'fish_tofu',
+        name: 'Đậu Hũ Cá Phô Mai Dai Mịn',
+        category: 'seafood',
+        emoji: '🍢',
+        color: '#fed7aa',
+        cookedColor: '#f97316',
+        needsCooking: true,
+        texture: 'soft',
+        flavorDesc: 'Miếng đậu hũ cá vàng ươm dai mịn sần sật bọc phô mai tan chảy bên trong, nhúng lẩu cay hoặc chiên vàng chấm sốt cà chua',
+        flavors: { umami: 3.8, salty: 1.2, sweet: 1.8, sour: 0.0, spicy: 0.0, fatty: 2.4, bitter: 0.0, aroma: 3.0, crunch: 0.6 }
+      },
+      {
+        id: 'rice_cake_puff',
+        name: 'Bánh Bỏng Gạo Giòn Xốp Vàng',
+        category: 'starch',
+        emoji: '🍘',
+        color: '#fde047',
+        cookedColor: '#eab308',
+        needsCooking: false,
+        texture: 'crispy',
+        flavorDesc: 'Bánh bỏng gạo nổ phồng xốp giòn rụm tan ngay trên lưỡi, thơm lừng mùi cốm gạo mới, rắc đường caramel hoặc kẹp xúc xích',
+        flavors: { umami: 0.6, salty: 0.3, sweet: 2.2, sour: 0.0, spicy: 0.0, fatty: 0.2, bitter: 0.0, aroma: 3.6, crunch: 4.8 }
       }
     ];
 
@@ -3661,10 +4760,87 @@
           { id: 'shake_shaker', label: '🫨 Lắc Bình Shaker (S)', desc: 'Lắc mạnh trong bình shaker để hòa tan và sủi bọt' },
           { id: 'brew_infuse', label: '♨️ Hãm Trà & Cà Phê Nóng (B)', desc: 'Rót nước sôi hãm nóng chiết xuất hương vị bốc khói' }
         ]
+      },
+      {
+        id: 'steamer',
+        name: 'Xửng Hấp Cách Thủy',
+        shortName: '11. Xửng Hấp',
+        emoji: '♨️',
+        temp: '100°C (Hơi nước sôi)',
+        desc: 'Hấp chín thức ăn bằng hơi nước bốc lên nhẹ nhàng, giữ trọn vị ngọt thanh, nước súp và dưỡng chất tinh túy',
+        actions: [
+          { id: 'steam_step', label: '♨️ Hấp Cách Thủy Bốc Hơi (C)', desc: 'Hấp chín mềm mọng nước, giữ trọn vị thanh tao và độ ngọt' }
+        ]
+      },
+      {
+        id: 'wok',
+        name: 'Chảo Wok Đáy Sâu',
+        shortName: '12. Chảo Wok',
+        emoji: '🥘',
+        temp: '200°C (Lửa lớn)',
+        desc: 'Đảo nhanh rau củ, mì và thịt trên lửa lớn theo kiểu Á Đông',
+        actions: [
+          { id: 'fry_step', label: '🥘 Đảo Wok Lửa Lớn (C)', desc: 'Đảo nhanh tay để món ăn thơm nóng và chín đều' }
+        ]
+      },
+      {
+        id: 'grill_pan',
+        name: 'Chảo Gang Vân Nướng',
+        shortName: '13. Chảo Gang',
+        emoji: '🍖',
+        temp: '220°C (Gang nóng)',
+        desc: 'Nướng áp mặt tạo vân xém thơm cho thịt, cá và rau củ',
+        actions: [
+          { id: 'grill_step', label: '🍖 Nướng Trên Chảo Gang (C)', desc: 'Làm xém mặt nguyên liệu với vân nướng đậm đà' }
+        ]
+      },
+      {
+        id: 'pressure_cooker',
+        name: 'Nồi Áp Suất',
+        shortName: '14. Nồi Áp Suất',
+        emoji: '♨️',
+        temp: '115°C (Áp suất cao)',
+        desc: 'Ninh mềm thịt, đậu và củ quả nhanh chóng trong hơi nóng áp suất',
+        actions: [
+          { id: 'boil_step', label: '♨️ Ninh Áp Suất (C)', desc: 'Ninh mềm nguyên liệu và làm nước dùng đậm vị' }
+        ]
+      },
+      {
+        id: 'rice_cooker',
+        name: 'Nồi Cơm Điện',
+        shortName: '15. Nồi Cơm Điện',
+        emoji: '🍚',
+        temp: '100°C (Hấp và giữ ấm)',
+        desc: 'Nấu chín cơm, ngũ cốc và làm mềm nguyên liệu bằng hơi nước kín',
+        actions: [
+          { id: 'rice_cook_step', label: '🍚 Nấu Chín Bằng Hơi Nước (C)', desc: 'Hấp chín dẻo và giữ độ ẩm trong nồi cơm điện' }
+        ]
+      },
+      {
+        id: 'air_fryer',
+        name: 'Nồi Chiên Không Dầu',
+        shortName: '16. Nồi Chiên Không Dầu',
+        emoji: '🍟',
+        temp: '200°C (Khí nóng tuần hoàn)',
+        desc: 'Làm vàng giòn thực phẩm bằng luồng khí nóng, không cần ngập dầu',
+        actions: [
+          { id: 'air_fry_step', label: '🍟 Chiên Bằng Khí Nóng (C)', desc: 'Làm giòn bề mặt bằng khí nóng tuần hoàn' }
+        ]
+      },
+      {
+        id: 'microwave',
+        name: 'Lò Vi Sóng',
+        shortName: '17. Lò Vi Sóng',
+        emoji: '📡',
+        temp: 'Làm nóng nhanh',
+        desc: 'Làm nóng và nấu chín nhanh từ bên trong bằng vi sóng',
+        actions: [
+          { id: 'microwave_step', label: '📡 Làm Nóng Bằng Vi Sóng (C)', desc: 'Làm nóng nhanh món ăn; thao tác lặp lại có thể làm món khô hoặc cháy' }
+        ]
       }
     ];
 
-    // 18 EXPANDED SPICES
+    // 29 EXPANDED SPICES
     const SPICES = [
       { id: 'salt', name: 'Muối biển', emoji: '🧂', type: 'powder', desc: 'Thêm vị mặn thuần khiết, kích hoạt vị ngọt thịt', add: { salty: 1.6, umami: 0.5, sweet: 0.0, sour: 0.0, spicy: 0.0, fatty: 0.0, bitter: -0.2, aroma: 0.2 } },
       { id: 'black_pepper', name: 'Tiêu đen xay', emoji: '⚫', type: 'powder', desc: 'Cay nồng ấm áp dậy mùi thịt bò, trứng', add: { salty: 0.0, umami: 0.3, sweet: 0.0, sour: 0.0, spicy: 1.5, fatty: 0.0, bitter: 0.0, aroma: 1.9 } },
@@ -3683,7 +4859,18 @@
       { id: 'five_spice', name: 'Ngũ vị hương', emoji: '✨', type: 'powder', desc: 'Hương quế hồi đinh hương cho món quay nướng', add: { salty: 0.1, umami: 0.6, sweet: 0.4, sour: 0.0, spicy: 0.7, fatty: 0.0, bitter: 0.1, aroma: 2.6 } },
       { id: 'oyster_sauce', name: 'Dầu hào đậm đặc', emoji: '🦪', type: 'liquid', desc: 'Sánh mịn giàu vị Umami xào thịt bò', add: { salty: 1.1, umami: 2.1, sweet: 0.8, sour: 0.0, spicy: 0.0, fatty: 0.2, bitter: 0.0, aroma: 1.4 } },
       { id: 'vinegar', name: 'Giấm gạo lên men', emoji: '🍶', type: 'liquid', desc: 'Chua thanh trộn gỏi làm dịu độ ngấy', add: { salty: 0.0, umami: 0.2, sweet: 0.2, sour: 1.6, spicy: 0.0, fatty: -0.5, bitter: 0.0, aroma: 1.0 } },
-      { id: 'cheese_powder', name: 'Phô mai bột', emoji: '🧀', type: 'powder', desc: 'Béo mặn thơm ngậy rắc lên đồ chiên nướng', add: { salty: 0.9, umami: 1.4, sweet: 0.4, sour: 0.0, spicy: -0.3, fatty: 1.9, bitter: 0.0, aroma: 1.7 } }
+      { id: 'cheese_powder', name: 'Phô mai bột', emoji: '🧀', type: 'powder', desc: 'Béo mặn thơm ngậy rắc lên đồ chiên nướng', add: { salty: 0.9, umami: 1.4, sweet: 0.4, sour: 0.0, spicy: -0.3, fatty: 1.9, bitter: 0.0, aroma: 1.7 } },
+      { id: 'sate_chili_oil', name: 'Sa tế tôm cay nồng', emoji: '🌶️', type: 'liquid', desc: 'Ớt chưng tôm tỏi thơm lừng, cay nồng đậm đà bốc khói', add: { salty: 0.8, umami: 1.5, sweet: 0.3, sour: 0.0, spicy: 3.5, fatty: 1.8, bitter: 0.0, aroma: 2.8 } },
+      { id: 'sesame_oil', name: 'Dầu mè rang thơm nức', emoji: '🫒', type: 'liquid', desc: 'Vài giọt thơm lừng quyến rũ đánh thức mọi giác quan Á Đông', add: { salty: 0.0, umami: 0.6, sweet: 0.0, sour: 0.0, spicy: 0.0, fatty: 3.0, bitter: 0.0, aroma: 3.8 } },
+      { id: 'ketchup', name: 'Sốt cà chua Ketchup', emoji: '🍅', type: 'liquid', desc: 'Vị chua ngọt đậm đà sánh mịn, chấm khoai chiên hoặc làm sốt mì', add: { salty: 0.6, umami: 1.2, sweet: 2.2, sour: 1.8, spicy: 0.0, fatty: 0.0, bitter: 0.0, aroma: 1.4 } },
+      { id: 'peanut_sauce', name: 'Sốt bơ đậu phộng', emoji: '🥜', type: 'liquid', desc: 'Béo ngậy thơm bùi sánh đặc, sốt chấm gỏi cuốn thịt nướng thần thánh', add: { salty: 0.8, umami: 1.4, sweet: 1.8, sour: 0.2, spicy: 0.2, fatty: 2.8, bitter: 0.0, aroma: 2.5 } },
+      { id: 'lime_pepper_salt', name: 'Muối tiêu chanh', emoji: '🧂', type: 'powder', desc: 'Mặn mòi chua thanh cay ấm, linh hồn chấm gà luộc và hải sản tươi', add: { salty: 2.4, umami: 0.4, sweet: 0.0, sour: 1.5, spicy: 1.2, fatty: 0.0, bitter: 0.0, aroma: 1.8 } },
+      { id: 'cinnamon', name: 'Quế thanh thơm', emoji: '🪵', type: 'powder', desc: 'Hương gỗ ấm nồng, hợp món hầm, đồ uống nóng và bánh ngọt', add: { salty: 0.0, umami: 0.1, sweet: 0.4, sour: 0.0, spicy: 0.5, fatty: 0.0, bitter: 0.1, aroma: 2.8 } },
+      { id: 'star_anise', name: 'Hoa hồi nguyên cánh', emoji: '⭐', type: 'powder', desc: 'Mùi hồi ngọt thơm đặc trưng cho nước dùng phở và món kho', add: { salty: 0.0, umami: 0.2, sweet: 0.3, sour: 0.0, spicy: 0.2, fatty: 0.0, bitter: 0.0, aroma: 2.6 } },
+      { id: 'turmeric', name: 'Bột nghệ vàng', emoji: '🟡', type: 'powder', desc: 'Thơm dịu, tạo sắc vàng đẹp mắt cho cà ri và món ướp', add: { salty: 0.0, umami: 0.3, sweet: 0.1, sour: 0.0, spicy: 0.3, fatty: 0.1, bitter: 0.4, aroma: 1.8 } },
+      { id: 'curry_powder', name: 'Bột cà ri thơm', emoji: '🍛', type: 'powder', desc: 'Hỗn hợp gia vị ấm thơm, dậy vị cho món xào và món hầm', add: { salty: 0.2, umami: 0.5, sweet: 0.1, sour: 0.0, spicy: 0.8, fatty: 0.1, bitter: 0.2, aroma: 2.7 } },
+      { id: 'mustard', name: 'Mù tạt vàng', emoji: '🟨', type: 'liquid', desc: 'Cay nồng dịu và chua nhẹ, dùng kèm bánh mì hoặc hải sản', add: { salty: 0.4, umami: 0.3, sweet: 0.5, sour: 0.7, spicy: 1.4, fatty: 0.0, bitter: 0.1, aroma: 1.2 } },
+      { id: 'maple_syrup', name: 'Xi-rô lá phong', emoji: '🍁', type: 'liquid', desc: 'Ngọt thơm vị caramel, rưới bánh nướng hoặc ướp món quay', add: { salty: 0.0, umami: 0.1, sweet: 2.4, sour: 0.0, spicy: 0.0, fatty: 0.0, bitter: 0.0, aroma: 1.8 } }
     ];
 
     const GARNISH_OPTIONS = [
@@ -4007,6 +5194,19 @@
         gain.connect(ctx.destination);
         osc.start(now);
         osc.stop(now + 0.56);
+      } else if (type === 'microwave') {
+        [0, 0.18].forEach((offset) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now + offset);
+          gain.gain.setValueAtTime(0.16, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.09);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.1);
+        });
       } else if (type === 'spice') {
         const bufSize = Math.floor(ctx.sampleRate * 0.07);
         const buffer = ctx.createBuffer(1, bufSize, ctx.sampleRate);
@@ -4088,7 +5288,7 @@
     function determineDefaultTexture(ing) {
       if (ing.texture) return ing.texture;
       if (ing.id === 'milk' || ing.id === 'ice_cubes' || ing.id === 'pure_water' || ing.id === 'brewed_coffee' || ing.id === 'espresso') return 'drink';
-      const crispyIds = ['instant_ramen', 'roasted_peanuts', 'taco_shell', 'banh_mi_vn', 'croissant', 'oreo', 'cucumber', 'guava', 'june_plum', 'fried_shallots', 'lotus_root', 'panko_breadcrumbs'];
+      const crispyIds = ['instant_ramen', 'roasted_peanuts', 'taco_shell', 'banh_mi_vn', 'croissant', 'oreo', 'cucumber', 'guava', 'june_plum', 'fried_shallots', 'lotus_root', 'panko_breadcrumbs', 'scorched_rice', 'crispy_bacon', 'cashew_nuts', 'fresh_octopus', 'fish_paste', 'beef_meatballs', 'carrot', 'cabbage', 'broccoli', 'asparagus', 'king_oyster_mushroom', 'bitter_melon', 'pineapple', 'watermelon', 'crispy_apple', 'water_spinach', 'parmesan_cheese', 'abalone', 'salami', 'fresh_bamboo_shoot', 'daikon_radish', 'bok_choy', 'wood_ear_mushroom', 'kimchi', 'pickled_eggplant', 'peach_slices', 'kiwi_fruit', 'grapes', 'pork_trotter', 'snow_fungus', 'blueberries', 'pomelo', 'sea_grapes', 'lotus_stem_pickled', 'rice_cake_puff'];
       if (crispyIds.includes(ing.id) || (ing.flavors && ing.flavors.crunch >= 2.5)) {
         return 'crispy';
       }
@@ -4162,7 +5362,11 @@
         blended: 'xay sinh tố',
         stirred: 'khuấy ly',
         shaken: 'lắc shaker',
-        brewed: 'hãm nóng'
+        brewed: 'hãm nóng',
+        steamed: 'hấp cách thủy',
+        air_fried: 'chiên giòn bằng khí nóng',
+        rice_cooked: 'nấu chín bằng nồi cơm điện',
+        microwaved: 'làm nóng bằng vi sóng'
       };
 
       if (item.actionHistory && item.actionHistory.length > 1) {
@@ -4273,7 +5477,7 @@
 
         if (it.category === 'sweets' || it.id === 'chocolate' || it.id === 'milk' || it.id === 'oreo') hasSweets = true;
         if (it.category === 'meat' || it.category === 'seafood' || it.id === 'egg' || it.id === 'pate') hasMeatOrSavory = true;
-        if (it.id === 'cheese_stick') hasCheese = true;
+        if (it.id === 'cheese_stick' || it.id === 'cheese_slice' || it.id === 'mozzarella' || it.id === 'parmesan_cheese' || it.id === 'cheese_foam' || it.id === 'cream_cheese' || it.baseId === 'cheese_slice' || it.baseId === 'mozzarella' || it.baseId === 'parmesan_cheese' || it.baseId === 'cheese_foam' || it.baseId === 'cream_cheese') hasCheese = true;
         if (it.baseId === 'white_sugar' || it.baseId === 'brown_sugar' || it.baseId === 'palm_sugar' || it.baseId === 'rock_sugar' || it.baseId === 'malt_syrup' || it.baseId === 'condensed_milk' || it.id === 'condensed_milk') {
           if (it.cookLevel >= 1 && (it.cookMethod === 'fried' || it.cookMethod === 'deep_fried' || it.cookMethod === 'baked' || it.cookMethod === 'grilled' || (it.actionHistory && it.actionHistory.some(a => ['fried', 'deep_fried', 'baked', 'grilled'].includes(a))))) {
             hasCaramelizedSugar = true;
@@ -4286,12 +5490,12 @@
         if (it.baseId === 'onion' && it.cookLevel >= 1) hasCaramelizedOnion = true;
         if (it.category === 'starch' || it.category === 'noodles_flour' || it.baseId === 'rice_paper' || it.baseId === 'sweet_corn') hasStarchOrGrains = true;
         if (alcoholIds.includes(it.baseId) || alcoholIds.includes(it.id)) {
-          if (it.cookLevel >= 1 || ['fried', 'deep_fried', 'baked', 'grilled', 'boiled', 'brewed'].includes(it.cookMethod) || (it.actionHistory && it.actionHistory.some(a => ['fried', 'deep_fried', 'baked', 'grilled', 'boiled', 'brewed'].includes(a)))) {
+          if (it.cookLevel >= 1 || ['fried', 'deep_fried', 'baked', 'grilled', 'boiled', 'brewed', 'steamed'].includes(it.cookMethod) || (it.actionHistory && it.actionHistory.some(a => ['fried', 'deep_fried', 'baked', 'grilled', 'boiled', 'brewed'].includes(a)))) {
             hasHeatedAlcohol = true;
           }
         }
         if (gelatinStarchIds.includes(it.baseId) || gelatinStarchIds.includes(it.id)) {
-          if (it.cookLevel >= 1 || ['boiled', 'fried', 'baked', 'deep_fried', 'grilled'].includes(it.cookMethod)) {
+          if (it.cookLevel >= 1 || ['boiled', 'fried', 'baked', 'deep_fried', 'grilled', 'steamed'].includes(it.cookMethod)) {
             hasGelatinizedStarch = true;
           }
         }
@@ -4312,7 +5516,7 @@
             if (sub.isFreshBalancer) hasFreshBalancer = true;
             if (sub.category === 'sweets' || sub.id === 'chocolate' || sub.id === 'milk' || sub.id === 'oreo') hasSweets = true;
             if (sub.category === 'meat' || sub.category === 'seafood' || sub.id === 'egg' || sub.id === 'pate') hasMeatOrSavory = true;
-            if (sub.id === 'cheese_stick') hasCheese = true;
+            if (sub.id === 'cheese_stick' || sub.id === 'cheese_slice' || sub.id === 'mozzarella' || sub.id === 'parmesan_cheese' || sub.id === 'cheese_foam' || sub.baseId === 'cheese_slice' || sub.baseId === 'mozzarella' || sub.baseId === 'parmesan_cheese' || sub.baseId === 'cheese_foam') hasCheese = true;
             if (sub.baseId === 'white_sugar' || sub.baseId === 'brown_sugar' || sub.baseId === 'palm_sugar' || sub.baseId === 'rock_sugar' || sub.baseId === 'malt_syrup' || sub.baseId === 'condensed_milk' || sub.id === 'condensed_milk') {
               if (sub.cookLevel >= 1 || it.cookLevel >= 1) hasCaramelizedSugar = true;
             }
@@ -5028,6 +6232,9 @@
           shaken: 'lắc shaker',
           brewed: 'hãm nóng',
           blended: 'xay sinh tố',
+          air_fried: 'chiên khí nóng',
+          rice_cooked: 'nấu bằng nồi cơm điện',
+          microwaved: 'làm nóng bằng vi sóng',
           boiled: 'luộc/hầm',
           fried: 'áp chảo',
           deep_fried: 'chiên ngập dầu',
@@ -5105,7 +6312,11 @@
         boil_step: { method: 'boiled', soundFile: 'pot_of_boiling_water.ogg', verb: 'Luộc / Hầm' },
         deep_fry_step: { method: 'deep_fried', soundFile: 'deep_frying_pan.ogg', verb: 'Chiên ngập dầu' },
         bake_step: { method: 'baked', soundFile: 'oven.ogg', verb: 'Nướng lò' },
-        grill_step: { method: 'grilled', soundFile: 'grill rack.ogg', verb: 'Nướng vỉ than hoa' }
+        grill_step: { method: 'grilled', soundFile: 'grill rack.ogg', verb: 'Nướng vỉ than hoa' },
+        steam_step: { method: 'steamed', soundFile: 'pot_of_boiling_water.ogg', verb: 'Hấp cách thủy' },
+        air_fry_step: { method: 'air_fried', soundEffect: 'deep_fry', verb: 'Chiên bằng khí nóng' },
+        rice_cook_step: { method: 'rice_cooked', soundEffect: 'boil', verb: 'Nấu bằng nồi cơm điện' },
+        microwave_step: { method: 'microwaved', soundEffect: 'microwave', verb: 'Làm nóng bằng vi sóng' }
       };
 
       const heat = heatMethods[actionId];
@@ -5116,7 +6327,12 @@
         state.stationActionType = actionId;
         renderWorkbench();
 
-        await playExternalAudio(heat.soundFile, true);
+        if (heat.soundFile) {
+          await playExternalAudio(heat.soundFile, true);
+        } else {
+          playSoundEffect(heat.soundEffect);
+          await new Promise(resolve => setTimeout(resolve, 350));
+        }
 
         const descriptions = [];
 
@@ -5181,11 +6397,17 @@
           item.hasIce = false;
 
           // Cập nhật thuộc tính texture cảm quan động theo phương pháp nấu nhiệt
-          if (heat.method === 'deep_fried') {
+          if (heat.method === 'deep_fried' || heat.method === 'air_fried') {
             item.texture = 'crispy';
             if (item.kind === 'rolled' || item.kind === 'stuffed') item.outerTexture = 'crispy';
           } else if (heat.method === 'boiled') {
             item.texture = 'liquid';
+            if (item.kind === 'rolled' || item.kind === 'stuffed') item.outerTexture = 'soft';
+          } else if (heat.method === 'steamed') {
+            item.texture = item.texture === 'crispy' ? 'crispy' : 'soft';
+            if (item.kind === 'rolled' || item.kind === 'stuffed') item.outerTexture = 'soft';
+          } else if (heat.method === 'rice_cooked' || heat.method === 'microwaved') {
+            item.texture = 'soft';
             if (item.kind === 'rolled' || item.kind === 'stuffed') item.outerTexture = 'soft';
           } else if (heat.method === 'fried') {
             item.texture = item.cookLevel >= 2 ? 'crispy' : 'soft';
@@ -5202,14 +6424,34 @@
             item.needsCooking = false;
             item.flavors.umami += 0.9;
             item.flavors.aroma += 1.4;
-            item.flavors.sweet += 0.4;
+            item.flavors.sweet += (heat.method === 'steamed' ? 0.6 : 0.4);
+            if (heat.method === 'steamed') item.flavors.umami += 0.4;
             if (heat.method === 'deep_fried') item.flavors.crunch += 2.0;
-            descriptions.push(`${item.name} đã chín tới thơm lừng`);
+            if (heat.method === 'air_fried') item.flavors.crunch += 1.5;
+            if (heat.method === 'rice_cooked') {
+              item.flavors.sweet += 0.6;
+              item.flavors.umami += 0.3;
+            }
+            if (heat.method === 'microwaved') item.flavors.aroma += 0.3;
+            const firstCookDescriptions = {
+              steamed: 'hấp chín mọng nước ngọt thanh',
+              air_fried: 'chiên khí nóng vàng giòn mà không ngập dầu',
+              rice_cooked: 'nấu chín dẻo bằng hơi nước trong nồi cơm điện',
+              microwaved: 'làm nóng nhanh bằng vi sóng',
+            };
+            descriptions.push(`${item.name} đã ${firstCookDescriptions[heat.method] || 'chín tới thơm lừng'}`);
           } else if (item.cookLevel === 2) {
             item.needsCooking = false;
             item.flavors.aroma += 1.5;
-            item.flavors.crunch += 1.8;
-            descriptions.push(`${item.name} đã chín vàng giòn rụm`);
+            if (['fried', 'deep_fried', 'air_fried', 'baked', 'grilled'].includes(heat.method)) {
+              item.flavors.crunch += heat.method === 'air_fried' ? 1.2 : 1.8;
+            }
+            const secondCookDescriptions = {
+              air_fried: 'đã vàng giòn hơn nhờ luồng khí nóng',
+              rice_cooked: 'đã nấu mềm kỹ trong nồi cơm điện',
+              microwaved: 'đã nóng kỹ bằng vi sóng'
+            };
+            descriptions.push(`${item.name} ${secondCookDescriptions[heat.method] || 'đã chín vàng giòn rụm'}`);
           } else {
             item.flavors.bitter += 3.6;
             descriptions.push(`CẢNH BÁO: ${item.name} đã bị CHÁY KHÉT ĐEN!`);
@@ -5468,7 +6710,10 @@
         fried: 'áp chảo',
         deep_fried: 'chiên ngập dầu',
         baked: 'đút lò nướng',
-        grilled: 'nướng than hoa'
+        grilled: 'nướng than hoa',
+        air_fried: 'chiên bằng khí nóng',
+        rice_cooked: 'nấu bằng nồi cơm điện',
+        microwaved: 'làm nóng bằng vi sóng'
       };
 
       const getFinalActionText = (act) => {
@@ -5495,6 +6740,16 @@
         if (act === 'boiled') {
           if (cookLevel >= 2) return 'đem ninh hầm nhừ mềm ngọt nước';
           return 'đem luộc chín mềm ngọt nước';
+        }
+        if (act === 'air_fried') {
+          if (cookLevel >= 3) return 'đem chiên khí nóng cháy khét';
+          return cookLevel >= 2 ? 'đem chiên khí nóng vàng giòn' : 'đem chiên khí nóng chín tới';
+        }
+        if (act === 'rice_cooked') {
+          return cookLevel >= 3 ? 'nấu nồi cơm điện quá lâu đến khô khét' : 'nấu chín dẻo bằng nồi cơm điện';
+        }
+        if (act === 'microwaved') {
+          return cookLevel >= 3 ? 'quay vi sóng quá lâu đến khô khét' : 'làm nóng nhanh bằng vi sóng';
         }
         if (act === 'blended') {
           return hasIce ? 'xay nhuyễn sánh mịn mát lạnh' : 'xay nhuyễn sánh mịn';
@@ -5736,6 +6991,15 @@
         }
         if (m === 'boiled') {
           return level >= 2 ? 'ninh hầm nhừ mềm ngọt nước' : 'luộc chín mềm ngọt nước';
+        }
+        if (m === 'air_fried') {
+          return level >= 2 ? 'chiên khí nóng vàng giòn' : 'chiên khí nóng chín tới';
+        }
+        if (m === 'rice_cooked') {
+          return 'nấu chín dẻo bằng nồi cơm điện';
+        }
+        if (m === 'microwaved') {
+          return 'làm nóng nhanh bằng vi sóng';
         }
         return level >= 2 ? 'chế biến chín kỹ thơm lừng' : 'chế biến chín tới thơm ngon';
       };
