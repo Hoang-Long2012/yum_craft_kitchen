@@ -27,20 +27,22 @@ explicitly and are not copied wholesale onto `window`.
 ## Migration status and sequence
 
 1. Extract pure item mechanics and add Node built-in tests (`food-items.js`).
-2. Move the actual catalog literals from the legacy script into `js/data/`, then
-   update kitchen UI consumers to import those definitions and remove the
-   duplicate inline arrays.
+2. Move the complete character, fridge-category, ingredient, station, spice,
+   garnish, and flavor-dimension catalogs into `js/data/`; import them from the
+   application module and cover their counts and identifiers with Node tests.
 3. Extract the remainder of culinary chemistry and test its scoring, title,
    sensory, and batch behavior against the current implementation.
 4. Move game state and game operations behind explicit core/cooking imports.
 5. Extract audio, accessibility/focus, rendering, and keyboard event binding;
    preserve DOM IDs and existing focus/announcement timing throughout.
-6. Replace the inline script with the module entry point only after all legacy
-   responsibilities have explicit imports and regression coverage.
+6. Replace the transitional inline module with a dedicated `js/app.js` entry
+   point after the remaining legacy responsibilities have explicit imports and
+   regression coverage.
 
-The first extraction is intentionally small and reviewable. The data module is
-an interim seam; complete migration must preserve the full existing catalog
-without omissions before switching application consumers to it.
+The first catalog migration preserves the original array literals and keeps the
+existing gameplay orchestration in the inline module for now. This is a
+transitional step: subsequent work will move state, cooking operations, UI,
+audio, and accessibility into focused modules.
 
 ## Accessibility invariants
 
