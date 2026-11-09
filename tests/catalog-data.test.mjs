@@ -12,7 +12,7 @@ test("catalogs preserve their expected item counts", () => {
   assert.equal(CHARACTERS.length, 6);
   assert.equal(FRIDGE_CATEGORIES.length, 10);
   assert.equal(INGREDIENTS.length, 200);
-  assert.equal(STATIONS.length, 9);
+  assert.equal(STATIONS.length, 17);
   assert.equal(SPICES.length, 29);
   assert.equal(GARNISH_OPTIONS.length, 6);
   assert.equal(FLAVOR_DIMENSIONS.length, 8);
