@@ -1,3 +1,4 @@
+import { showScreen } from "./main-menu.js";
 
     import { analyzeCulinaryChemistry, describeItemStateShort, generateSmartDishTitle } from "./cooking/culinary-chemistry.js";
     import { state } from "./core/state.js";
@@ -2177,7 +2178,6 @@
         satisfactionScore: review.score
       };
       state.lastTastedMeal = tastedMealPayload;
-      window.lastTastedMeal = tastedMealPayload;
 
       // Hiển thị nút nổi bật "Đưa Lên Cộng Đồng" ngay dưới phần đánh giá
       const shareContainer = document.getElementById('share-community-container');
@@ -2258,7 +2258,6 @@
       state.selectedVesselUid = null;
       state.currentScreen = 'character_select';
       state.lastTastedMeal = null;
-      window.lastTastedMeal = null;
       const shareContainer = document.getElementById('share-community-container');
       if (shareContainer) shareContainer.classList.add('hidden');
 
@@ -3255,13 +3254,10 @@
         state.selectedWrapperUid = null;
         state.selectedVesselUid = null;
         state.lastTastedMeal = null;
-        window.lastTastedMeal = null;
         const shareContainer = document.getElementById('share-community-container');
         if (shareContainer) shareContainer.classList.add('hidden');
         modalConfirmBackToMenu.close();
-        if (typeof window.showScreen === 'function') {
-          window.showScreen('main-menu');
-        }
+        showScreen('main-menu');
         announceNVDA('Đã dọn dẹp sạch sẽ nhà bếp và quay lại Menu Chính.', 'polite');
       });
 
