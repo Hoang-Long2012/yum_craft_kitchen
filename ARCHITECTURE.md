@@ -1,11 +1,13 @@
 # Frontend module migration
 
-The existing frontend remains a vanilla JavaScript application. The original
-`index.html` currently contains the kitchen game data, mutable game state,
-culinary chemistry, item transformations, audio effects, canvas rendering,
-DOM rendering, event handlers, keyboard shortcuts, focus behavior, and NVDA
-live-region announcements. Authentication, admin, and community persistence
-already live in separate modules under `js/`.
+The frontend remains a vanilla JavaScript application. The catalog definitions
+now live in `js/data/`, pure item construction/texture/ice helpers live in
+`js/cooking/food-items.js`, and mutable gameplay state lives in
+`js/core/state.js`. The inline module in `index.html` still coordinates culinary
+chemistry, item transformations, audio effects, canvas and DOM rendering,
+event handlers, keyboard shortcuts, focus behavior, and NVDA live-region
+announcements. Authentication, admin, and community persistence already live
+in separate modules under `js/`.
 
 ## Target boundaries
 
@@ -30,9 +32,10 @@ explicitly and are not copied wholesale onto `window`.
 2. Move the complete character, fridge-category, ingredient, station, spice,
    garnish, and flavor-dimension catalogs into `js/data/`; import them from the
    application module and cover their counts and identifiers with Node tests.
-3. Extract the remainder of culinary chemistry and test its scoring, title,
+3. Move mutable gameplay state into `js/core/state.js` and import the shared
+   state object from the application module.
+4. Extract the remainder of culinary chemistry and test its scoring, title,
    sensory, and batch behavior against the current implementation.
-4. Move game state and game operations behind explicit core/cooking imports.
 5. Extract audio, accessibility/focus, rendering, and keyboard event binding;
    preserve DOM IDs and existing focus/announcement timing throughout.
 6. Replace the transitional inline module with a dedicated `js/app.js` entry
