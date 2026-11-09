@@ -1,3 +1,4 @@
+import { state } from "./core/state.js";
 /**
  * YUMCRAFT KITCHEN — MAIN MENU & AUTH CONTROLLER
  * Điều phối luồng màn hình: Xác thực (Đăng nhập / Đăng ký) <-> Menu Chính <-> Chọn Nhân Vật <-> Nhà Bếp
@@ -1052,7 +1053,7 @@ export function initCommunityAndLeaderboardController() {
 
   if (btnShareToCommunity && modalConfirmShare) {
     btnShareToCommunity.addEventListener("click", () => {
-      const meal = window.lastTastedMeal || (window.state && window.state.lastTastedMeal);
+      const meal = state.lastTastedMeal;
       if (!meal) {
         announceToScreenReader("Chưa có món ăn nào vừa được thực khách đánh giá để đưa lên cộng đồng.", true);
         return;
@@ -1079,7 +1080,7 @@ export function initCommunityAndLeaderboardController() {
 
   if (btnConfirmShareYes && modalConfirmShare) {
     btnConfirmShareYes.addEventListener("click", async () => {
-      const meal = window.lastTastedMeal || (window.state && window.state.lastTastedMeal);
+      const meal = state.lastTastedMeal;
       if (!meal) {
         modalConfirmShare.close();
         return;
@@ -1097,10 +1098,7 @@ export function initCommunityAndLeaderboardController() {
         if (shareContainer) {
           shareContainer.classList.add("hidden");
         }
-        window.lastTastedMeal = null;
-        if (window.state) {
-          window.state.lastTastedMeal = null;
-        }
+        state.lastTastedMeal = null;
 
         // Chuyển focus về Tab Tủ Lạnh hoặc nút hợp lý để NVDA không bị mất điểm neo
         const tabFridge = document.getElementById("tab-fridge");
@@ -1692,10 +1690,6 @@ export function initMainMenuController() {
     }
   });
 }
-
-// Gắn các hàm toàn cục để tương thích hệ thống
-window.showScreen = showScreen;
-window.showAuthView = showAuthView;
 
 // Khởi chạy khi DOM đã sẵn sàng
 if (document.readyState === "loading") {
