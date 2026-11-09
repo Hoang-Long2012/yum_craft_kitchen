@@ -1,77 +1,65 @@
 const CRISPY_INGREDIENT_IDS = new Set([
-  "instant_ramen", "roasted_peanuts", "taco_shell", "banh_mi_vn",
-  "croissant", "oreo", "cucumber", "guava", "june_plum",
-  "fried_shallots", "lotus_root", "panko_breadcrumbs", "scorched_rice",
-  "crispy_bacon", "cashew_nuts", "fresh_octopus", "fish_paste",
-  "beef_meatballs", "carrot", "cabbage", "broccoli", "asparagus",
-  "king_oyster_mushroom", "bitter_melon", "pineapple", "watermelon",
-  "crispy_apple", "water_spinach", "parmesan_cheese", "abalone",
+  "instant_ramen", "roasted_peanuts", "taco_shell", "banh_mi_vn", "croissant",
+  "oreo", "cucumber", "guava", "june_plum", "fried_shallots", "lotus_root",
+  "panko_breadcrumbs", "scorched_rice", "crispy_bacon", "cashew_nuts",
+  "fresh_octopus", "fish_paste", "beef_meatballs", "carrot", "cabbage",
+  "broccoli", "asparagus", "king_oyster_mushroom", "bitter_melon", "pineapple",
+  "watermelon", "crispy_apple", "water_spinach", "parmesan_cheese", "abalone",
   "salami", "fresh_bamboo_shoot", "daikon_radish", "bok_choy",
   "wood_ear_mushroom", "kimchi", "pickled_eggplant", "peach_slices",
   "kiwi_fruit", "grapes", "pork_trotter", "snow_fungus", "blueberries",
-  "pomelo", "sea_grapes", "lotus_stem_pickled", "rice_cake_puff",
-  "pork_ribs", "duck_breast", "lamb_chops", "crispy_bacon", "crab_meat",
-  "fresh_clams", "fresh_oyster", "tuna_fillet", "fish_tofu", "pigeon_meat",
-  "salad", "chestnut", "green_beans", "quail_egg", "fresh_bamboo_shoot",
-  "eggplant", "daikon_radish", "bok_choy", "wood_ear_mushroom", "olives",
-  "pickled_eggplant", "kiwi_fruit", "grapes", "crisped_rice"
+  "pomelo", "sea_grapes", "lotus_stem_pickled", "rice_cake_puff"
 ]);
 
 const DEFAULT_DRINK_IDS = new Set([
   "milk", "ice_cubes", "pure_water", "brewed_coffee", "espresso"
 ]);
 
-/** Infer the sensory texture from the game's existing ingredient metadata. */
-export function determineDefaultTexture(ingredient) {
-  if (ingredient?.texture) return ingredient.texture;
-  if (DEFAULT_DRINK_IDS.has(ingredient?.id)) return "drink";
-  return CRISPY_INGREDIENT_IDS.has(ingredient?.id) || (ingredient?.flavors?.crunch ?? 0) >= 2.5
-    ? "crispy"
-    : "soft";
-}
+export function determineDefaultTexture(ing) {
+  if (ing.texture) return ing.texture;
+  if (ing.id === "milk" || ing.id === "ice_cubes" || ing.id === "pure_water" || ing.id === "brewed_coffee" || ing.id === "espresso") return "drink";
+  const crispyIds = ["instant_ramen", "roasted_peanuts", "taco_shell", "banh_mi_vn", "croissant", "oreo", "cucumber", "guava", "june_plum", "fried_shallots", "lotus_root", "panko_breadcrumbs", "scorched_rice", "crispy_bacon", "cashew_nuts", "fresh_octopus", "fish_paste", "beef_meatballs", "carrot", "cabbage", "broccoli", "asparagus", "king_oyster_mushroom", "bitter_melon", "pineapple", "watermelon", "crispy_apple", "water_spinach", "parmesan_cheese", "abalone", "salami", "fresh_bamboo_shoot", "daikon_radish", "bok_choy", "wood_ear_mushroom", "kimchi", "pickled_eggplant", "peach_slices", "kiwi_fruit", "grapes", "pork_trotter", "snow_fungus", "blueberries", "pomelo", "sea_grapes", "lotus_stem_pickled", "rice_cake_puff"];
+  if (crispyIds.includes(ing.id) || (ing.flavors && ing.flavors.crunch >= 2.5)) {
+    return "crispy";
+  }
+  return "soft";
+    }
 
-/** Check ice recursively, including wrapped/stuffed and beverage composites. */
-export function itemContainsIce(item) {
+    export function itemContainsIce(item) {
   if (!item) return false;
-  if (item.hasIce || item.id === "ice_cubes" || item.baseId === "ice_cubes") return true;
-  if (item.subItems?.some(itemContainsIce)) return true;
-  if (item.innerItems?.some(itemContainsIce)) return true;
+  if (item.hasIce) return true;
+  if (item.id === "ice_cubes" || item.baseId === "ice_cubes") return true;
+  if (item.subItems && item.subItems.some(sub => itemContainsIce(sub))) return true;
+  if (item.innerItems && item.innerItems.some(inner => itemContainsIce(inner))) return true;
   return false;
-}
+    }
 
-/** Build the mutable gameplay item from a catalog ingredient definition. */
-export function createFoodItem(ingredient, uid) {
-  if (!ingredient || typeof ingredient !== "object") {
-    throw new TypeError("An ingredient definition is required.");
-  }
-  if (uid === undefined || uid === null) {
-    throw new TypeError("A unique item uid is required.");
-  }
-
+    export function createFoodItem(ing, uid) {
+  const defTex = determineDefaultTexture(ing);
   return {
     uid,
-    kind: "single",
-    baseId: ingredient.id,
-    name: ingredient.name,
-    emoji: ingredient.emoji,
-    category: ingredient.category,
-    color: ingredient.color,
-    cookedColor: ingredient.cookedColor,
-    needsCooking: ingredient.needsCooking,
-    isFreshBalancer: !!ingredient.isFreshBalancer,
-    cutState: "whole",
-    cookLevel: 0,
+    kind: "single", // "single" | "rolled" | "stuffed" | "blended"
+    baseId: ing.id,
+    name: ing.name,
+    emoji: ing.emoji,
+    category: ing.category,
+    color: ing.color,
+    cookedColor: ing.cookedColor,
+    needsCooking: ing.needsCooking,
+    isFreshBalancer: !!ing.isFreshBalancer,
+    cutState: "whole", // "whole" | "sliced" | "diced" | "minced"
+    cookLevel: 0, // 0 = raw/fresh, 1 = cooked, 2 = crispy brown, >=3 = burnt
     cookMethod: "none",
-    actionHistory: [],
-    lastStationId: null,
-    batchId: null,
+    actionHistory: [], // Lưu tuần tự chuỗi phương pháp chế biến vật lý tự do (Toca Kitchen Sandbox)
+    lastStationId: null, // Dụng cụ chế biến gần nhất
+    batchId: null, // Mã lượt chế biến (nhận diện các nguyên liệu nấu chung một công cụ)
     returnedFromStaging: false,
-    texture: determineDefaultTexture(ingredient),
-    hasIce: ingredient.id === "ice_cubes",
-    outerTexture: null,
+    texture: defTex, // "soft" | "crispy" | "liquid" | "drink"
+    hasIce: ing.id === "ice_cubes",
+    outerTexture: null, // used for rolled and stuffed items
     spicesApplied: [],
     subItems: [],
     outerItem: null,
-    flavors: { ...ingredient.flavors }
+    flavors: { ...ing.flavors }
   };
-}
+    }
