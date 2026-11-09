@@ -24,9 +24,10 @@ modules under `js/`.
 - `js/*-service.js`: existing backend/persistence boundaries, retained.
 
 `index.html` remains the markup owner, contains no inline application script,
-and loads the external ES-module entry point. The main-menu controller is still
-loaded separately for now. Module APIs are imported explicitly wherever the
-migration has reached; legacy global compatibility is not yet fully removed.
+and loads `js/app.js` as its single application entry point. The entry point
+imports the main-menu controller and its public functions directly. The
+migrated paths now share gameplay state through `js/core/state.js` rather than
+publishing it on `window`.
 
 ## Migration status and sequence
 
