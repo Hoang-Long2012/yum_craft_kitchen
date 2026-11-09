@@ -22,6 +22,7 @@ export const state = {
       // Serving Plate & Custom Dish Name
       plateItems: [],
       servedDishes: [], // Danh sách các món ăn hoàn chỉnh đã bày lên dĩa [{ id, name, garnish, items, analysis }]
+      lastTastedMeal: null,
       customDishName: '',
       selectedGarnishId: 'rustic',
 
