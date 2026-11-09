@@ -6,8 +6,9 @@ now live in `js/data/`, pure item construction/texture/ice helpers live in
 `js/cooking/culinary-chemistry.js`, and mutable gameplay state lives in
 `js/core/state.js`. `js/app.js` is now the external application entry point. It still coordinates
 item transformations, audio effects, canvas and DOM rendering, event handlers,
-keyboard shortcuts, focus behavior, and NVDA live-region announcements. Authentication, admin, and community persistence already live
-in separate modules under `js/`.
+keyboard shortcuts, focus behavior, and NVDA live-region announcements.
+Authentication, admin, and community persistence already live in separate
+modules under `js/`.
 
 ## Target boundaries
 
