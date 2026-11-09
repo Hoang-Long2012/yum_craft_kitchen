@@ -216,10 +216,8 @@ export function updateMainMenuUserProfile(profile) {
  * Đồng bộ cài đặt vào game state nếu có
  */
 function applySettingsToGameState(settings) {
-  if (window.state) {
-    window.state.sfxEnabled = settings.sfxEnabled;
-    window.state.sfxVolume = settings.sfxVolume / 100;
-  }
+  state.sfxEnabled = settings.sfxEnabled;
+  state.sfxVolume = settings.sfxVolume / 100;
 }
 
 /**
