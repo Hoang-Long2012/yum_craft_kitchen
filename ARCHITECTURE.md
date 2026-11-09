@@ -2,7 +2,8 @@
 
 The frontend remains a vanilla JavaScript application. The catalog definitions
 now live in `js/data/`, pure item construction/texture/ice helpers live in
-`js/cooking/food-items.js`, and mutable gameplay state lives in
+`js/cooking/food-items.js`, culinary descriptions and scoring live in
+`js/cooking/culinary-chemistry.js`, and mutable gameplay state lives in
 `js/core/state.js`. The inline module in `index.html` still coordinates culinary
 chemistry, item transformations, audio effects, canvas and DOM rendering,
 event handlers, keyboard shortcuts, focus behavior, and NVDA live-region
