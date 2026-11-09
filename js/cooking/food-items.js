@@ -35,6 +35,13 @@ export function determineDefaultTexture(ing) {
     }
 
     export function createFoodItem(ing, uid) {
+  if (!ing || typeof ing !== "object") {
+    throw new TypeError("An ingredient definition is required.");
+  }
+  if (uid === undefined || uid === null) {
+    throw new TypeError("A unique item uid is required.");
+  }
+
   const defTex = determineDefaultTexture(ing);
   return {
     uid,
