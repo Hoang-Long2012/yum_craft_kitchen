@@ -273,5 +273,64 @@ await test('U8: Natural Vietnamese list formatting across mixing, blending, beve
   assert.strictEqual(title4, 'Sữa tươi thanh trùng, Thanh Sô-cô-la Đen, Bánh quy Oreo kẹp kem và 1 món khác');
 });
 
+await test('U9: Pure sensory & multi-dish review across salty/spicy/burnt/raw-meat dishes without ReferenceError', async () => {
+  const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const tastingSrc = fs.readFileSync(path.join(rootDir, 'js', 'cooking', 'tasting-review.js'), 'utf8');
+  assert.strictEqual(tastingSrc.includes('playSoundEffect'), false, 'tasting-review.js must remain audio-free and pure');
+
+  const chef = CHARACTERS[0];
+  const mildChar = CHARACTERS.find((c) => c.maxSpiceTolerance <= 4) || CHARACTERS[1];
+
+  // Exact user scenario: tofu + roasted_peanuts + garlic_chives + water_spinach -> mix_toss -> heavy spices -> fry
+  resetPureState();
+  state.activeStationId = 'mixing_table';
+  ['tofu', 'roasted_peanuts', 'garlic_chives', 'water_spinach'].forEach((id) => addIngredientToState(id));
+  await performStationAction('mix_toss');
+  for (let i = 0; i < 6; i++) applySpiceToState('salt');
+  state.activeStationId = 'pan';
+  await performStationAction('fry_step');
+  const saltyPlated = plateCurrentKitchenItems('');
+  const saltyReview = generateSensoryTastingReview(saltyPlated.newDish.items, saltyPlated.newDish.analysis, chef, '');
+  assert.strictEqual(saltyReview.reactionType, 'bad');
+  assert.ok(saltyReview.score <= 35);
+  assert.ok(saltyReview.speech.length > 10);
+
+  // Overly spicy dish
+  resetPureState();
+  state.activeStationId = 'mixing_table';
+  ['tofu', 'roasted_peanuts', 'garlic_chives', 'water_spinach'].forEach((id) => addIngredientToState(id));
+  await performStationAction('mix_toss');
+  for (let i = 0; i < 6; i++) applySpiceToState('chili_powder');
+  state.activeStationId = 'pan';
+  await performStationAction('fry_step');
+  const spicyAnalysis = analyzeCulinaryChemistry(state.stationItems);
+  const spicyReview = generateSensoryTastingReview(state.stationItems, spicyAnalysis, mildChar);
+  assert.strictEqual(spicyReview.reactionType, 'bad');
+  assert.ok(spicyReview.score <= 45);
+
+  // Burnt dish (cookLevel >= 3)
+  state.stationItems[0].cookLevel = 3;
+  const burntAnalysis = analyzeCulinaryChemistry(state.stationItems);
+  const burntReview = generateSensoryTastingReview(state.stationItems, burntAnalysis, chef, 'Món cháy');
+  assert.strictEqual(burntReview.reactionType, 'bad');
+  assert.ok(burntReview.score <= 22);
+
+  // Raw meat dish
+  resetPureState();
+  addIngredientToState('beef');
+  const rawAnalysis = analyzeCulinaryChemistry(state.stationItems);
+  const rawReview = generateSensoryTastingReview(state.stationItems, rawAnalysis, chef, 'Bò sống');
+  assert.strictEqual(rawReview.reactionType, 'bad');
+  assert.ok(rawReview.score <= 20);
+
+  // Multi-dish combo containing extreme dishes
+  const multiReview = generateMultiDishTastingReview([
+    { id: 'd1', name: saltyPlated.newDish.name, items: saltyPlated.newDish.items, analysis: saltyPlated.newDish.analysis },
+    { id: 'd2', name: 'Món phụ', items: state.stationItems, analysis: rawAnalysis }
+  ], chef);
+  assert.strictEqual(multiReview.reactionType, 'bad');
+  assert.ok(multiReview.speech.length > 10);
+});
+
 console.log(`\nUNIT SUMMARY: ${passed} passed, ${failed} failed.`);
 if (failed > 0) process.exit(1);

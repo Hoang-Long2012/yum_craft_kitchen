@@ -11,8 +11,8 @@ export function ensureAudioContext() {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (AudioContextClass) audioCtx = new AudioContextClass();
   }
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
+  if (audioCtx && audioCtx.state === 'suspended' && typeof audioCtx.resume === 'function') {
+    Promise.resolve(audioCtx.resume()).catch(() => {});
   }
   return audioCtx;
 }
@@ -85,9 +85,17 @@ export function playExternalAudio(filename, wait = false, fallbackSfx = null) {
 /**
  * Play procedural Web Audio foley effect.
  */
-export function playSoundEffect(type) {
+export function playSoundEffect(type, _fromResume = false) {
   const ctx = ensureAudioContext();
   if (!ctx) return;
+  if (ctx.state === 'suspended' && !_fromResume && typeof ctx.resume === 'function') {
+    Promise.resolve(ctx.resume())
+      .then(() => {
+        if (ctx.state === 'running') playSoundEffect(type, true);
+      })
+      .catch(() => {});
+    return;
+  }
   const now = ctx.currentTime;
 
   if (type === 'pick') {

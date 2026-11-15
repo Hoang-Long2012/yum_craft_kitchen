@@ -826,6 +826,77 @@ function resetStation() {
     assert.ok(mainMenuJs.includes('modalHelp._returnFocusEl'));
   });
 
+  await test('T16: feedCharacter mon man/cay/chay (dau hu+dau phong+he+rau muong) phat react SFX, giu focus, & khong ket nut', async () => {
+    resetStation();
+    api.state.currentScreen = 'kitchen';
+    api.state.activeKitchenTab = 'workbench';
+    api.state.activeStationId = 'mixing_table';
+    ['tofu', 'roasted_peanuts', 'garlic_chives', 'water_spinach'].forEach(id => {
+      api.state.stationItems.push(makeItem(id));
+    });
+    await api.performStationAction('mix_toss');
+    for (let i = 0; i < 6; i++) api.applySpice('salt');
+    api.state.activeStationId = 'pan';
+    await api.performStationAction('fry_step');
+
+    const platedItem = api.state.stationItems[0];
+    api.state.stationItems = [];
+    api.state.plateItems = [platedItem];
+    const analysis = api.analyzeCulinaryChemistry(api.state.plateItems);
+    api.state.servedDishes = [{
+      id: 'dish-user-repro',
+      name: analysis.autoTitle,
+      items: [...api.state.plateItems],
+      analysis,
+      garnish: api.GARNISH_OPTIONS[0]
+    }];
+
+    const feedBtn = mockDoc.getElementById('btn-master-feed');
+    const feedLbl = mockDoc.getElementById('master-feed-label');
+    const speechEl = mockDoc.getElementById('dining-speech-bubble');
+    feedBtn.focus();
+    speechEl.textContent = 'OLD SPEECH';
+
+    ['nvda-live-assertive-a', 'nvda-live-assertive-b', 'nvda-live-polite-a', 'nvda-live-polite-b'].forEach(id => {
+      mockDoc.getElementById(id).textContent = '';
+    });
+
+    await api.feedCharacter();
+
+    assert.strictEqual(api.state.isFeedingBusy, false, 'feedCharacter phai giai phong isFeedingBusy trong finally');
+    assert.strictEqual(feedBtn.disabled, false, 'Khong duoc dat feedBtn.disabled=true lam rot focus NVDA');
+    assert.strictEqual(feedBtn.getAttribute('aria-disabled'), null, 'Phai go aria-disabled sau khi an xong');
+    assert.strictEqual(feedBtn.getAttribute('aria-busy'), null, 'Khong giu aria-busy=true sau khi an xong');
+    assert.strictEqual(mockDoc.activeElement, feedBtn, 'Focus phai duoc giu nguyen tren nut dut an');
+    assert.ok(feedLbl.textContent.includes('ĐÚT CHO') && feedLbl.textContent.includes('(F)'), `Nhan nut phai khoi phuc: ${feedLbl.textContent}`);
+    assert.notStrictEqual(speechEl.textContent, 'OLD SPEECH', 'Nhan xet moi phai cap nhat len #dining-speech-bubble');
+    assert.ok(getLiveText('polite').includes('Nhận xét:'), 'NVDA phai nhan duoc thong bao nhan xet sau khi renderAll');
+
+    // Verify F shortcut switches tab to dining when pressed from another tab
+    api.state.activeKitchenTab = 'fridge';
+    api.state.plateItems = [];
+    api.state.singleKeyShortcutsEnabled = true;
+    mockWindow.dispatchEvent({ type: 'keydown', key: 'f', target: mockDoc.body });
+    assert.strictEqual(api.state.activeKitchenTab, 'dining', 'Phim F tu tab khac phai chuyen sang tab dining');
+
+    // Verify independent live-region timers: assertive does not clear pending polite timer
+    timersCleared.length = 0;
+    const origSetTimeout = globalThis.setTimeout;
+    let fakeId = 900;
+    globalThis.setTimeout = () => ++fakeId;
+    api.state.liveRegionTimers = { polite: null, assertive: null };
+    api.announceNVDA('Thong bao polite', 'polite');
+    api.announceNVDA('Thong bao assertive', 'assertive');
+    globalThis.setTimeout = origSetTimeout;
+    assert.strictEqual(timersCleared.length, 0, 'Kenh assertive khong duoc huy timer cua kenh polite');
+
+    // HTML WCAG 2.2 checks for dining & live regions
+    assert.ok(html.includes('<output id="dining-last-score"'), '#dining-last-score phai dung the <output>');
+    assert.ok(html.includes('id="plate-items-list" tabindex="0"'), '#plate-items-list phai co tabindex="0"');
+    assert.strictEqual(html.includes('id="nvda-live-polite-a" class="sr-only-live" role="status"'), false, 'Bo role="status" du thua tren live region');
+    assert.strictEqual(html.includes('id="nvda-live-assertive-a" class="sr-only-live" role="alert"'), false, 'Bo role="alert" du thua tren live region');
+  });
+
   console.log(`\nSUMMARY: ${passed} passed, ${failed} failed.`);
   if (failed > 0) process.exit(1);
 })();

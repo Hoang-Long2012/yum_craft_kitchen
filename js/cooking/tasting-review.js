@@ -1,5 +1,6 @@
 import { CHARACTERS } from '../data/characters.js';
 import { SPICES } from '../data/spices.js';
+import { state } from '../core/state.js';
 import { itemContainsIce, formatNaturalList } from './food-item.js';
 
 export { formatNaturalList };
@@ -354,7 +355,6 @@ export function generateSensoryTastingReview(items, analysis, character, dishNam
     } else {
       gagSpeech = `"Kỳ cục quá! Thịt chưa qua xử lý nhiệt chín tới, còn mùi tanh sống thế này thì vi khuẩn sinh sôi, không thể ăn được!"`;
     }
-    playSoundEffect('react_bad');
     return {
       speech: gagSpeech,
       moodTag: 'Thịt còn sống tanh! 🤢',
@@ -379,7 +379,6 @@ export function generateSensoryTastingReview(items, analysis, character, dishNam
     } else {
       burntSpeech = `"Đắng ngắt! Quá trình nhiệt phân quá đà làm cháy thành than carbon rồi, mất sạch dinh dưỡng và vị ngon!"`;
     }
-    playSoundEffect('react_bad');
     return {
       speech: burntSpeech,
       moodTag: 'Cháy khét đắng nghét! 炭',
@@ -638,7 +637,6 @@ export function generateSensoryTastingReview(items, analysis, character, dishNam
     } else {
       saltySpeech = `"Nồng độ muối natri vượt ngưỡng báo động! ${sensorySentence}, vị mặn quá gắt làm mất đi tính cân bằng!"`;
     }
-    playSoundEffect('react_bad');
     return {
       speech: saltySpeech,
       moodTag: 'Mặn chát khát nước! 🧂💦',
@@ -663,7 +661,6 @@ export function generateSensoryTastingReview(items, analysis, character, dishNam
     } else {
       spicySpeech = `"Hắt xì... ${sensorySentence}, nồng độ capsaicin cay cấp độ ${f.spicy}/10 vượt xa ngưỡng chịu đựng của tôi rồi, cay cháy cả họng!"`;
     }
-    playSoundEffect('react_bad');
     return {
       speech: spicySpeech,
       moodTag: 'Cay xè bốc khói! 🔥🌶️',
@@ -782,7 +779,6 @@ export function generateMultiDishTastingReview(dishes, character) {
     } else {
       gagSpeech = `"Báo động an toàn thực phẩm! Món ${badNames} chưa qua xử lý nhiệt chín tới, vi khuẩn sinh sôi không thể ăn được!"`;
     }
-    playSoundEffect('react_bad');
     return {
       speech: gagSpeech,
       moodTag: 'Có món sống tanh! 🤢',
@@ -810,7 +806,6 @@ export function generateMultiDishTastingReview(dishes, character) {
     } else {
       burntSpeech = `"Món ${badNames} đã bị than hóa nghiêm trọng, nồng độ hợp chất đắng quá cao làm hỏng cả bàn ăn!"`;
     }
-    playSoundEffect('react_bad');
     return {
       speech: burntSpeech,
       moodTag: 'Có món cháy khét! 炭',
@@ -838,7 +833,6 @@ export function generateMultiDishTastingReview(dishes, character) {
     } else {
       saltySpeech = `"Nồng độ muối natri trong món ${badNames} vượt ngưỡng an toàn! Vị mặn phá vỡ hoàn toàn sự cân bằng của cả thực đơn!"`;
     }
-    playSoundEffect('react_bad');
     return {
       speech: saltySpeech,
       moodTag: 'Có món mặn chát! 🧂💦',
@@ -866,7 +860,6 @@ export function generateMultiDishTastingReview(dishes, character) {
     } else {
       spicySpeech = `"Capsaicin trong món ${badNames} đạt nồng độ cực đại! Vị cay nồng thiêu đốt làm tê liệt toàn bộ khả năng cảm vị!"`;
     }
-    playSoundEffect('react_bad');
     return {
       speech: spicySpeech,
       moodTag: 'Có món cay xè! 🔥🌶️',

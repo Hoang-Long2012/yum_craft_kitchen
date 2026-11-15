@@ -12,7 +12,30 @@
 
 # NHẬT KÝ DỰ ÁN — YUMCRAFT KITCHEN
 
-## 1. Thông Tin Phiên Làm Việc Mới Nhất (15/11/2026 - Sửa Lỗi Ghép Danh Sách Nguyên Liệu, Nhãn 18 Dụng Cụ & Nút Khay Tạm)
+## 1. Thông Tin Phiên Làm Việc Mới Nhất (16/11/2026 - Khắc Phục Kẹt Nút Đút Ăn, Mất Âm Thanh Cảm Xúc & Lỗi Đọc Đánh Giá NVDA)
+- **Ngày thực hiện**: 16/11/2026
+- **Người phát triển**: Vũ Anh Lộc (LC Boy) & Antigravity (Google DeepMind)
+- **Quy trình áp dụng**: Tuân thủ quy trình **Specify** ([`specs/006-fix-feed-button-nvda-review/spec.md`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/specs/006-fix-feed-button-nvda-review/spec.md), [`plan.md`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/specs/006-fix-feed-button-nvda-review/plan.md), [`tasks.md`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/specs/006-fix-feed-button-nvda-review/tasks.md)), áp dụng `accessibility-lead`, `modern-web-guidance` (`accessibility`, `html`) và `debugging-and-error-recovery`.
+- **Nguyên nhân & Các lỗi đã khắc phục**:
+  1. **Sửa lỗi `ReferenceError` sinh ra từ commit tách ES Modules (`ca457d6`) tại [`js/cooking/tasting-review.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/js/cooking/tasting-review.js)**:
+     - Import `{ state }` từ [`js/core/state.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/js/core/state.js) cho fallback `state.customDishName` (dòng 336).
+     - Gỡ 8 lời gọi `playSoundEffect('react_bad')` thừa trong các nhánh thịt sống, cháy khét, mặn chát (`> 6.0`), cay vượt ngưỡng (cả đánh giá món đơn lẫn thực đơn nhiều món), giữ module thuần logic (âm thanh cảm xúc đã do `feedCharacter()` phát thống nhất).
+  2. **Gia cố quy trình đút ăn & giữ focus nút `#btn-master-feed` trong [`js/ui/dining-view.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/js/ui/dining-view.js)**:
+     - Bọc `feedCharacter()` trong `try ... catch ... finally` để luôn giải phóng `state.isFeedingBusy = false`, khôi phục nhãn nút và `renderAll()` trước khi đọc `announceNVDA()`.
+     - Dùng `aria-disabled="true"` thay `feedBtn.disabled = true` và bỏ `aria-busy="true"` để tránh rớt focus NVDA ra `document.body`; chặn `renderServingPlate()` ghi đè nhãn nút khi đang ăn; gọi sớm `ensureAudioContext()` trong user gesture.
+  3. **Tách timer 2 kênh Live Region & gia cố `AudioContext` ([`js/accessibility/nvda-announcer.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/js/accessibility/nvda-announcer.js), [`js/core/state.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/js/core/state.js), [`js/audio/sound-engine.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/js/audio/sound-engine.js))**:
+     - Dùng `state.liveRegionTimers` độc lập cho kênh `polite` và `assertive` để hai kênh không hủy nhầm timer của nhau.
+     - Trong `playSoundEffect()`, tự động `ctx.resume().then(...)` nếu `AudioContext` đang `suspended`.
+  4. **Ngữ nghĩa HTML & Bàn phím ([`index.html`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/index.html), [`js/ui/keyboard-shortcuts.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/js/ui/keyboard-shortcuts.js))**:
+     - Gỡ `role="alert"/"status"` dư thừa đè `aria-live` trên 4 `#nvda-live-*`; chuyển `#dining-last-score` sang `<output>`; thêm `tabindex="0"` trên `#plate-items-list`.
+     - Chặn phím nóng nền khi mở `<dialog open>`, không cướp phím `Enter` trên button trong `#modal-finish-dish`, và tự chuyển sang tab `dining` khi nhấn `F`.
+- **Kiểm Thử & Xác Minh**:
+  - `node --check` toàn bộ `.js` trong `js/` & `tests/`: Đạt.
+  - [`tests/test_unit_modules.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/tests/test_unit_modules.js): **9/9 PASS** (bổ sung `U9`).
+  - [`tests/test_mixing_table_and_a11y.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/tests/test_mixing_table_and_a11y.js): **16/16 PASS** (bổ sung `T16`).
+  - HTTP smoke check trên [`server.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/server.js): `200 OK` cho `/` và tất cả module đã sửa.
+
+## 2. Thông Tin Phiên Làm Việc Trước (15/11/2026 - Sửa Lỗi Ghép Danh Sách Nguyên Liệu, Nhãn 18 Dụng Cụ & Nút Khay Tạm)
 - **Ngày thực hiện**: 15/11/2026
 - **Người phát triển**: Vũ Anh Lộc (LC Boy) & Antigravity (Google DeepMind)
 - **Quy trình áp dụng**: Tuân thủ quy trình **Specify** ([`specs/005-fix-mixing-list-station-staging-a11y/spec.md`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/specs/005-fix-mixing-list-station-staging-a11y/spec.md), [`plan.md`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/specs/005-fix-mixing-list-station-staging-a11y/plan.md), [`tasks.md`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/specs/005-fix-mixing-list-station-staging-a11y/tasks.md)), áp dụng `modern-web-guidance`, `frontend-ui-engineering` và `accessibility-lead`.

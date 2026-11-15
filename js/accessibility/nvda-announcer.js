@@ -7,28 +7,39 @@ import { state } from '../core/state.js';
 export function announceNVDA(message, priority = 'polite') {
   if (!message) return;
 
+  const channel = priority === 'assertive' ? 'assertive' : 'polite';
   state.liveToggleBuffer = !state.liveToggleBuffer;
   const suffix = state.liveToggleBuffer ? 'a' : 'b';
   const otherSuffix = state.liveToggleBuffer ? 'b' : 'a';
 
-  const targetId = priority === 'assertive' ? `nvda-live-assertive-${suffix}` : `nvda-live-polite-${suffix}`;
-  const clearId = priority === 'assertive' ? `nvda-live-assertive-${otherSuffix}` : `nvda-live-polite-${otherSuffix}`;
+  const targetId = `nvda-live-${channel}-${suffix}`;
+  const clearId = `nvda-live-${channel}-${otherSuffix}`;
 
   const targetEl = typeof document !== 'undefined' ? document.getElementById(targetId) : null;
   const clearEl = typeof document !== 'undefined' ? document.getElementById(clearId) : null;
 
-  if (state.liveRegionTimer) {
-    clearTimeout(state.liveRegionTimer);
-    state.liveRegionTimer = null;
+  if (!state.liveRegionTimers) {
+    state.liveRegionTimers = { polite: null, assertive: null };
+  }
+
+  if (state.liveRegionTimers[channel]) {
+    clearTimeout(state.liveRegionTimers[channel]);
+    state.liveRegionTimers[channel] = null;
   }
 
   if (clearEl) clearEl.textContent = '';
   if (targetEl) {
     targetEl.textContent = '';
-    state.liveRegionTimer = setTimeout(() => {
+    let timerId = null;
+    timerId = setTimeout(() => {
       targetEl.textContent = message;
-      state.liveRegionTimer = null;
+      state.liveRegionTimers[channel] = null;
+      if (state.liveRegionTimer === timerId) {
+        state.liveRegionTimer = null;
+      }
     }, 60);
+    state.liveRegionTimers[channel] = timerId;
+    state.liveRegionTimer = timerId;
   }
 
   if (state.ttsEnabled && typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis) {

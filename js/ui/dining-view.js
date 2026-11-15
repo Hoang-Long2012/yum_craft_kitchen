@@ -1,7 +1,7 @@
 import { CHARACTERS, GARNISH_OPTIONS, FLAVOR_DIMENSIONS } from '../data/index.js';
 import { state, resetKitchenItemsState } from '../core/state.js';
 import { announceNVDA } from '../accessibility/nvda-announcer.js';
-import { playExternalAudio, playSoundEffect } from '../audio/sound-engine.js';
+import { ensureAudioContext, playExternalAudio, playSoundEffect } from '../audio/sound-engine.js';
 import { analyzeCulinaryChemistry } from '../cooking/chemistry.js';
 import {
   describePureFlavorDescriptor,
@@ -25,114 +25,132 @@ export async function feedCharacter() {
     return;
   }
 
+  ensureAudioContext();
   state.isFeedingBusy = true;
 
   const feedBtn = document.getElementById('btn-master-feed');
   const feedLbl = document.getElementById('master-feed-label');
-  if (feedBtn) {
-    feedBtn.disabled = true;
-    feedBtn.setAttribute('aria-busy', 'true');
-    feedBtn.classList.add('opacity-70', 'cursor-not-allowed');
-  }
-
-  state.charAnimState = 'eating';
-  state.charAnimTimer = 240;
-
-  const playlist = buildEatingAudioPlaylist(state.plateItems);
-
   const isPlateOnlyDrinks = state.plateItems.length > 0 && state.plateItems.every(it => it.kind === 'beverage' || it.kind === 'blended' || it.texture === 'drink');
-  announceNVDA(isPlateOnlyDrinks ? `Đang mời ${char.name} thưởng thức đồ uống...` : `Đang đút cho ${char.name} thưởng thức món ăn...`, 'polite');
-  for (let i = 0; i < playlist.length; i++) {
-    const soundFile = playlist[i];
-    if (feedLbl) {
-      feedLbl.textContent = isPlateOnlyDrinks ? 'ĐANG THƯỞNG THỨC ĐỒ UỐNG... 🍹' : 'ĐANG THƯỞNG THỨC MÓN ĂN... 😋';
-    }
-    await playExternalAudio(soundFile, true);
-    if (i < playlist.length - 1) {
-      await new Promise(r => setTimeout(r, 150));
-    }
-  }
-
-  const dishes = (state.servedDishes && state.servedDishes.length > 0)
-    ? state.servedDishes
-    : [{
-        id: 'legacy',
-        name: state.customDishName || 'Món Ăn Tự Chế',
-        items: state.plateItems,
-        analysis: analyzeCulinaryChemistry(state.plateItems)
-      }];
-
-  const review = (dishes.length > 1)
-    ? generateMultiDishTastingReview(dishes, char)
-    : generateSensoryTastingReview(dishes[0].items, dishes[0].analysis, char, dishes[0].name);
-
-  const isSingleDrinkDish = dishes.length === 1 && dishes[0].items && dishes[0].items.every(it => it.kind === 'beverage' || it.kind === 'blended' || it.texture === 'drink');
-  const finalDishTitle = (dishes.length > 1)
-    ? `thực đơn ${dishes.length} món (${dishes.map(d => d.name).join(', ')})`
-    : `${isSingleDrinkDish ? 'thức uống' : 'món'} "${dishes[0].name}"`;
-
-  if (review.reactionType === 'love') {
-    playSoundEffect('react_love');
-  } else if (review.score >= 50) {
-    playSoundEffect('react_good');
-  } else {
-    playSoundEffect('react_bad');
-  }
-
-  state.charAnimState = review.reactionType;
-  state.charAnimTimer = 120;
-
-  const moodEl = document.getElementById('dining-mood-tag');
-  const speechEl = document.getElementById('dining-speech-bubble');
-  const scoreEl = document.getElementById('dining-last-score');
-
-  if (moodEl) moodEl.textContent = review.moodTag;
-  if (speechEl) speechEl.textContent = review.speech;
-  if (scoreEl) scoreEl.textContent = `${review.score} / 100 điểm (${review.moodTag})`;
-
-  const tastedMealPayload = {
-    dishes: dishes.map(d => ({
-      name: d.name || 'Món Ăn Tự Chế',
-      garnish: d.garnish || { name: 'Mộc', emoji: '🍽️' },
-      items: (d.items || []).map(it => ({ name: it.name, emoji: it.emoji })),
-      analysis: {
-        structureSummary: (d.analysis && d.analysis.structureSummary) ? d.analysis.structureSummary : '',
-        harmonyScore: (d.analysis && typeof d.analysis.harmonyScore === 'number') ? d.analysis.harmonyScore : review.score
-      }
-    })),
-    fallbackTitle: state.customDishName || 'Món Ăn Tự Chế',
-    customerName: char.name,
-    customerEmoji: char.emoji,
-    customerSpeech: review.speech,
-    customerMoodTag: review.moodTag,
-    satisfactionScore: review.score
-  };
-  state.lastTastedMeal = tastedMealPayload;
-  if (typeof window !== 'undefined') {
-    window.lastTastedMeal = tastedMealPayload;
-  }
-
-  const shareContainer = document.getElementById('share-community-container');
-  if (shareContainer) {
-    shareContainer.classList.remove('hidden');
-  }
-
-  state.plateItems = [];
-  state.servedDishes = [];
-  state.customDishName = '';
-  state.isFeedingBusy = false;
-
   if (feedBtn) {
     feedBtn.disabled = false;
+    feedBtn.setAttribute('aria-disabled', 'true');
     feedBtn.removeAttribute('aria-busy');
-    feedBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+    feedBtn.classList.add('opacity-70', 'cursor-not-allowed');
   }
   if (feedLbl) {
-    feedLbl.textContent = 'ĐÚT CHO THỰC KHÁCH ĂN! (F)';
+    feedLbl.textContent = isPlateOnlyDrinks ? 'ĐANG THƯỞNG THỨC ĐỒ UỐNG... 🍹' : 'ĐANG THƯỞNG THỨC MÓN ĂN... 😋';
   }
 
-  announceNVDA(`${char.name} vừa thưởng thức ${finalDishTitle}. Nhận xét: ${review.speech}`, 'polite');
-  renderAll();
+  let reviewAnnouncement = '';
+
+  try {
+    state.charAnimState = 'eating';
+    state.charAnimTimer = 240;
+
+    const playlist = buildEatingAudioPlaylist(state.plateItems);
+
+    announceNVDA(isPlateOnlyDrinks ? `Đang mời ${char.name} thưởng thức đồ uống...` : `Đang đút cho ${char.name} thưởng thức món ăn...`, 'polite');
+    for (let i = 0; i < playlist.length; i++) {
+      const soundFile = playlist[i];
+      if (feedLbl) {
+        feedLbl.textContent = isPlateOnlyDrinks ? 'ĐANG THƯỞNG THỨC ĐỒ UỐNG... 🍹' : 'ĐANG THƯỞNG THỨC MÓN ĂN... 😋';
+      }
+      await playExternalAudio(soundFile, true);
+      if (i < playlist.length - 1) {
+        await new Promise(r => setTimeout(r, 150));
+      }
+    }
+
+    const dishes = (state.servedDishes && state.servedDishes.length > 0)
+      ? state.servedDishes
+      : [{
+          id: 'legacy',
+          name: state.customDishName || 'Món Ăn Tự Chế',
+          items: state.plateItems,
+          analysis: analyzeCulinaryChemistry(state.plateItems)
+        }];
+
+    const review = (dishes.length > 1)
+      ? generateMultiDishTastingReview(dishes, char)
+      : generateSensoryTastingReview(dishes[0].items, dishes[0].analysis, char, dishes[0].name);
+
+    const isSingleDrinkDish = dishes.length === 1 && dishes[0].items && dishes[0].items.every(it => it.kind === 'beverage' || it.kind === 'blended' || it.texture === 'drink');
+    const finalDishTitle = (dishes.length > 1)
+      ? `thực đơn ${dishes.length} món (${dishes.map(d => d.name).join(', ')})`
+      : `${isSingleDrinkDish ? 'thức uống' : 'món'} "${dishes[0].name}"`;
+
+    if (review.reactionType === 'love') {
+      playSoundEffect('react_love');
+    } else if (review.score >= 50) {
+      playSoundEffect('react_good');
+    } else {
+      playSoundEffect('react_bad');
+    }
+
+    state.charAnimState = review.reactionType;
+    state.charAnimTimer = 120;
+
+    const moodEl = document.getElementById('dining-mood-tag');
+    const speechEl = document.getElementById('dining-speech-bubble');
+    const scoreEl = document.getElementById('dining-last-score');
+
+    if (moodEl) moodEl.textContent = review.moodTag;
+    if (speechEl) speechEl.textContent = review.speech;
+    if (scoreEl) scoreEl.textContent = `${review.score} / 100 điểm (${review.moodTag})`;
+
+    const tastedMealPayload = {
+      dishes: dishes.map(d => ({
+        name: d.name || 'Món Ăn Tự Chế',
+        garnish: d.garnish || { name: 'Mộc', emoji: '🍽️' },
+        items: (d.items || []).map(it => ({ name: it.name, emoji: it.emoji })),
+        analysis: {
+          structureSummary: (d.analysis && d.analysis.structureSummary) ? d.analysis.structureSummary : '',
+          harmonyScore: (d.analysis && typeof d.analysis.harmonyScore === 'number') ? d.analysis.harmonyScore : review.score
+        }
+      })),
+      fallbackTitle: state.customDishName || 'Món Ăn Tự Chế',
+      customerName: char.name,
+      customerEmoji: char.emoji,
+      customerSpeech: review.speech,
+      customerMoodTag: review.moodTag,
+      satisfactionScore: review.score
+    };
+    state.lastTastedMeal = tastedMealPayload;
+    if (typeof window !== 'undefined') {
+      window.lastTastedMeal = tastedMealPayload;
+    }
+
+    const shareContainer = document.getElementById('share-community-container');
+    if (shareContainer) {
+      shareContainer.classList.remove('hidden');
+    }
+
+    state.plateItems = [];
+    state.servedDishes = [];
+    state.customDishName = '';
+
+    reviewAnnouncement = `${char.name} vừa thưởng thức ${finalDishTitle}. Nhận xét: ${review.speech}`;
+  } catch (err) {
+    console.error('feedCharacter error:', err);
+    reviewAnnouncement = `Có lỗi xảy ra khi ${char.name} thưởng thức món ăn. Nút đút ăn đã được khôi phục để bạn thử lại.`;
+  } finally {
+    state.isFeedingBusy = false;
+
+    if (feedBtn) {
+      feedBtn.disabled = false;
+      feedBtn.removeAttribute('aria-disabled');
+      feedBtn.removeAttribute('aria-busy');
+      feedBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+    }
+    if (feedLbl) {
+      feedLbl.textContent = `ĐÚT CHO ${char.name.toUpperCase()} ĂN! (F)`;
+    }
+
+    renderAll();
+    if (reviewAnnouncement) {
+      announceNVDA(reviewAnnouncement, 'polite');
+    }
+  }
 }
 
 /**
@@ -401,6 +419,22 @@ export function renderServingPlate() {
   }
 
   const char = CHARACTERS.find(c => c.id === state.activeCharacterId) || CHARACTERS[0];
+  const feedBtn = document.getElementById('btn-master-feed');
   const feedLbl = document.getElementById('master-feed-label');
-  if (feedLbl) feedLbl.textContent = `ĐÚT CHO ${char.name.toUpperCase()} ĂN! (F)`;
+  if (feedBtn) {
+    if (state.isFeedingBusy) {
+      feedBtn.disabled = false;
+      feedBtn.setAttribute('aria-disabled', 'true');
+      feedBtn.removeAttribute('aria-busy');
+      feedBtn.classList.add('opacity-70', 'cursor-not-allowed');
+    } else {
+      feedBtn.disabled = false;
+      feedBtn.removeAttribute('aria-disabled');
+      feedBtn.removeAttribute('aria-busy');
+      feedBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+    }
+  }
+  if (feedLbl && !state.isFeedingBusy) {
+    feedLbl.textContent = `ĐÚT CHO ${char.name.toUpperCase()} ĂN! (F)`;
+  }
 }

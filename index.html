@@ -1015,7 +1015,7 @@
               </p>
               <div class="mt-2.5 pt-2 border-t border-amber-200/70 flex items-center justify-between text-xs text-stone-600">
                 <span>Điểm hài lòng:</span>
-                <strong id="dining-last-score" class="text-orange-700 font-extrabold">Chưa nếm món nào</strong>
+                <output id="dining-last-score" class="text-orange-700 font-extrabold">Chưa nếm món nào</output>
               </div>
               <div id="share-community-container" class="hidden mt-3 pt-2.5 border-t border-amber-300/80">
                 <button id="btn-share-to-community" type="button" class="game-btn btn-3d-emerald w-full py-3 px-4 rounded-2xl text-sm sm:text-base font-extrabold font-game flex items-center justify-center gap-2 shadow-lg hover:brightness-105 transition cursor-pointer" aria-haspopup="dialog">
@@ -1068,7 +1068,7 @@
             </div>
 
             <!-- Items on Plate List -->
-            <div id="plate-items-list" class="space-y-1.5 max-h-[140px] overflow-y-auto custom-scroll pr-1" role="list" aria-label="Danh sách các phần ăn trên đĩa">
+            <div id="plate-items-list" tabindex="0" class="space-y-1.5 max-h-[140px] overflow-y-auto custom-scroll pr-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded-xl" role="list" aria-label="Danh sách các phần ăn trên đĩa">
               <!-- Populated by JS -->
             </div>
 
@@ -2142,9 +2142,9 @@
   <script type="module" src="js/app.js"></script>
 
   <!-- Dual ARIA Live Regions for NVDA Screen Reader (Placed at bottom to keep document start clean) -->
-  <div id="nvda-live-assertive-a" class="sr-only-live" role="alert" aria-live="assertive" aria-atomic="true"></div>
-  <div id="nvda-live-assertive-b" class="sr-only-live" role="alert" aria-live="assertive" aria-atomic="true"></div>
-  <div id="nvda-live-polite-a" class="sr-only-live" role="status" aria-live="polite" aria-atomic="true"></div>
-  <div id="nvda-live-polite-b" class="sr-only-live" role="status" aria-live="polite" aria-atomic="true"></div>
+  <div id="nvda-live-assertive-a" class="sr-only-live" aria-live="assertive" aria-atomic="true"></div>
+  <div id="nvda-live-assertive-b" class="sr-only-live" aria-live="assertive" aria-atomic="true"></div>
+  <div id="nvda-live-polite-a" class="sr-only-live" aria-live="polite" aria-atomic="true"></div>
+  <div id="nvda-live-polite-b" class="sr-only-live" aria-live="polite" aria-atomic="true"></div>
 </body>
 </html>

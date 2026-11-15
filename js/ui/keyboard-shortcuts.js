@@ -314,12 +314,26 @@ export function bindEvents() {
       return;
     }
 
-    // Enter on Finish Dish Modal to confirm
-    if (e.key === 'Enter' && finishModal.open) {
+    // Enter on Finish Dish Modal to confirm (let explicit buttons handle their own activation)
+    if (e.key === 'Enter' && finishModal && finishModal.open) {
+      if (tag === 'button' || (e.target && typeof e.target.closest === 'function' && e.target.closest('button'))) {
+        return;
+      }
       e.preventDefault();
       confirmPlatingDish();
       return;
     }
+
+    // Block background kitchen shortcuts while any modal dialog is open
+    const hasOpenDialog = Boolean(
+      (finishModal && finishModal.open) ||
+      (modalSettings && modalSettings.open) ||
+      (modalHelp && modalHelp.open) ||
+      (modalConfirmBack && modalConfirmBack.open) ||
+      (modalConfirmBackToMenu && modalConfirmBackToMenu.open) ||
+      (typeof document !== 'undefined' && typeof document.querySelector === 'function' && document.querySelector('dialog[open]'))
+    );
+    if (hasOpenDialog) return;
 
     // Alt+1..5 Quick Tab Switch
     if (e.altKey && !e.ctrlKey && !e.shiftKey && state.currentScreen === 'kitchen') {
@@ -389,6 +403,9 @@ export function bindEvents() {
         }
       } else if (k === 'f') {
         e.preventDefault();
+        if (state.activeKitchenTab !== 'dining') {
+          switchKitchenTab('dining', false);
+        }
         feedCharacter();
       } else if (k === 'i') {
         e.preventDefault();

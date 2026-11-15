@@ -36,6 +36,10 @@ export const state = {
   singleKeyShortcutsEnabled: true,
   liveToggleBuffer: false,
   liveRegionTimer: null,
+  liveRegionTimers: {
+    polite: null,
+    assertive: null
+  },
   cravingIndex: 0,
 
   // External Audio & Action Busy Locks
