@@ -12,7 +12,26 @@
 
 # NHẬT KÝ DỰ ÁN — YUMCRAFT KITCHEN
 
-## 1. Thông Tin Phiên Làm Việc Mới Nhất (15/11/2026 - Refactor Kiến Trúc Frontend Sang ES Modules Theo Issue #5)
+## 1. Thông Tin Phiên Làm Việc Mới Nhất (15/11/2026 - Sửa Lỗi Ghép Danh Sách Nguyên Liệu, Nhãn 18 Dụng Cụ & Nút Khay Tạm)
+- **Ngày thực hiện**: 15/11/2026
+- **Người phát triển**: Vũ Anh Lộc (LC Boy) & Antigravity (Google DeepMind)
+- **Quy trình áp dụng**: Tuân thủ quy trình **Specify** ([`specs/005-fix-mixing-list-station-staging-a11y/spec.md`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/specs/005-fix-mixing-list-station-staging-a11y/spec.md), [`plan.md`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/specs/005-fix-mixing-list-station-staging-a11y/plan.md), [`tasks.md`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/specs/005-fix-mixing-list-station-staging-a11y/tasks.md)), áp dụng `modern-web-guidance`, `frontend-ui-engineering` và `accessibility-lead`.
+- **Các lỗi đã khắc phục**:
+  1. **Ghép tên danh sách nguyên liệu tự nhiên tiếng Việt (bỏ lặp `" & "` / `"và"`)**:
+     - Đưa `formatNaturalList(items, conjunction = 'và')` vào [`js/cooking/food-item.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/js/cooking/food-item.js) làm helper dùng chung và re-export lại tại [`js/cooking/tasting-review.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/js/cooking/tasting-review.js).
+     - Thay toàn bộ `.join(' & ')` sang `formatNaturalList(..., 'và')` trong [`js/cooking/station-actions.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/js/cooking/station-actions.js) (`handleMixAction`, `handleBlendAction`, `handleBeverageAction`, `handleRollAction`, `handleStuffAction`, đồng bộ chuỗi bước pha chế bằng `' ➔ '`) và `generateSmartDishTitle` tại [`js/cooking/chemistry.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/js/cooking/chemistry.js).
+  2. **Chuẩn hóa nhãn & mô tả 18 dụng cụ ở Bàn Chế Biến**:
+     - Bổ sung `formatStationAriaLabel(station)` trong [`js/ui/workbench-view.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/js/ui/workbench-view.js) tạo `aria-label` dạng `<tên ngắn>: <tên đầy đủ>. <mô tả>` (và rút gọn `<tên ngắn>. <mô tả>` với các dụng cụ 14–17 trùng tên) để NVDA đọc đầy đủ cả tên lẫn mô tả mà vẫn đạt WCAG 2.5.3 Label in Name.
+  3. **Bỏ lặp tiền tố ở nút Khay Tạm & Bếp**:
+     - Sửa `aria-label` của nút `Vào bếp` tại [`js/ui/staging-view.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/js/ui/staging-view.js) thành `"Đưa <tên món> vào bếp hiện tại"` (bỏ `"Vào bếp: "`).
+     - Sửa `aria-label` của nút `Ra khay` tại [`js/ui/workbench-view.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/js/ui/workbench-view.js) thành `"Cất <tên món> ra khay tạm"` (bỏ `"Ra khay: "`).
+- **Kiểm Thử & Xác Minh**:
+  - `node --check` trên toàn bộ module trong `js/`: Đạt.
+  - [`tests/test_unit_modules.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/tests/test_unit_modules.js): **8/8 PASS** (bổ sung `U8`).
+  - [`tests/test_mixing_table_and_a11y.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/tests/test_mixing_table_and_a11y.js): **15/15 PASS** (cập nhật T14 kiểm tra WCAG 2.5.3 và không lặp tiền tố).
+  - HTTP smoke check trên [`server.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/server.js): `200 OK` cho `/` và tất cả module đã sửa.
+
+## 2. Thông Tin Phiên Làm Việc Trước (15/11/2026 - Refactor Kiến Trúc Frontend Sang ES Modules Theo Issue #5)
 - **Ngày thực hiện**: 15/11/2026 (Triển khai GitHub Issue [`yum_craft_kitchen#5`](https://github.com/LCBoy/yum_craft_kitchen/issues/5) - Refactor kiến trúc frontend sang Vanilla JS + ES Modules chuẩn hiện đại & WCAG 2.2)
 - **Người phát triển**: Vũ Anh Lộc (LC Boy) & Antigravity (Google DeepMind)
 - **Quy trình áp dụng**: Tuân thủ quy trình **Specify** ([`specs/004-frontend-modular-refactor/spec.md`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/specs/004-frontend-modular-refactor/spec.md), [`plan.md`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/specs/004-frontend-modular-refactor/plan.md), [`tasks.md`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/specs/004-frontend-modular-refactor/tasks.md)) và kế hoạch 5 giai đoạn không cần bundler (chạy trực tiếp trên [`server.js`](file:///C:/Users/LCBoy/Desktop/data/web/yum_craft_kitchen/server.js)).

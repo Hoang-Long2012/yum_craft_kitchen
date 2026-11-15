@@ -1,6 +1,6 @@
 import { STATIONS } from '../data/stations.js';
 import { state } from '../core/state.js';
-import { itemContainsIce } from './food-item.js';
+import { itemContainsIce, formatNaturalList } from './food-item.js';
 import { combineFlavorProfiles } from './chemistry.js';
 
 const defaultHooks = {
@@ -38,10 +38,16 @@ const NON_HEAT_METHODS = [
   'rolled', 'stuffed', 'mixed', 'kneaded', 'whisked'
 ];
 
-const MIX_SHORT_LABELS = {
+const METHOD_SHORT_LABELS = {
   mixed: 'trộn đều',
   kneaded: 'nhào dẻo',
   whisked: 'đánh mịn',
+  stirred: 'khuấy ly',
+  shaken: 'lắc shaker',
+  brewed: 'hãm nóng',
+  blended: 'xay sinh tố',
+  rolled: 'cuộn tròn',
+  stuffed: 'nhồi nhân',
   sliced: 'thái lát',
   diced: 'thái hạt lựu',
   minced: 'băm nhuyễn',
@@ -57,21 +63,6 @@ const MIX_SHORT_LABELS = {
   wok_fried: 'đảo Wok',
   pan_grilled: 'nướng chảo gang',
   pressure_cooked: 'ninh áp suất'
-};
-
-const BEV_SHORT_LABELS = {
-  stirred: 'khuấy ly',
-  shaken: 'lắc shaker',
-  brewed: 'hãm nóng',
-  blended: 'xay sinh tố',
-  air_fried: 'chiên khí nóng',
-  rice_cooked: 'nấu bằng nồi cơm điện',
-  microwaved: 'làm nóng bằng vi sóng',
-  boiled: 'luộc/hầm',
-  fried: 'áp chảo',
-  deep_fried: 'chiên ngập dầu',
-  baked: 'nướng lò',
-  grilled: 'nướng than'
 };
 
 /**
@@ -180,7 +171,7 @@ function handleCutAction(actionId, hooks) {
     item.flavors.umami += 0.2;
   });
 
-  const names = state.stationItems.map((i) => i.name).join(', ');
+  const names = formatNaturalList(state.stationItems.map((i) => i.name), 'và');
   hooks.announce(`Đã ${labelMap[actionId]} ${names} trên thớt gỗ. Thức ăn dậy mùi và sẵn sàng cuốn/nhồi hoặc nấu!`, 'polite');
   hooks.renderAll();
 }
@@ -218,7 +209,7 @@ function handleRollAction(_actionId, hooks) {
   combinedFlavors.aroma += 1.5;
   combinedFlavors.umami += 0.8;
 
-  const fillingNames = innerFillings.map((i) => i.name).join(' & ');
+  const fillingNames = formatNaturalList(innerFillings.map((i) => i.name), 'và');
   const rolledName = `${outerWrapper.name} cuộn [${fillingNames}]`;
   const outerTexture = outerWrapper.texture === 'crispy' ? 'crispy' : 'soft';
 
@@ -300,7 +291,7 @@ function handleStuffAction(_actionId, hooks) {
   combinedFlavors.aroma += 1.6;
   combinedFlavors.crunch += outerVessel.flavors.crunch ? outerVessel.flavors.crunch * 0.5 : 0;
 
-  const stuffingNames = innerStuffings.map((i) => i.name).join(' & ');
+  const stuffingNames = formatNaturalList(innerStuffings.map((i) => i.name), 'và');
   const stuffedName = `${outerVessel.name} nhồi [${stuffingNames}]`;
   const outerTexture = outerVessel.texture === 'crispy' ? 'crispy' : 'soft';
 
@@ -370,7 +361,7 @@ async function handleBlendAction(_actionId, hooks) {
   const isSweetDrink = blendSourceItems.every((i) =>
     i.category === 'sweets' || i.category === 'veg' || i.baseId === 'milk' || i.baseId === 'chocolate' || i.baseId === 'oreo'
   );
-  const defaultBlendName = `${names.join(' & ')} (xay nhuyễn)`;
+  const defaultBlendName = `${formatNaturalList(names, 'và')} (xay nhuyễn)`;
   const hasIceInBlender = state.stationItems.some((i) => itemContainsIce(i));
   const inheritedBlendActions = buildInheritedActionHistory(state.stationItems, 'blended', { ignoreIce: true });
 
@@ -471,8 +462,8 @@ async function handleBeverageAction(actionId, hooks) {
   }
 
   const inheritedBevActions = buildInheritedActionHistory(state.stationItems, cfg.method, { ignoreIce: true });
-  const methodLabel = inheritedBevActions.map((a) => BEV_SHORT_LABELS[a] || a).join(' & ');
-  const defaultBeverageName = `${names.join(' & ')} (${methodLabel})`;
+  const methodLabel = inheritedBevActions.map((a) => METHOD_SHORT_LABELS[a] || a).join(' ➔ ');
+  const defaultBeverageName = `${formatNaturalList(names, 'và')} (${methodLabel})`;
 
   let beverageEmoji = '🍹';
   if (hasIce) beverageEmoji = '🧋';
@@ -585,8 +576,8 @@ async function handleMixAction(actionId, hooks) {
   }
 
   const inheritedMixActions = buildInheritedActionHistory(state.stationItems, cfg.method, { prevMixedKind: 'mixed' });
-  const methodLabel = inheritedMixActions.map((a) => MIX_SHORT_LABELS[a] || a).join(' ➔ ');
-  const defaultMixedName = `${names.join(' & ')} (${methodLabel})`;
+  const methodLabel = inheritedMixActions.map((a) => METHOD_SHORT_LABELS[a] || a).join(' ➔ ');
+  const defaultMixedName = `${formatNaturalList(names, 'và')} (${methodLabel})`;
 
   const mixedItem = {
     uid: state.nextItemUid++,
@@ -715,6 +706,12 @@ async function handleHeatAction(actionId, hooks) {
     pressure_cooked: 'ninh mềm ngọt nước bằng áp suất cao'
   };
   const secondCookDescriptions = {
+    boiled: 'đã luộc hầm nhừ ngọt nước',
+    steamed: 'đã hấp chín mềm mọng nước',
+    fried: 'đã áp chảo xém cạnh thơm lừng',
+    deep_fried: 'đã chiên ngập dầu vàng giòn rụm',
+    baked: 'đã nướng lò vàng giòn đều',
+    grilled: 'đã nướng than hoa xém thơm nồng',
     air_fried: 'đã vàng giòn hơn nhờ luồng khí nóng',
     rice_cooked: 'đã nấu mềm dẻo kỹ trong nồi cơm điện',
     microwaved: 'đã nóng hổi kỹ càng bằng vi sóng',

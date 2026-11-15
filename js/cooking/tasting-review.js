@@ -1,6 +1,8 @@
 import { CHARACTERS } from '../data/characters.js';
 import { SPICES } from '../data/spices.js';
-import { itemContainsIce } from './food-item.js';
+import { itemContainsIce, formatNaturalList } from './food-item.js';
+
+export { formatNaturalList };
 
 export function describePureFlavorDescriptor(tasteKey, score, seed = 0) {
   if (!score || score <= 0) return null;
@@ -98,15 +100,6 @@ export function formatSpiceListWithQuantities(spiceRecords) {
     }
   });
   return formatted;
-}
-
-// HÀM TIỆN ÍCH TRỢ NĂNG: Nối danh sách tự nhiên tiếng Việt (Zero Hardcoded - Liệt kê đầy đủ 100%)
-export function formatNaturalList(items, conjunction = 'và') {
-  if (!items || items.length === 0) return '';
-  if (items.length === 1) return items[0];
-  if (items.length === 2) return `${items[0]} ${conjunction} ${items[1]}`;
-  const allButLast = items.slice(0, -1).join(', ');
-  return `${allButLast} ${conjunction} ${items[items.length - 1]}`;
 }
 
 // FORMAT CHUỖI PHƯƠNG PHÁP CHẾ BIẾN TỰ NHIÊN (TOCA KITCHEN SANDBOX: 1 ĐẾN 7+ BƯỚC)

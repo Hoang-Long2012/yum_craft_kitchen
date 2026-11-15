@@ -35,7 +35,7 @@ export function renderStagingTray() {
         </div>
       </div>
       <div class="flex items-center gap-1 shrink-0">
-        <button type="button" data-to-st="${idx}" class="px-2 py-1 rounded-lg bg-orange-100 hover:bg-orange-200 text-orange-950 font-bold text-[10px]" aria-label="Vào bếp: Đưa ${escapeHtml(it.name)} vào Bếp hiện tại">
+        <button type="button" data-to-st="${idx}" class="px-2 py-1 rounded-lg bg-orange-100 hover:bg-orange-200 text-orange-950 font-bold text-[10px]" aria-label="Đưa ${escapeHtml(it.name)} vào bếp hiện tại">
           Vào bếp
         </button>
         <button type="button" data-del-stag="${idx}" class="px-2 py-1 rounded-lg bg-stone-100 hover:bg-red-100 text-stone-600 hover:text-red-800 font-bold text-[10px]" aria-label="Xóa ${escapeHtml(it.name)} khỏi khay">

@@ -1,5 +1,16 @@
 import { state } from '../core/state.js';
 
+/**
+ * Join a list of Vietnamese labels using commas for initial items and a conjunction before the final item.
+ */
+export function formatNaturalList(items, conjunction = 'và') {
+  if (!items || items.length === 0) return '';
+  if (items.length === 1) return items[0];
+  if (items.length === 2) return `${items[0]} ${conjunction} ${items[1]}`;
+  const allButLast = items.slice(0, -1).join(', ');
+  return `${allButLast} ${conjunction} ${items[items.length - 1]}`;
+}
+
 export function determineDefaultTexture(ing) {
   if (ing.texture) return ing.texture === 'crisp' ? 'crispy' : ing.texture;
   if (ing.id === 'milk' || ing.id === 'ice_cubes' || ing.id === 'pure_water' || ing.id === 'brewed_coffee' || ing.id === 'espresso') return 'drink';

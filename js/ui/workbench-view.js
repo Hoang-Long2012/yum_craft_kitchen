@@ -38,6 +38,17 @@ export function moveStagingToStation() {
 }
 
 /**
+ * Build a screen-reader-friendly accessible label for a station button while preserving WCAG 2.5.3 Label in Name.
+ */
+function formatStationAriaLabel(station) {
+  const shortTitle = station.shortName.replace(/^\d+\.\s*/, '').trim();
+  const titlePart = shortTitle === station.name
+    ? station.shortName
+    : `${station.shortName}: ${station.name}`;
+  return `${titlePart}. ${station.desc}`;
+}
+
+/**
  * Render the 18 cooking stations, dynamic wrapper/vessel selector, action buttons, and station item list.
  */
 export function renderWorkbench() {
@@ -57,8 +68,7 @@ export function renderWorkbench() {
       btn.dataset.stationId = st.id;
       btn.setAttribute('aria-pressed', isAct ? 'true' : 'false');
       btn.setAttribute('tabindex', isAct ? '0' : '-1');
-      btn.setAttribute('aria-label', `${st.shortName} - ${st.name}`);
-      btn.title = st.desc;
+      btn.setAttribute('aria-label', formatStationAriaLabel(st));
       btn.className = `p-2 rounded-2xl border text-left transition flex items-center gap-1.5 ${
         isAct ? 'station-btn-active font-bold' : 'bg-stone-50 hover:bg-amber-50 border-stone-200 text-stone-800'
       }`;
@@ -129,7 +139,6 @@ export function renderWorkbench() {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.dataset.uid = String(it.uid);
-        btn.title = it.name;
         btn.setAttribute('role', 'radio');
         btn.setAttribute('aria-checked', isSel ? 'true' : 'false');
         btn.setAttribute('tabindex', isSel ? '0' : '-1');
@@ -168,7 +177,6 @@ export function renderWorkbench() {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.dataset.uid = String(it.uid);
-        btn.title = it.name;
         btn.setAttribute('role', 'radio');
         btn.setAttribute('aria-checked', isSel ? 'true' : 'false');
         btn.setAttribute('tabindex', isSel ? '0' : '-1');
@@ -258,7 +266,7 @@ export function renderWorkbench() {
             </div>
           </div>
           <div class="flex items-center gap-1 shrink-0">
-            <button type="button" data-to-staging="${idx}" class="px-2 py-1 rounded-lg bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold text-[10px]" aria-label="Ra khay: Cất ${escapeHtml(it.name)} ra Khay Tạm">
+            <button type="button" data-to-staging="${idx}" class="px-2 py-1 rounded-lg bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold text-[10px]" aria-label="Cất ${escapeHtml(it.name)} ra khay tạm">
               Ra khay
             </button>
             <button type="button" data-del-st="${idx}" class="px-2 py-1 rounded-lg bg-stone-200 hover:bg-red-200 text-stone-700 hover:text-red-900 font-bold text-[10px]" aria-label="Xóa ${escapeHtml(it.name)} khỏi bếp">

@@ -744,17 +744,29 @@ function resetStation() {
     await api.performStationAction('mix_toss');
     api.renderWorkbench();
 
-    // WCAG 2.5.3: station button aria-label starts with visible shortName
+    // WCAG 2.5.3: station button aria-label starts with visible shortName, uses ': <name>. <desc>' without duplicating identical names
     const stGrid = mockDoc.getElementById('station-selector-grid');
-    assert.ok(stGrid.children[17].getAttribute('aria-label').startsWith('18. Bàn Trộn'));
-    assert.ok(stGrid.children[17].title && stGrid.children[17].title.length > 0);
+    assert.strictEqual(
+      stGrid.children[4].getAttribute('aria-label'),
+      `5. Nồi Luộc: Nồi Luộc & Hầm. ${api.STATIONS[4].desc}`
+    );
+    assert.strictEqual(
+      stGrid.children[13].getAttribute('aria-label'),
+      `14. Nồi Áp Suất. ${api.STATIONS[13].desc}`
+    );
+    assert.strictEqual(
+      stGrid.children[17].getAttribute('aria-label'),
+      `18. Bàn Trộn: Bàn Trộn Đa Năng. ${api.STATIONS[17].desc}`
+    );
+    assert.strictEqual(Boolean(stGrid.children[17].title), false);
 
-    // Station items list wraps long text cleanly without .truncate & matches button aria-labels
+    // Station items list wraps long text cleanly without .truncate & matches button aria-labels (WCAG 2.5.3 without duplicate prefix)
     const stListHtml = mockDoc.getElementById('station-items-list').children[0].innerHTML;
     assert.ok(stListHtml.includes('break-words leading-snug'));
     assert.ok(!stListHtml.includes('truncate'));
     assert.ok(stListHtml.includes('Thanh Sô-cô-la Đen') && stListHtml.includes('Sữa tươi thanh trùng'));
-    assert.ok(stListHtml.includes('aria-label="Ra khay: Cất '));
+    assert.ok(stListHtml.includes('aria-label="Cất ') && stListHtml.includes('ra khay tạm"'));
+    assert.strictEqual(stListHtml.includes('aria-label="Ra khay:'), false);
     assert.ok(stListHtml.includes('aria-label="Xóa '));
 
     // Action button busy/ready WCAG 2.5.3 labels
@@ -765,12 +777,13 @@ function resetStation() {
     assert.ok(actContainer.children[0].getAttribute('aria-label').startsWith('Đang chế biến: '));
     api.state.isCookingBusy = false;
 
-    // Staging & Plate list rendering without truncate or hidden sm:inline
+    // Staging & Plate list rendering without truncate or hidden sm:inline (WCAG 2.5.3 without duplicate "Vào bếp:" prefix)
     api.state.stagingItems.push(api.state.stationItems[0]);
     api.renderStagingTray();
     const stagingHtml = mockDoc.getElementById('staging-items-list').children[0].innerHTML;
     assert.ok(stagingHtml.includes('break-words leading-snug') && !stagingHtml.includes('truncate'));
-    assert.ok(stagingHtml.includes('aria-label="Vào bếp: Đưa '));
+    assert.ok(stagingHtml.includes('aria-label="Đưa ') && stagingHtml.includes('vào bếp hiện tại"'));
+    assert.strictEqual(stagingHtml.includes('aria-label="Vào bếp:'), false);
 
     api.state.plateItems.push(api.state.stationItems[0]);
     api.renderServingPlate();

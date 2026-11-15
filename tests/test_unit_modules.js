@@ -17,8 +17,8 @@ import {
 import { state, resetKitchenItemsState } from '../js/core/state.js';
 import { getMockUsers, saveMockUsers, readStorageJson, writeStorageJson } from '../js/services/mock-storage.js';
 import { escapeHtml } from '../js/ui/dom-helpers.js';
-import { createFoodItem, describeItemStateShort, itemContainsIce } from '../js/cooking/food-item.js';
-import { analyzeCulinaryChemistry, combineFlavorProfiles } from '../js/cooking/chemistry.js';
+import { createFoodItem, describeItemStateShort, itemContainsIce, formatNaturalList } from '../js/cooking/food-item.js';
+import { analyzeCulinaryChemistry, combineFlavorProfiles, generateSmartDishTitle } from '../js/cooking/chemistry.js';
 import {
   describePureFlavorDescriptor,
   generateSensoryTastingReview,
@@ -217,6 +217,60 @@ await test('U7: Modular refactor & accessibility structural checks (index.html, 
     assert.strictEqual(src.includes('function getMockUsers'), false);
     assert.strictEqual(src.includes('function saveMockUsers'), false);
   });
+});
+
+await test('U8: Natural Vietnamese list formatting across mixing, blending, beverage, rolling, stuffing & dish titles', async () => {
+  assert.strictEqual(formatNaturalList(['A']), 'A');
+  assert.strictEqual(formatNaturalList(['A', 'B']), 'A và B');
+  assert.strictEqual(formatNaturalList(['A', 'B', 'C']), 'A, B và C');
+
+  resetPureState();
+  state.activeStationId = 'mixing_table';
+  ['milk', 'chocolate', 'oreo', 'cocoa', 'marshmallow', 'condensed_milk'].forEach((id) => addIngredientToState(id));
+  await performStationAction('mix_toss');
+  assert.strictEqual(
+    state.stationItems[0].name,
+    'Sữa tươi thanh trùng, Thanh Sô-cô-la Đen, Bánh quy Oreo kẹp kem, Bột Ca-cao nguyên chất, Kẹo Marshmallow xốp dẻo và Sữa đặc có đường (trộn đều)'
+  );
+  assert.strictEqual(state.stationItems[0].name.includes(' & '), false);
+
+  resetPureState();
+  state.activeStationId = 'blender';
+  ['milk', 'chocolate', 'oreo'].forEach((id) => addIngredientToState(id));
+  await performStationAction('blend_smooth');
+  assert.strictEqual(state.stationItems[0].name, 'Sữa tươi thanh trùng, Thanh Sô-cô-la Đen và Bánh quy Oreo kẹp kem (xay nhuyễn)');
+
+  resetPureState();
+  state.activeStationId = 'beverage_station';
+  ['milk', 'brewed_coffee', 'condensed_milk'].forEach((id) => addIngredientToState(id));
+  await performStationAction('stir_pour');
+  assert.strictEqual(state.stationItems[0].name, 'Sữa tươi thanh trùng, Cà phê phin truyền thống nguyên chất và Sữa đặc có đường (khuấy ly)');
+
+  resetPureState();
+  state.activeStationId = 'rolling_mat';
+  ['rice_paper', 'beef', 'carrot', 'cucumber'].forEach((id) => addIngredientToState(id));
+  await performStationAction('roll_tight');
+  assert.strictEqual(state.stationItems[0].name.includes(' & '), false);
+  assert.ok(state.stationItems[0].name.includes('Thịt bò thăn tươi, Cà Rốt Tươi Giòn Ngọt Đỏ Cam và Dưa leo giòn'));
+
+  resetPureState();
+  state.activeStationId = 'stuffing_station';
+  ['banh_mi_vn', 'beef', 'cheese_slice', 'cucumber'].forEach((id) => addIngredientToState(id));
+  await performStationAction('stuff_pack');
+  assert.strictEqual(state.stationItems[0].name.includes(' & '), false);
+  assert.ok(state.stationItems[0].name.includes('Thịt bò thăn tươi, Phô mai Cheddar lát và Dưa leo giòn'));
+
+  const title = generateSmartDishTitle(
+    ['milk', 'chocolate', 'oreo'].map((id) => createFoodItem(INGREDIENTS.find((i) => i.id === id))),
+    { sour: 0, sweet: 0, spicy: 0, fatty: 0, umami: 0 }
+  );
+  assert.strictEqual(title, 'Sữa tươi thanh trùng, Thanh Sô-cô-la Đen và Bánh quy Oreo kẹp kem');
+
+  const title4 = generateSmartDishTitle(
+    ['milk', 'chocolate', 'oreo', 'cocoa'].map((id) => createFoodItem(INGREDIENTS.find((i) => i.id === id))),
+    { sour: 0, sweet: 0, spicy: 0, fatty: 0, umami: 0 }
+  );
+  assert.strictEqual(title4, 'Sữa tươi thanh trùng, Thanh Sô-cô-la Đen, Bánh quy Oreo kẹp kem và 1 món khác');
 });
 
 console.log(`\nUNIT SUMMARY: ${passed} passed, ${failed} failed.`);

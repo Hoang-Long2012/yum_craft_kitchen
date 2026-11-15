@@ -1,5 +1,5 @@
 import { SPICES } from '../data/spices.js';
-import { describeItemStateShort } from './food-item.js';
+import { describeItemStateShort, formatNaturalList } from './food-item.js';
 
 export function getSpiceDistributionShare(count) {
   const n = Math.max(1, count);
@@ -251,7 +251,7 @@ export function analyzeCulinaryChemistry(items) {
   }
   if (hasBurnt) {
     blended.bitter += 4.5;
-    warnings.push('炭 Có nguyên liệu bị nấu quá lửa cháy khét đen!');
+    warnings.push('🔥 Có nguyên liệu bị nấu quá lửa cháy khét đen!');
   }
   if (blended.salty > 5.5) warnings.push('🧂 Món ăn đang bị MẶN CHÁT!');
   if (blended.spicy > 6.0) warnings.push('🌶️ Món ăn CỰC KỲ CAY xè lưỡi!');
@@ -306,8 +306,11 @@ export function generateSmartDishTitle(items, norm) {
     return `${single.name}${suffix}`;
   }
 
-  const names = items.slice(0, 3).map(i => i.name).join(' & ');
-  const extra = items.length > 3 ? ` (+${items.length - 3} món)` : '';
-  return `${names}${extra}${suffix}`;
+  if (items.length <= 3) {
+    return `${formatNaturalList(items.map(i => i.name), 'và')}${suffix}`;
+  }
+
+  const headNames = items.slice(0, 3).map(i => i.name).join(', ');
+  return `${headNames} và ${items.length - 3} món khác${suffix}`;
 }
 
