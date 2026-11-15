@@ -21,8 +21,9 @@ import {
 // CHÍNH XÁC 100% LÀ "lc_boy" (chữ thường, không hoa, không biến thể)
 export const ROOT_ADMIN_USERNAME = "lc_boy";
 
-// Khóa lưu trữ cục bộ cho Mock Mode / Caching
-const MOCK_USERS_KEY = "yumcraft_mock_users_db";
+import { getMockUsers, saveMockUsers } from "./services/mock-storage.js";
+
+// Khóa lưu trữ cục bộ cho Caching
 const SYSTEM_MOTD_KEY = "yumcraft_system_motd";
 const SYSTEM_MAINTENANCE_KEY = "yumcraft_system_maintenance";
 const BANNED_IPS_KEY = "yumcraft_banned_ips";
@@ -44,29 +45,6 @@ export function isAdmin(profile) {
   if (!profile || typeof profile !== "object") return false;
   if (isRootAdmin(profile)) return true;
   return profile.isAdmin === true || profile.role === "admin";
-}
-
-/**
- * Lấy danh sách tài khoản Mock từ localStorage
- */
-function getMockUsers() {
-  try {
-    const raw = localStorage.getItem(MOCK_USERS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
-  }
-}
-
-/**
- * Lưu danh sách tài khoản Mock vào localStorage
- */
-function saveMockUsers(users) {
-  try {
-    localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(users));
-  } catch (e) {
-    console.error("Lỗi khi lưu mock users:", e);
-  }
 }
 
 /**

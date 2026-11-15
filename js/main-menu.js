@@ -41,59 +41,19 @@ import {
   resetLeaderboardScores
 } from "./community-service.js";
 
-// Khóa lưu cài đặt
-const SETTINGS_STORAGE_KEY = "yumcraft_game_settings";
+import { state } from "./core/state.js";
+import { getSavedSettings, saveSettings, applySettingsToState } from "./core/settings.js";
+import { announceNVDA } from "./accessibility/nvda-announcer.js";
+import { escapeHtml } from "./ui/dom-helpers.js";
+import { showConfirmDialog, showPromptDialog, showNoticeDialog } from "./ui/confirm-dialog.js";
+
+export { getSavedSettings, saveSettings };
 
 /**
- * Đọc cài đặt trò chơi từ localStorage
- */
-export function getSavedSettings() {
-  try {
-    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      return {
-        sfxEnabled: true,
-        sfxVolume: 80,
-        voiceAnnouncements: true,
-        singleKeyShortcutsEnabled: true,
-        ...parsed
-      };
-    }
-  } catch (e) {
-    console.warn("Không thể đọc cài đặt trò chơi:", e);
-  }
-  return {
-    sfxEnabled: true,
-    sfxVolume: 80,
-    voiceAnnouncements: true,
-    singleKeyShortcutsEnabled: true
-  };
-}
-
-/**
- * Lưu cài đặt trò chơi vào localStorage
- */
-export function saveSettings(settings) {
-  try {
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
-  } catch (e) {
-    console.error("Lỗi khi lưu cài đặt:", e);
-  }
-}
-
-/**
- * Phát loa thông báo cho NVDA / Trình đọc màn hình
+ * Phát loa thông báo cho NVDA / Trình đọc màn hình (qua bộ điều phối thống nhất)
  */
 function announceToScreenReader(text, assertive = false) {
-  const liveId = assertive ? "nvda-live-assertive-a" : "nvda-live-polite-a";
-  const region = document.getElementById(liveId);
-  if (region) {
-    region.textContent = "";
-    setTimeout(() => {
-      region.textContent = text;
-    }, 50);
-  }
+  announceNVDA(text, assertive ? "assertive" : "polite");
 }
 
 /**
@@ -134,11 +94,13 @@ export function showScreen(screenName) {
     if (s) {
       s.classList.add("hidden");
       s.classList.remove("flex");
+      s.hidden = true;
     }
   });
 
   if (screenName === "auth") {
     if (screenAuth) {
+      screenAuth.hidden = false;
       screenAuth.classList.remove("hidden");
       screenAuth.classList.add("flex");
       const firstInput = document.getElementById("login-identifier");
@@ -147,6 +109,7 @@ export function showScreen(screenName) {
     }
   } else if (screenName === "main-menu") {
     if (screenMainMenu) {
+      screenMainMenu.hidden = false;
       screenMainMenu.classList.remove("hidden");
       screenMainMenu.classList.add("flex");
       const btnEnter = document.getElementById("btn-menu-enter-kitchen");
@@ -155,6 +118,7 @@ export function showScreen(screenName) {
     }
   } else if (screenName === "character-select") {
     if (screenSelect) {
+      screenSelect.hidden = false;
       screenSelect.classList.remove("hidden");
       screenSelect.classList.add("flex");
       const btnBack = document.getElementById("btn-back-to-main-menu");
@@ -163,6 +127,7 @@ export function showScreen(screenName) {
     }
   } else if (screenName === "kitchen") {
     if (screenKitchen) {
+      screenKitchen.hidden = false;
       screenKitchen.classList.remove("hidden");
       screenKitchen.classList.add("flex");
     }
@@ -225,11 +190,7 @@ export function updateMainMenuUserProfile(profile) {
  * Đồng bộ cài đặt vào game state nếu có
  */
 function applySettingsToGameState(settings) {
-  if (window.state) {
-    window.state.sfxEnabled = settings.sfxEnabled;
-    window.state.sfxVolume = settings.sfxVolume / 100;
-    window.state.singleKeyShortcutsEnabled = settings.singleKeyShortcutsEnabled !== false;
-  }
+  applySettingsToState(settings, state);
 }
 
 /**
@@ -314,7 +275,7 @@ export function initAdminPanelController() {
     btnMenuAdmin.addEventListener("click", async () => {
       const profile = getActiveProfileCache();
       if (!profile || !isAdmin(profile)) {
-        alert("Bạn không có quyền truy cập Bảng Quản Trị.");
+        await showNoticeDialog({ title: "Không có quyền truy cập", message: "Bạn không có quyền truy cập Bảng Quản Trị." });
         return;
       }
       await refreshAdminPanelStats();
@@ -338,14 +299,21 @@ export function initAdminPanelController() {
     btnToggleMaintenance.addEventListener("click", async () => {
       const current = getMaintenanceConfig();
       if (current.enabled) {
-        const confirmTurnOff = window.confirm("Bạn có chắc chắn muốn TẮT chế độ bảo trì máy chủ? Người chơi sẽ có thể đăng nhập bình thường.");
+        const confirmTurnOff = await showConfirmDialog({
+          title: "Tắt bảo trì máy chủ",
+          message: "Bạn có chắc chắn muốn TẮT chế độ bảo trì máy chủ? Người chơi sẽ có thể đăng nhập bình thường."
+        });
         if (confirmTurnOff) {
           await setMaintenanceMode(false);
           await refreshAdminPanelStats();
           announceToScreenReader("Đã tắt chế độ bảo trì máy chủ thành công.");
         }
       } else {
-        const reasonInput = window.prompt("Nhập thông báo lý do bảo trì gửi đến người chơi (hoặc để trống dùng mặc định):", "Máy chủ đang tạm dừng ít phút để bảo trì và nâng cấp gian bếp. Vui lòng quay lại sau!");
+        const reasonInput = await showPromptDialog({
+          title: "Bật chế độ bảo trì",
+          message: "Nhập thông báo lý do bảo trì gửi đến người chơi (hoặc để trống dùng mặc định):",
+          defaultValue: "Máy chủ đang tạm dừng ít phút để bảo trì và nâng cấp gian bếp. Vui lòng quay lại sau!"
+        });
         if (reasonInput !== null) {
           await setMaintenanceMode(true, reasonInput);
           await refreshAdminPanelStats();
@@ -406,13 +374,13 @@ export function initAdminPanelController() {
           <span class="text-2xl flex-shrink-0" aria-hidden="true">${avatarIcon}</span>
           <div class="min-w-0">
             <div class="flex items-center gap-2 flex-wrap">
-              <span class="font-extrabold text-stone-900 font-game truncate text-sm sm:text-base">${u.displayName || "Bếp Trưởng"}</span>
-              <span class="text-xs text-stone-500 font-mono">(@${u.username})</span>
+              <span class="font-extrabold text-stone-900 font-game truncate text-sm sm:text-base">${escapeHtml(u.displayName || "Bếp Trưởng")}</span>
+              <span class="text-xs text-stone-500 font-mono">(@${escapeHtml(u.username)})</span>
               ${badgesHtml}
             </div>
             <div class="text-xs text-stone-500 truncate mt-0.5">
-              <span>${u.email || "Không có email"}</span> &bull; 
-              <span class="text-orange-700 font-semibold">${u.kitchenName || "Nhà bếp"}</span>
+              <span>${escapeHtml(u.email || "Không có email")}</span> &bull; 
+              <span class="text-orange-700 font-semibold">${escapeHtml(u.kitchenName || "Nhà bếp")}</span>
             </div>
           </div>
         </div>
@@ -501,15 +469,15 @@ export function initAdminPanelController() {
       userDetailsBox.innerHTML = `
         <div class="flex items-center justify-between pb-1 border-b border-stone-200">
           <span class="text-stone-500 font-semibold">Tên đăng nhập:</span>
-          <span class="font-bold text-stone-900 font-mono">@${u.username}</span>
+          <span class="font-bold text-stone-900 font-mono">@${escapeHtml(u.username)}</span>
         </div>
         <div class="flex items-center justify-between py-1 border-b border-stone-200">
           <span class="text-stone-500 font-semibold">Email:</span>
-          <span class="font-bold text-stone-900">${u.email || "Chưa thiết lập"}</span>
+          <span class="font-bold text-stone-900">${escapeHtml(u.email || "Chưa thiết lập")}</span>
         </div>
         <div class="flex items-center justify-between py-1 border-b border-stone-200">
           <span class="text-stone-500 font-semibold">Gian bếp:</span>
-          <span class="font-bold text-orange-700">${u.kitchenName || "Nhà bếp sáng tạo"}</span>
+          <span class="font-bold text-orange-700">${escapeHtml(u.kitchenName || "Nhà bếp sáng tạo")}</span>
         </div>
         <div class="flex items-center justify-between py-1 border-b border-stone-200">
           <span class="text-stone-500 font-semibold">Quyền hạn:</span>
@@ -520,7 +488,7 @@ export function initAdminPanelController() {
         <div class="flex items-center justify-between pt-1">
           <span class="text-stone-500 font-semibold">Trạng thái tài khoản:</span>
           <span class="font-bold ${u.isBanned ? 'text-red-700' : 'text-emerald-700'}">
-            ${u.isBanned ? `🚫 Đang bị cấm (${u.banReason || 'Không có lý do'})` : '🟢 Hoạt động bình thường'}
+            ${u.isBanned ? `🚫 Đang bị cấm (${escapeHtml(u.banReason || 'Không có lý do')})` : '🟢 Hoạt động bình thường'}
           </span>
         </div>
         ${u.isIpBanned ? '<div class="text-xs text-red-600 font-bold mt-1">⚠️ Địa chỉ IP của tài khoản này đã bị cấm.</div>' : ''}
@@ -570,7 +538,10 @@ export function initAdminPanelController() {
       const target = currentSelectedUser;
       const willBeAdmin = !target.isAdmin;
       const actionText = willBeAdmin ? "thăng chức lên Quản trị viên" : "tước quyền Quản trị viên";
-      const confirmAction = window.confirm(`Bạn có chắc muốn ${actionText} cho tài khoản @${target.username}?`);
+      const confirmAction = await showConfirmDialog({
+        title: "Xác nhận đổi quyền hạn",
+        message: `Bạn có chắc muốn ${actionText} cho tài khoản @${target.username}?`
+      });
       if (!confirmAction) return;
 
       try {
@@ -579,7 +550,7 @@ export function initAdminPanelController() {
         openUserActionModal(target);
         announceToScreenReader(`Đã ${actionText} cho tài khoản @${target.username} thành công.`);
       } catch (err) {
-        alert(err.message || "Thao tác thất bại.");
+        await showNoticeDialog({ title: "Lỗi", message: err.message || "Thao tác thất bại." });
       }
     });
   }
@@ -597,7 +568,10 @@ export function initAdminPanelController() {
       
       // Nếu đang bị cấm -> Thực hiện Mở khóa (Unban)
       if (target.isBanned) {
-        const confirmUnban = window.confirm(`Bạn có chắc muốn MỞ KHÓA / GỠ CẤM cho tài khoản @${target.username}?`);
+        const confirmUnban = await showConfirmDialog({
+          title: "Xác nhận mở khóa",
+          message: `Bạn có chắc muốn MỞ KHÓA / GỠ CẤM cho tài khoản @${target.username}?`
+        });
         if (!confirmUnban) return;
         try {
           await unbanUser(target.uid);
@@ -607,7 +581,7 @@ export function initAdminPanelController() {
           openUserActionModal(target);
           announceToScreenReader(`Đã mở khóa tài khoản @${target.username} thành công.`);
         } catch (e) {
-          alert(e.message || "Lỗi khi mở khóa tài khoản.");
+          await showNoticeDialog({ title: "Lỗi", message: e.message || "Lỗi khi mở khóa tài khoản." });
         }
         return;
       }
@@ -653,7 +627,7 @@ export function initAdminPanelController() {
         openUserActionModal(target);
         announceToScreenReader(`Đã cấm tài khoản @${target.username} thành công.`);
       } catch (err) {
-        alert(err.message || "Lỗi cấm tài khoản.");
+        await showNoticeDialog({ title: "Lỗi", message: err.message || "Lỗi cấm tài khoản." });
       }
     });
   }
@@ -723,7 +697,7 @@ export function initAdminPanelController() {
         modalAdminResetPwd.close();
         if (modalUserAction) modalUserAction.showModal();
         announceToScreenReader(`Đã đổi mật khẩu cho tài khoản @${target.username} thành công.`);
-        alert(`Đổi mật khẩu cho tài khoản @${target.username} thành công!`);
+        await showNoticeDialog({ title: "Thành công", message: `Đổi mật khẩu cho tài khoản @${target.username} thành công!` });
       } catch (err) {
         if (resetPwdAlert) {
           resetPwdAlert.textContent = err.message || "Lỗi khi đổi mật khẩu.";
@@ -747,7 +721,7 @@ export function initAdminPanelController() {
       if (modalUserAction) modalUserAction.close();
 
       if (deleteTargetText) {
-        deleteTargetText.innerHTML = `Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản <strong>"${target.displayName}" (@${target.username})</strong>? Toàn bộ dữ liệu hồ sơ sẽ bị xóa khỏi cơ sở dữ liệu và không thể hoàn tác!`;
+        deleteTargetText.innerHTML = `Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản <strong>"${escapeHtml(target.displayName)}" (@${escapeHtml(target.username)})</strong>? Toàn bộ dữ liệu hồ sơ sẽ bị xóa khỏi cơ sở dữ liệu và không thể hoàn tác!`;
       }
       if (modalAdminDelete) {
         modalAdminDelete.showModal();
@@ -772,10 +746,10 @@ export function initAdminPanelController() {
         await deleteUserAccount(target.uid, target.username, target.email);
         modalAdminDelete.close();
         announceToScreenReader(`Đã xóa vĩnh viễn tài khoản @${target.username}.`);
-        alert(`Đã xóa tài khoản @${target.username} thành công.`);
+        await showNoticeDialog({ title: "Thành công", message: `Đã xóa tài khoản @${target.username} thành công.` });
         await loadAndShowUsers();
       } catch (err) {
-        alert(err.message || "Lỗi khi xóa tài khoản.");
+        await showNoticeDialog({ title: "Lỗi", message: err.message || "Lỗi khi xóa tài khoản." });
       }
     });
   }
@@ -846,7 +820,7 @@ export function initAdminPanelController() {
         modalAdminMotd.close();
         if (modalAdminPanel) modalAdminPanel.showModal();
         announceToScreenReader("Đã đăng thông báo trong ngày mới thành công. Thông báo cũ đã được ghi đè.");
-        alert("Đã đăng thông báo trong ngày mới thành công! Tất cả người chơi sẽ nhìn thấy khi đăng nhập.");
+        await showNoticeDialog({ title: "Thành công", message: "Đã đăng thông báo trong ngày mới thành công! Tất cả người chơi sẽ nhìn thấy khi đăng nhập." });
       } catch (err) {
         if (motdAlert) {
           motdAlert.textContent = err.message || "Lỗi khi lưu thông báo.";
@@ -935,7 +909,11 @@ export function initAdminPanelController() {
       delBtn.setAttribute("aria-label", `Xóa ${titleText}`);
 
       delBtn.addEventListener("click", async () => {
-        const confirmDel = window.confirm(`Bạn có chắc chắn muốn xóa bài đăng "${titleText}" của ${chefText} khỏi cộng đồng không?`);
+        const confirmDel = await showConfirmDialog({
+          title: "Xác nhận xóa bài đăng",
+          message: `Bạn có chắc chắn muốn xóa bài đăng "${titleText}" của ${chefText} khỏi cộng đồng không?`,
+          danger: true
+        });
         if (!confirmDel) return;
         try {
           await deleteCommunityDish(post.id);
@@ -951,7 +929,7 @@ export function initAdminPanelController() {
           renderAdminCommunityList(listToRender);
           announceToScreenReader(`Đã xóa ${titleText} khỏi cộng đồng đầu bếp.`);
         } catch (err) {
-          alert(err.message || "Lỗi khi xóa bài đăng cộng đồng.");
+          await showNoticeDialog({ title: "Lỗi", message: err.message || "Lỗi khi xóa bài đăng cộng đồng." });
         }
       });
 
@@ -1003,10 +981,14 @@ export function initAdminPanelController() {
     btnAdminDeleteAllCommunity.addEventListener("click", async () => {
       if (cachedAdminCommunityDishes.length === 0) {
         announceToScreenReader("Hiện không có bài đăng nào trên cộng đồng để xóa.");
-        alert("Hiện không có bài đăng nào trên cộng đồng để xóa.");
+        await showNoticeDialog({ title: "Thông báo", message: "Hiện không có bài đăng nào trên cộng đồng để xóa." });
         return;
       }
-      const confirmAll = window.confirm(`CẢNH BÁO: Bạn có chắc chắn muốn XÓA TẤT CẢ (${cachedAdminCommunityDishes.length} bài đăng) trên Cộng đồng Đầu bếp không?`);
+      const confirmAll = await showConfirmDialog({
+        title: "Cảnh báo xóa tất cả",
+        message: `CẢNH BÁO: Bạn có chắc chắn muốn XÓA TẤT CẢ (${cachedAdminCommunityDishes.length} bài đăng) trên Cộng đồng Đầu bếp không?`,
+        danger: true
+      });
       if (!confirmAll) return;
 
       try {
@@ -1014,9 +996,9 @@ export function initAdminPanelController() {
         cachedAdminCommunityDishes = [];
         renderAdminCommunityList([]);
         announceToScreenReader("Đã xóa tất cả món ăn trên Cộng đồng Đầu bếp thành công.");
-        alert("Đã xóa tất cả món ăn trên Cộng đồng Đầu bếp thành công!");
+        await showNoticeDialog({ title: "Thành công", message: "Đã xóa tất cả món ăn trên Cộng đồng Đầu bếp thành công!" });
       } catch (err) {
-        alert(err.message || "Lỗi khi xóa tất cả bài đăng cộng đồng.");
+        await showNoticeDialog({ title: "Lỗi", message: err.message || "Lỗi khi xóa tất cả bài đăng cộng đồng." });
       }
     });
   }
@@ -1033,15 +1015,19 @@ export function initAdminPanelController() {
   const btnAdminResetLeaderboard = document.getElementById("btn-admin-reset-leaderboard");
   if (btnAdminResetLeaderboard) {
     btnAdminResetLeaderboard.addEventListener("click", async () => {
-      const confirmReset = window.confirm("Bạn có chắc chắn muốn ĐẶT LẠI BẢNG XẾP HẠNG về trống không? Toàn bộ điểm của các đầu bếp sẽ đưa về 0.");
+      const confirmReset = await showConfirmDialog({
+        title: "Xác nhận đặt lại Bảng xếp hạng",
+        message: "Bạn có chắc chắn muốn ĐẶT LẠI BẢNG XẾP HẠNG về trống không? Toàn bộ điểm của các đầu bếp sẽ đưa về 0.",
+        danger: true
+      });
       if (!confirmReset) return;
 
       try {
         await resetLeaderboardScores();
         announceToScreenReader("Đã đặt lại bảng xếp hạng về trống thành công.");
-        alert("Đã đặt lại Bảng xếp hạng thành công! Hiện tại chưa có ai trong bảng xếp hạng này.");
+        await showNoticeDialog({ title: "Thành công", message: "Đã đặt lại Bảng xếp hạng thành công! Hiện tại chưa có ai trong bảng xếp hạng này." });
       } catch (err) {
-        alert(err.message || "Lỗi khi đặt lại bảng xếp hạng.");
+        await showNoticeDialog({ title: "Lỗi", message: err.message || "Lỗi khi đặt lại bảng xếp hạng." });
       }
     });
   }
@@ -1063,7 +1049,7 @@ export function initCommunityAndLeaderboardController() {
 
   if (btnShareToCommunity && modalConfirmShare) {
     btnShareToCommunity.addEventListener("click", () => {
-      const meal = window.lastTastedMeal || (window.state && window.state.lastTastedMeal);
+      const meal = state.lastTastedMeal || window.lastTastedMeal;
       if (!meal) {
         announceToScreenReader("Chưa có món ăn nào vừa được thực khách đánh giá để đưa lên cộng đồng.", true);
         return;
@@ -1090,7 +1076,7 @@ export function initCommunityAndLeaderboardController() {
 
   if (btnConfirmShareYes && modalConfirmShare) {
     btnConfirmShareYes.addEventListener("click", async () => {
-      const meal = window.lastTastedMeal || (window.state && window.state.lastTastedMeal);
+      const meal = state.lastTastedMeal || window.lastTastedMeal;
       if (!meal) {
         modalConfirmShare.close();
         return;
@@ -1108,10 +1094,8 @@ export function initCommunityAndLeaderboardController() {
         if (shareContainer) {
           shareContainer.classList.add("hidden");
         }
+        state.lastTastedMeal = null;
         window.lastTastedMeal = null;
-        if (window.state) {
-          window.state.lastTastedMeal = null;
-        }
 
         // Chuyển focus về Tab Tủ Lạnh hoặc nút hợp lý để NVDA không bị mất điểm neo
         const tabFridge = document.getElementById("tab-fridge");
@@ -1122,7 +1106,7 @@ export function initCommunityAndLeaderboardController() {
           true
         );
       } catch (err) {
-        alert(err.message || "Không thể đưa món ăn lên cộng đồng. Vui lòng thử lại.");
+        await showNoticeDialog({ title: "Lỗi", message: err.message || "Không thể đưa món ăn lên cộng đồng. Vui lòng thử lại." });
       } finally {
         btnConfirmShareYes.disabled = false;
         btnConfirmShareYes.textContent = "✅ Xác nhận";
@@ -1655,7 +1639,10 @@ export function initMainMenuController() {
   const btnMenuLogout = document.getElementById("btn-menu-logout");
   if (btnMenuLogout) {
     btnMenuLogout.addEventListener("click", async () => {
-      const confirmLogout = window.confirm("Bạn có chắc chắn muốn đăng xuất tài khoản Bếp Trưởng khỏi thiết bị này?");
+      const confirmLogout = await showConfirmDialog({
+        title: "Xác nhận đăng xuất",
+        message: "Bạn có chắc chắn muốn đăng xuất tài khoản Bếp Trưởng khỏi thiết bị này?"
+      });
       if (confirmLogout) {
         await logoutUser();
         showScreen("auth");
@@ -1702,12 +1689,15 @@ export function initMainMenuController() {
     const screenMainMenu = document.getElementById("screen-main-menu");
     const isMainMenuVisible = screenMainMenu && !screenMainMenu.classList.contains("hidden");
 
-    if (isMainMenuVisible) {
+    if (isMainMenuVisible && state.singleKeyShortcutsEnabled !== false) {
       // Phím H: Mở hướng dẫn
       if ((e.key === "h" || e.key === "H") && !e.ctrlKey && !e.altKey && !e.metaKey) {
         if (modalHelp && !modalHelp.open && modalSettings && !modalSettings.open) {
           e.preventDefault();
+          modalHelp._returnFocusEl = document.activeElement;
           modalHelp.showModal();
+          const btnCloseHelp = document.getElementById("btn-close-help");
+          if (btnCloseHelp) btnCloseHelp.focus();
         }
       }
     }

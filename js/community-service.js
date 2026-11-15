@@ -20,9 +20,9 @@ import {
   getActiveProfileCache,
   setActiveProfileCache
 } from "./auth-service.js";
+import { getMockUsers, saveMockUsers } from "./services/mock-storage.js";
 
 const COMMUNITY_STORAGE_KEY = "yumcraft_community_dishes_db";
-const MOCK_USERS_KEY = "yumcraft_mock_users_db";
 
 /**
  * Định dạng Heading tên món ăn hoặc bữa ăn trên Cộng Đồng Đầu Bếp
@@ -81,29 +81,6 @@ function saveLocalCommunityDishes(list) {
     localStorage.setItem(COMMUNITY_STORAGE_KEY, JSON.stringify(list));
   } catch (e) {
     console.warn("Không thể lưu danh sách cộng đồng vào localStorage:", e);
-  }
-}
-
-/**
- * Đọc danh sách Mock Users từ LocalStorage
- */
-function getMockUsers() {
-  try {
-    const raw = localStorage.getItem(MOCK_USERS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
-  }
-}
-
-/**
- * Lưu danh sách Mock Users vào LocalStorage
- */
-function saveMockUsers(users) {
-  try {
-    localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(users));
-  } catch (e) {
-    console.warn("Không thể lưu mock users:", e);
   }
 }
 

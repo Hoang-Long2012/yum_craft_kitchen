@@ -33,34 +33,11 @@ import {
   isAdmin,
   getMaintenanceConfig
 } from "./admin-service.js";
+import { getMockUsers, saveMockUsers } from "./services/mock-storage.js";
 
 // Khóa lưu trữ cục bộ cho Mock Mode
-const MOCK_USERS_KEY = "yumcraft_mock_users_db";
 const MOCK_SESSION_KEY = "yumcraft_mock_current_session";
 const ACTIVE_PROFILE_KEY = "yumcraft_active_chef_profile";
-
-/**
- * Lấy danh sách tài khoản Mock từ localStorage
- */
-function getMockUsers() {
-  try {
-    const raw = localStorage.getItem(MOCK_USERS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
-  }
-}
-
-/**
- * Lưu danh sách tài khoản Mock
- */
-function saveMockUsers(users) {
-  try {
-    localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(users));
-  } catch (e) {
-    console.error("Lỗi lưu mock users:", e);
-  }
-}
 
 /**
  * Lưu profile đang hoạt động vào cache

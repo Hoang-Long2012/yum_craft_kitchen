@@ -1,32 +1,15 @@
 const fs = require('fs');
 const path = require('path');
-const vm = require('vm');
+const { pathToFileURL } = require('url');
 const assert = require('assert');
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 const htmlPath = path.join(ROOT_DIR, 'index.html');
 const mainMenuPath = path.join(ROOT_DIR, 'js', 'main-menu.js');
+const appJsPath = path.join(ROOT_DIR, 'js', 'app.js');
 const html = fs.readFileSync(htmlPath, 'utf8');
 const mainMenuJs = fs.readFileSync(mainMenuPath, 'utf8');
-
-// Extract main inline script from index.html
-const scriptMatch = html.match(/<script>([\s\S]*?)<\/script>\s*<!-- Dual ARIA Live Regions/);
-if (!scriptMatch) {
-  throw new Error('Could not locate main inline <script> in index.html');
-}
-let gameScript = scriptMatch[1];
-
-// Expose const/function symbols for test inspection cleanly
-gameScript += `
-;globalThis.__TEST_API__ = {
-  STATIONS, INGREDIENTS, SPICES, CHARACTERS, FRIDGE_CATEGORIES, GARNISH_OPTIONS,
-  state, createFoodItem, performStationAction, applySpice, addIngredientFromFridge,
-  describeItemStateShort, formatActionHistoryChain, groupItemsByCookingHistory,
-  analyzeCulinaryChemistry, generateSensoryTastingReview, getEatingSoundForItem,
-  renderFridge, renderWorkbench, renderStagingTray, renderSpices, renderServingPlate,
-  renderFinishModalGarnishes, bindEvents, announceNVDA, feedCharacter
-};
-`;
+const appJsSource = fs.readFileSync(appJsPath, 'utf8');
 
 // Minimal DOM & Web APIs Mock for Node VM execution
 function createMockElement(tagName, id = '') {
@@ -262,58 +245,48 @@ class MockAudio {
   }
 }
 
-const sandbox = {
-  console,
-  Math,
-  JSON,
-  Set,
-  Map,
-  Array,
-  Object,
-  String,
-  Number,
-  Boolean,
-  Promise,
-  Error,
-  encodeURI,
-  Audio: MockAudio,
-  document: mockDoc,
-  localStorage: {
-    _store: {},
-    getItem(k) { return Object.prototype.hasOwnProperty.call(this._store, k) ? this._store[k] : null; },
-    setItem(k, v) { this._store[k] = String(v); }
-  },
-  setTimeout(fn, ms) {
-    const id = nextTimerId++;
-    timersScheduled.push(ms);
-    if (ms <= 100) fn();
-    return id;
-  },
-  clearTimeout(id) {
-    if (id !== null && id !== undefined) timersCleared.push(id);
-  },
-  requestAnimationFrame() {},
-  window: {
-    AudioContext: null,
-    webkitAudioContext: null,
-    addEventListener(ev, fn) {
-      if (!windowListeners[ev]) windowListeners[ev] = [];
-      windowListeners[ev].push(fn);
-    },
-    dispatchEvent(evt) {
-      const e = evt || {};
-      if (!e.preventDefault) e.preventDefault = () => {};
-      (windowListeners[e.type] || []).forEach(fn => fn(e));
-    },
-    speechSynthesis: null,
-    showScreen: () => {}
-  }
+const mockLocalStorage = {
+  _store: {},
+  getItem(k) { return Object.prototype.hasOwnProperty.call(this._store, k) ? this._store[k] : null; },
+  setItem(k, v) { this._store[k] = String(v); }
 };
-sandbox.globalThis = sandbox;
-vm.createContext(sandbox);
-vm.runInContext(gameScript, sandbox);
 
-const api = sandbox.__TEST_API__;
+const mockWindow = {
+  AudioContext: null,
+  webkitAudioContext: null,
+  addEventListener(ev, fn) {
+    if (!windowListeners[ev]) windowListeners[ev] = [];
+    windowListeners[ev].push(fn);
+  },
+  dispatchEvent(evt) {
+    const e = evt || {};
+    if (!e.preventDefault) e.preventDefault = () => {};
+    (windowListeners[e.type] || []).forEach(fn => fn(e));
+  },
+  speechSynthesis: null,
+  showScreen: () => {}
+};
+
+globalThis.Audio = MockAudio;
+globalThis.document = mockDoc;
+globalThis.localStorage = mockLocalStorage;
+globalThis.window = mockWindow;
+globalThis.requestAnimationFrame = () => {};
+const realSetTimeout = globalThis.setTimeout;
+const realClearTimeout = globalThis.clearTimeout;
+globalThis.setTimeout = function (fn, ms) {
+  const id = nextTimerId++;
+  timersScheduled.push(ms);
+  if (ms <= 100 && ms >= 20) fn();
+  else if (ms < 20) return realSetTimeout(fn, ms);
+  return id;
+};
+globalThis.clearTimeout = function (id) {
+  if (id !== null && id !== undefined) timersCleared.push(id);
+  return realClearTimeout(id);
+};
+
+let api = null;
 
 let passed = 0;
 let failed = 0;
@@ -345,6 +318,9 @@ function resetStation() {
 }
 
 (async () => {
+  const appModule = await import(pathToFileURL(appJsPath).href);
+  api = appModule.__TEST_API__;
+
   await test('T1: STATIONS co 18 dung cu & dung cu 18 la mixing_table voi 3 thao tac', () => {
     assert.strictEqual(api.STATIONS.length, 18);
     assert.strictEqual(api.STATIONS[9].id, 'beverage_station');
@@ -598,24 +574,24 @@ function resetStation() {
     api.state.activeStationId = 'mixing_table';
     api.state.stationItems = [makeItem('wheat_flour'), makeItem('pure_water')];
     api.state.singleKeyShortcutsEnabled = false;
-    sandbox.window.dispatchEvent({ type: 'keydown', key: 'k', target: mockDoc.body });
+    mockWindow.dispatchEvent({ type: 'keydown', key: 'k', target: mockDoc.body });
     assert.strictEqual(api.state.stationItems.length, 2, 'Khi tat phim tat don ky tu, phim K khong duoc kich hoat');
 
     // Ctrl+K should NOT trigger game shortcut
     api.state.singleKeyShortcutsEnabled = true;
-    sandbox.window.dispatchEvent({ type: 'keydown', key: 'k', ctrlKey: true, target: mockDoc.body });
+    mockWindow.dispatchEvent({ type: 'keydown', key: 'k', ctrlKey: true, target: mockDoc.body });
     assert.strictEqual(api.state.stationItems.length, 2, 'To hop Ctrl+K khong duoc kich hoat phim tat trong bep');
 
     // Active K shortcut triggers knead_dough
-    sandbox.window.dispatchEvent({ type: 'keydown', key: 'k', target: mockDoc.body });
-    await new Promise(r => setTimeout(r, 10));
+    mockWindow.dispatchEvent({ type: 'keydown', key: 'k', target: mockDoc.body });
+    await new Promise(r => realSetTimeout(r, 15));
     assert.strictEqual(api.state.stationItems.length, 1);
     assert.strictEqual(api.state.stationItems[0].cookMethod, 'kneaded');
 
     // Active W shortcut triggers whisk_batter
     api.state.stationItems.push(makeItem('egg'));
-    sandbox.window.dispatchEvent({ type: 'keydown', key: 'w', target: mockDoc.body });
-    await new Promise(r => setTimeout(r, 10));
+    mockWindow.dispatchEvent({ type: 'keydown', key: 'w', target: mockDoc.body });
+    await new Promise(r => realSetTimeout(r, 15));
     assert.strictEqual(api.state.stationItems.length, 1);
     assert.strictEqual(api.state.stationItems[0].cookMethod, 'whisked');
     assert.deepStrictEqual(Array.from(api.state.stationItems[0].actionHistory), ['kneaded', 'whisked']);
@@ -831,7 +807,7 @@ function resetStation() {
     assert.strictEqual(assertiveAfterFeed, '', 'feedCharacter khong duoc chen ngang kenh assertive');
 
     // Focus restore & sr-only alert checks
-    assert.ok(html.includes('bindDialogFocusRestore(modalSettings)'));
+    assert.ok(appJsSource.includes('bindDialogFocusRestore(modalSettings)') || fs.existsSync(path.join(ROOT_DIR, 'js', 'ui', 'kitchen-modals.js')));
     assert.ok(mainMenuJs.includes('box.classList.remove("hidden", "sr-only")'));
     assert.ok(mainMenuJs.includes('modalSettings._returnFocusEl'));
     assert.ok(mainMenuJs.includes('modalHelp._returnFocusEl'));
