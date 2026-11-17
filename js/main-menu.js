@@ -1764,7 +1764,15 @@ export function initCommunityAndLeaderboardController() {
         const selfBadge = document.createElement("p");
         selfBadge.className = "mt-1 text-xs font-semibold text-emerald-800";
         selfBadge.textContent = "Đây là hồ sơ của bạn";
-        item.appendChild(selfBadge);
+        const selfActions = document.createElement("div");
+        selfActions.className = "mt-2 flex flex-wrap gap-2";
+        const selfProfileBtn = document.createElement("button");
+        selfProfileBtn.type = "button";
+        selfProfileBtn.className = "px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-950 font-bold text-sm";
+        selfProfileBtn.textContent = "Xem hồ sơ";
+        selfProfileBtn.addEventListener("click", () => { void openChefPublicProfile(chef, selfProfileBtn); });
+        selfActions.appendChild(selfProfileBtn);
+        item.append(selfBadge, selfActions);
       }
       list.appendChild(item);
     });
