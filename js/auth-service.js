@@ -174,7 +174,9 @@ export async function updateCurrentUserPrivacySettings(settings) {
     profileVisibility: settings?.profileVisibility === "private" ? "private" : "public",
     showOnlineStatus: settings?.showOnlineStatus !== false,
     showGender: settings?.showGender !== false,
-    showBio: settings?.showBio !== false
+    showBio: settings?.showBio !== false,
+    allowKitchenInvites: settings?.allowKitchenInvites !== false,
+    allowDirectMessages: settings?.allowDirectMessages !== false
   };
   if (isFirebaseConfigured() && db) {
     await setDoc(doc(db, "users", current.uid), { privacySettings }, { merge: true });

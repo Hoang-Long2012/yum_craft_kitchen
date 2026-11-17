@@ -26,6 +26,17 @@ const readLocal = () => {
 };
 const writeLocal = (data) => writeStorageJson(SOCIAL_KEY, data);
 
+async function getPrivacySettingsForUser(uid) {
+  if (isFirebaseConfigured() && db) {
+    const snapshot = await getDoc(doc(db, 'users', uid));
+    if (!snapshot.exists()) throw new Error('Không tìm thấy đầu bếp này.');
+    return snapshot.data().privacySettings || {};
+  }
+  const target = getMockUsers().find((user) => user.uid === uid);
+  if (!target) throw new Error('Không tìm thấy đầu bếp này.');
+  return target.privacySettings || {};
+}
+
 export async function toggleCommunityLike(postId) {
   if (!postId) throw new Error('Thiếu mã công thức cần thích.');
   const profile = signedInProfile();
@@ -160,7 +171,7 @@ export async function getOnlineChefs() {
   }
   return users
     .filter((user) => user.uid && user.isBanned !== true && user.privacySettings?.profileVisibility !== 'private' && user.privacySettings?.showOnlineStatus !== false && user.isOnline && isPresenceFresh(user.lastSeenAt, now, ONLINE_WINDOW_MS))
-    .map((user) => ({ uid: user.uid, username: user.username || 'chef', displayName: user.displayName || user.username || 'Bếp Trưởng', kitchenName: user.kitchenName || 'Nhà Bếp Sáng Tạo', bio: user.privacySettings?.showBio === false ? '' : (user.bio || ''), gender: user.privacySettings?.showGender === false ? '' : (user.gender && user.gender !== 'unspecified' ? getProfileGenderLabel(user.gender) : ''), followerCount: Number(user.followerCount) || 0 }))
+    .map((user) => ({ uid: user.uid, username: user.username || 'chef', displayName: user.displayName || user.username || 'Bếp Trưởng', kitchenName: user.kitchenName || 'Nhà Bếp Sáng Tạo', bio: user.privacySettings?.showBio === false ? '' : (user.bio || ''), gender: user.privacySettings?.showGender === false ? '' : (user.gender && user.gender !== 'unspecified' ? getProfileGenderLabel(user.gender) : ''), followerCount: Number(user.followerCount) || 0, allowKitchenInvites: user.privacySettings?.allowKitchenInvites !== false, allowDirectMessages: user.privacySettings?.allowDirectMessages !== false }))
     .sort((a, b) => a.displayName.localeCompare(b.displayName, 'vi'));
 }
 
@@ -187,6 +198,8 @@ export async function getChefPublicProfile(uid) {
     kitchenName: profile.kitchenName || 'Nhà Bếp Sáng Tạo',
     bio: profile.privacySettings?.showBio === false ? '' : (profile.bio || ''),
     gender: profile.privacySettings?.showGender === false ? '' : (profile.gender && profile.gender !== 'unspecified' ? getProfileGenderLabel(profile.gender) : ''),
+    allowKitchenInvites: profile.privacySettings?.allowKitchenInvites !== false,
+    allowDirectMessages: profile.privacySettings?.allowDirectMessages !== false,
     followerCount: Number(profile.followerCount) || 0,
     followingCount: Number(profile.followingCount) || 0,
     totalScore: Number(profile.totalScore) || 0
@@ -200,6 +213,8 @@ export async function sendKitchenInvite(targetUid, targetName = '') {
   const profile = signedInProfile();
   if (profile.uid === targetUid) throw new Error('Bạn không thể tự mời mình.');
   const inviteId = getConversationId(profile.uid, targetUid);
+  const invitationRef = isFirebaseConfigured() && db ? doc(db, 'kitchen_invites', inviteId) : null;
+  const targetRef = isFirebaseConfigured() && db ? doc(db, 'users', targetUid) : null;
   const invitation = {
     id: inviteId,
     senderUid: profile.uid,
@@ -211,13 +226,15 @@ export async function sendKitchenInvite(targetUid, targetName = '') {
     createdAt: new Date().toISOString()
   };
   if (isFirebaseConfigured() && db) {
-    const inviteRef = doc(db, 'kitchen_invites', inviteId);
     await runTransaction(db, async (transaction) => {
-      const existing = await transaction.get(inviteRef);
+      const [targetSnapshot, existing] = await Promise.all([transaction.get(targetRef), transaction.get(invitationRef)]);
+      if (!targetSnapshot.exists()) throw new Error('Không tìm thấy đầu bếp này.');
+      if (targetSnapshot.data().privacySettings?.allowKitchenInvites === false) throw new Error('Đầu bếp này hiện không nhận lời mời vào bếp.');
       if (existing.exists() && existing.data().status === 'pending') throw new Error('Bạn đã gửi lời mời đang chờ đầu bếp này phản hồi.');
-      transaction.set(inviteRef, invitation);
+      transaction.set(invitationRef, invitation);
     });
   } else {
+    if ((await getPrivacySettingsForUser(targetUid)).allowKitchenInvites === false) throw new Error('Đầu bếp này hiện không nhận lời mời vào bếp.');
     const data = readLocal();
     if (data.invites.some((invite) => invite.id === inviteId && invite.status === 'pending')) {
       throw new Error('Bạn đã gửi lời mời đang chờ đầu bếp này phản hồi.');
@@ -281,6 +298,10 @@ export async function getDirectMessages(otherUid) {
 
 export async function sendDirectMessage(otherUid, text) {
   const profile = signedInProfile();
+  if (!otherUid || otherUid === profile.uid) throw new Error('Chọn một đầu bếp khác để trò chuyện.');
+  if ((await getPrivacySettingsForUser(otherUid)).allowDirectMessages === false) {
+    throw new Error('Đầu bếp này hiện không nhận tin nhắn.');
+  }
   const messageText = normalizeChatMessage(text);
   const conversationId = getConversationId(profile.uid, otherUid);
   const message = {
@@ -325,7 +346,9 @@ export async function getMyConversations() {
       if (!otherUid) return null;
       let chef = { uid: otherUid, displayName: data.participantNames?.[otherUid] || 'Đầu bếp', username: 'chef', kitchenName: 'Nhà Bếp Sáng Tạo' };
       try { chef = { ...chef, ...await getChefPublicProfile(otherUid) }; } catch {}
-      return { ...chef, conversationId: entry.id, lastMessage: data.lastMessage || '', lastSenderUid: data.lastSenderUid || '', updatedAt: data.updatedAt || '' };
+      let allowDirectMessages = true;
+      try { allowDirectMessages = (await getPrivacySettingsForUser(otherUid)).allowDirectMessages !== false; } catch {}
+      return { ...chef, allowDirectMessages, conversationId: entry.id, lastMessage: data.lastMessage || '', lastSenderUid: data.lastSenderUid || '', updatedAt: data.updatedAt || '' };
     }));
     return conversations.filter(Boolean).sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
   }
@@ -346,6 +369,7 @@ export async function getMyConversations() {
       username: other.username || 'chef',
       displayName: other.displayName || lastMessage?.senderName || 'Đầu bếp',
       kitchenName: other.kitchenName || 'Nhà Bếp Sáng Tạo',
+      allowDirectMessages: other.privacySettings?.allowDirectMessages !== false,
       conversationId,
       lastMessage: Array.isArray(value) ? (lastMessage?.text || '') : (value?.lastMessage || ''),
       lastSenderUid: Array.isArray(value) ? (lastMessage?.senderUid || '') : (value?.lastSenderUid || ''),

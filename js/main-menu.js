@@ -1186,7 +1186,7 @@ export function initCommunityAndLeaderboardController() {
     if (!activeChatChef) return;
     try {
       renderDirectMessages(await getDirectMessages(activeChatChef.uid));
-      chatFeedback.textContent = "Tin nhắn được làm mới tự động.";
+      chatFeedback.textContent = activeChatChef.allowDirectMessages === false ? "Đầu bếp này hiện không nhận tin nhắn." : "Tin nhắn được làm mới tự động.";
     } catch (error) {
       chatFeedback.textContent = error.message || "Không tải được tin nhắn.";
     }
@@ -1200,9 +1200,12 @@ export function initCommunityAndLeaderboardController() {
     activeChatChef = chef;
     chatReturnFocus = trigger || document.activeElement;
     chatTitleEl.textContent = `Trò chuyện với ${chef.displayName || chef.name || "đầu bếp"}`;
-    chatFeedback.textContent = "Đang tải tin nhắn…";
+    const canMessage = chef.allowDirectMessages !== false;
+    chatInput.disabled = !canMessage;
+    document.getElementById("btn-send-direct-chat").disabled = !canMessage;
+    chatFeedback.textContent = canMessage ? "Đang tải tin nhắn…" : "Đầu bếp này hiện không nhận tin nhắn.";
     chatDialog.showModal();
-    chatInput.focus();
+    if (canMessage) chatInput.focus();
     void refreshDirectMessages();
     if (chatRefreshTimer) clearInterval(chatRefreshTimer);
     chatRefreshTimer = setInterval(refreshDirectMessages, 3000);
@@ -1227,8 +1230,13 @@ export function initCommunityAndLeaderboardController() {
       chatInput.focus();
     } catch (error) {
       chatFeedback.textContent = error.message || "Không gửi được tin nhắn.";
+      if (error.message?.includes("không nhận tin nhắn")) {
+        activeChatChef.allowDirectMessages = false;
+        chatInput.disabled = true;
+        submit.disabled = true;
+      }
     } finally {
-      submit.disabled = false;
+      submit.disabled = activeChatChef?.allowDirectMessages === false;
     }
   });
 
@@ -1355,11 +1363,11 @@ export function initCommunityAndLeaderboardController() {
         card.className = "p-3 rounded-xl border border-emerald-200 bg-white";
         const title = document.createElement("strong"); title.textContent = `${chef.displayName} (@${chef.username})`;
         const actions = document.createElement("div"); actions.className = "mt-2 flex flex-wrap gap-2";
-        const invite = document.createElement("button"); invite.type = "button"; invite.className = "px-3 py-1.5 rounded-lg bg-amber-100 font-bold text-sm"; invite.textContent = "Mời vào bếp";
-        invite.addEventListener("click", async () => { invite.disabled = true; try { await sendKitchenInvite(chef.uid, chef.displayName); invite.textContent = "Đã gửi lời mời"; } catch (error) { invite.disabled = false; announceToScreenReader(error.message || "Không gửi được lời mời.", true); } });
-        const chat = document.createElement("button"); chat.type = "button"; chat.className = "px-3 py-1.5 rounded-lg bg-sky-100 font-bold text-sm"; chat.textContent = "Nhắn tin"; chat.addEventListener("click", () => openDirectChat(chef, chat));
+        if (chef.allowKitchenInvites !== false) { const invite = document.createElement("button"); invite.type = "button"; invite.className = "px-3 py-1.5 rounded-lg bg-amber-100 font-bold text-sm"; invite.textContent = "Mời vào bếp";
+          invite.addEventListener("click", async () => { invite.disabled = true; try { await sendKitchenInvite(chef.uid, chef.displayName); invite.textContent = "Đã gửi lời mời"; } catch (error) { invite.disabled = false; announceToScreenReader(error.message || "Không gửi được lời mời.", true); } }); actions.append(invite); }
+        if (chef.allowDirectMessages !== false) { const chat = document.createElement("button"); chat.type = "button"; chat.className = "px-3 py-1.5 rounded-lg bg-sky-100 font-bold text-sm"; chat.textContent = "Nhắn tin"; chat.addEventListener("click", () => openDirectChat(chef, chat)); actions.append(chat); }
         const profile = document.createElement("button"); profile.type = "button"; profile.className = "px-3 py-1.5 rounded-lg bg-emerald-100 font-bold text-sm"; profile.textContent = "Xem hồ sơ"; profile.addEventListener("click", () => void openChefPublicProfile(chef, profile));
-        actions.append(invite, chat, profile); card.append(title, actions); kitchenOnlineList.append(card);
+        actions.append(profile); card.append(title, actions); kitchenOnlineList.append(card);
       });
       kitchenInvitesList.replaceChildren();
       if (!invites.length) kitchenInvitesList.textContent = "Bạn chưa có lời mời nào.";
@@ -1859,27 +1867,33 @@ export function initCommunityAndLeaderboardController() {
         profileBtn.className = "px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-950 font-bold text-sm";
         profileBtn.textContent = "Xem hồ sơ";
         profileBtn.addEventListener("click", () => { void openChefPublicProfile(chef, profileBtn); });
-        const inviteBtn = document.createElement("button");
-        inviteBtn.type = "button";
-        inviteBtn.className = "px-3 py-1.5 rounded-lg bg-amber-100 font-bold text-sm";
-        inviteBtn.textContent = "Mời vào bếp";
-        inviteBtn.addEventListener("click", async () => {
-          inviteBtn.disabled = true;
-          try {
-            await sendKitchenInvite(chef.uid, chef.displayName);
-            inviteBtn.textContent = "Đã gửi lời mời";
-            announceToScreenReader(`Đã gửi lời mời vào bếp cho ${chef.displayName}.`);
-          } catch (error) {
-            inviteBtn.disabled = false;
-            announceToScreenReader(error.message || "Không gửi được lời mời.", true);
-          }
-        });
-        const chatBtn = document.createElement("button");
-        chatBtn.type = "button";
-        chatBtn.className = "px-3 py-1.5 rounded-lg bg-violet-100 text-violet-950 font-bold text-sm";
-        chatBtn.textContent = "Trò chuyện";
-        chatBtn.addEventListener("click", () => openDirectChat(chef, chatBtn));
-        actions.append(followBtn, profileBtn, inviteBtn, chatBtn);
+        actions.append(followBtn, profileBtn);
+        if (chef.allowKitchenInvites !== false) {
+          const inviteBtn = document.createElement("button");
+          inviteBtn.type = "button";
+          inviteBtn.className = "px-3 py-1.5 rounded-lg bg-amber-100 font-bold text-sm";
+          inviteBtn.textContent = "Mời vào bếp";
+          inviteBtn.addEventListener("click", async () => {
+            inviteBtn.disabled = true;
+            try {
+              await sendKitchenInvite(chef.uid, chef.displayName);
+              inviteBtn.textContent = "Đã gửi lời mời";
+              announceToScreenReader(`Đã gửi lời mời vào bếp cho ${chef.displayName}.`);
+            } catch (error) {
+              inviteBtn.disabled = false;
+              announceToScreenReader(error.message || "Không gửi được lời mời.", true);
+            }
+          });
+          actions.appendChild(inviteBtn);
+        }
+        if (chef.allowDirectMessages !== false) {
+          const chatBtn = document.createElement("button");
+          chatBtn.type = "button";
+          chatBtn.className = "px-3 py-1.5 rounded-lg bg-violet-100 text-violet-950 font-bold text-sm";
+          chatBtn.textContent = "Trò chuyện";
+          chatBtn.addEventListener("click", () => openDirectChat(chef, chatBtn));
+          actions.appendChild(chatBtn);
+        }
         item.appendChild(actions);
       }
       list.appendChild(item);
@@ -2243,6 +2257,8 @@ export function initMainMenuController() {
     document.getElementById("setting-privacy-online-status").checked = privacy.showOnlineStatus !== false;
     document.getElementById("setting-privacy-gender").checked = privacy.showGender !== false;
     document.getElementById("setting-privacy-bio").checked = privacy.showBio !== false;
+    document.getElementById("setting-privacy-kitchen-invites").checked = privacy.allowKitchenInvites !== false;
+    document.getElementById("setting-privacy-direct-messages").checked = privacy.allowDirectMessages !== false;
     document.getElementById("settings-save-feedback").textContent = "";
   };
 
@@ -2297,7 +2313,9 @@ export function initMainMenuController() {
             profileVisibility: document.getElementById("setting-privacy-profile-public").checked ? "public" : "private",
             showOnlineStatus: document.getElementById("setting-privacy-online-status").checked,
             showGender: document.getElementById("setting-privacy-gender").checked,
-            showBio: document.getElementById("setting-privacy-bio").checked
+            showBio: document.getElementById("setting-privacy-bio").checked,
+            allowKitchenInvites: document.getElementById("setting-privacy-kitchen-invites").checked,
+            allowDirectMessages: document.getElementById("setting-privacy-direct-messages").checked
           });
           startChefPresence(updatedProfile);
         }
