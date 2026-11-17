@@ -14,6 +14,28 @@ export function getFollowingIds(value) {
   return [];
 }
 
+export function isChefBlocked(blockedByCurrent, blockedByOther, currentUid, otherUid) {
+  if (!currentUid || !otherUid || currentUid === otherUid) return false;
+  return getFollowingIds(blockedByCurrent).includes(otherUid)
+    || getFollowingIds(blockedByOther).includes(currentUid);
+}
+
+export function toggleBlockedChef(blockedIds, targetUid, shouldBlock = true) {
+  if (!targetUid) throw new Error('Thiếu mã đầu bếp cần chặn.');
+  const current = getFollowingIds(blockedIds);
+  return shouldBlock
+    ? [...new Set([...current, targetUid])]
+    : current.filter((uid) => uid !== targetUid);
+}
+
+export function filterBlockedChefs(chefs, blockedByCurrent, currentUid) {
+  const blocked = new Set(getFollowingIds(blockedByCurrent));
+  return (Array.isArray(chefs) ? chefs : []).filter((chef) => chef?.uid
+    && chef.uid !== currentUid
+    && !blocked.has(chef.uid)
+    && !isChefBlocked([], chef.blockedChefIds, currentUid, chef.uid));
+}
+
 export function getFollowedFeed(posts, followingIds) {
   const following = new Set(getFollowingIds(followingIds));
   return (Array.isArray(posts) ? posts : []).filter((post) => following.has(post?.chefUid));

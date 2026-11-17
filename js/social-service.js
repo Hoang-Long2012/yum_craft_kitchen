@@ -2,7 +2,7 @@
 import { db, isFirebaseConfigured, doc, getDoc, runTransaction, setDoc, collection, getDocs, query, where, orderBy, limit } from './firebase-config.js';
 import { getActiveProfileCache } from './auth-service.js';
 import { getMockUsers, saveMockUsers, readStorageJson, writeStorageJson } from './services/mock-storage.js';
-import { getFollowingIds, getFollowedFeed, toggleMember, isPresenceFresh, getConversationId, normalizeChatMessage } from './social-data.js';
+import { getFollowingIds, getFollowedFeed, toggleMember, isPresenceFresh, getConversationId, normalizeChatMessage, isChefBlocked, toggleBlockedChef, filterBlockedChefs } from './social-data.js';
 import { getProfileGenderLabel } from './profile-data.js';
 
 const SOCIAL_KEY = 'yumcraft_social_state';
@@ -53,7 +53,7 @@ async function isBlockedEitherDirection(otherUid) {
     getBlockedIdsForUser(profile.uid),
     getBlockedIdsForUser(otherUid)
   ]);
-  return mine.includes(otherUid) || theirs.includes(profile.uid);
+  return isChefBlocked(mine, theirs, profile.uid, otherUid);
 }
 
 async function assertNotBlocked(otherUid) {
@@ -91,9 +91,7 @@ async function updateBlockedChef(targetUid, shouldBlock) {
       const targetSnapshot = shouldBlock ? await transaction.get(doc(db, 'users', targetUid)) : null;
       if (shouldBlock && !targetSnapshot.exists()) throw new Error('Không tìm thấy đầu bếp này.');
       const currentIds = Array.isArray(snapshot.data().blockedChefIds) ? snapshot.data().blockedChefIds : [];
-      const blockedChefIds = shouldBlock
-        ? [...new Set([...currentIds, targetUid])]
-        : currentIds.filter((uid) => uid !== targetUid);
+      const blockedChefIds = toggleBlockedChef(currentIds, targetUid, shouldBlock);
       transaction.set(userRef, { blockedChefIds }, { merge: true });
       profile.blockedChefIds = blockedChefIds;
     });
@@ -103,9 +101,7 @@ async function updateBlockedChef(targetUid, shouldBlock) {
     if (index < 0) throw new Error('Không tìm thấy hồ sơ của bạn.');
     if (shouldBlock && !users.some((user) => user.uid === targetUid)) throw new Error('Không tìm thấy đầu bếp này.');
     const currentIds = Array.isArray(users[index].blockedChefIds) ? users[index].blockedChefIds : [];
-    users[index].blockedChefIds = shouldBlock
-      ? [...new Set([...currentIds, targetUid])]
-      : currentIds.filter((uid) => uid !== targetUid);
+    users[index].blockedChefIds = toggleBlockedChef(currentIds, targetUid, shouldBlock);
     profile.blockedChefIds = users[index].blockedChefIds;
     saveMockUsers(users);
   }
@@ -250,8 +246,8 @@ export async function getOnlineChefs() {
   } else {
     users = getMockUsers();
   }
-  return users
-    .filter((user) => user.uid && user.uid !== currentProfile?.uid && !blockedIds.includes(user.uid) && !(Array.isArray(user.blockedChefIds) ? user.blockedChefIds : []).includes(currentProfile?.uid) && user.isBanned !== true && user.privacySettings?.profileVisibility !== 'private' && user.privacySettings?.showOnlineStatus !== false && user.isOnline && isPresenceFresh(user.lastSeenAt, now, ONLINE_WINDOW_MS))
+  return filterBlockedChefs(users, blockedIds, currentProfile?.uid)
+    .filter((user) => user.isBanned !== true && user.privacySettings?.profileVisibility !== 'private' && user.privacySettings?.showOnlineStatus !== false && user.isOnline && isPresenceFresh(user.lastSeenAt, now, ONLINE_WINDOW_MS))
     .map((user) => ({ uid: user.uid, username: user.username || 'chef', displayName: user.displayName || user.username || 'Bếp Trưởng', kitchenName: user.kitchenName || 'Nhà Bếp Sáng Tạo', bio: user.privacySettings?.showBio === false ? '' : (user.bio || ''), gender: user.privacySettings?.showGender === false ? '' : (user.gender && user.gender !== 'unspecified' ? getProfileGenderLabel(user.gender) : ''), followerCount: Number(user.followerCount) || 0, allowKitchenInvites: user.privacySettings?.allowKitchenInvites !== false, allowDirectMessages: user.privacySettings?.allowDirectMessages !== false }))
     .sort((a, b) => a.displayName.localeCompare(b.displayName, 'vi'));
 }
@@ -462,7 +458,7 @@ export async function getMyConversations() {
       : [...new Set(messages.map((message) => message.senderUid).filter(Boolean))];
     const otherUid = participants.find((uid) => uid !== profile.uid);
     if (!otherUid) return;
-    if ((profile.blockedChefIds || []).includes(otherUid) || (users.find((user) => user.uid === otherUid)?.blockedChefIds || []).includes(profile.uid)) return;
+    if (isChefBlocked(profile.blockedChefIds, users.find((user) => user.uid === otherUid)?.blockedChefIds, profile.uid, otherUid)) return;
     const other = users.find((user) => user.uid === otherUid) || {};
     const lastMessage = Array.isArray(messages) ? messages[messages.length - 1] : null;
     result.push({

@@ -17,7 +17,7 @@ import {
 import { state, resetKitchenItemsState } from '../js/core/state.js';
 import { getMockUsers, saveMockUsers, readStorageJson, writeStorageJson } from '../js/services/mock-storage.js';
 import { escapeHtml } from '../js/ui/dom-helpers.js';
-import { toggleMember, getFollowingIds, getFollowedFeed, isPresenceFresh, getConversationId, normalizeChatMessage } from '../js/social-data.js';
+import { toggleMember, getFollowingIds, getFollowedFeed, isPresenceFresh, getConversationId, normalizeChatMessage, isChefBlocked, toggleBlockedChef, filterBlockedChefs } from '../js/social-data.js';
 import { normalizeProfileGender, getProfileGenderLabel } from '../js/profile-data.js';
 import { createFoodItem, describeItemStateShort, itemContainsIce, formatNaturalList } from '../js/cooking/food-item.js';
 import { analyzeCulinaryChemistry, combineFlavorProfiles, generateSmartDishTitle } from '../js/cooking/chemistry.js';
@@ -198,6 +198,7 @@ await test('U7: Modular refactor & accessibility structural checks (index.html, 
   const authServiceJs = fs.readFileSync(path.join(rootDir, 'js', 'auth-service.js'), 'utf8');
   const communityServiceJs = fs.readFileSync(path.join(rootDir, 'js', 'community-service.js'), 'utf8');
   const adminServiceJs = fs.readFileSync(path.join(rootDir, 'js', 'admin-service.js'), 'utf8');
+  const socialServiceJs = fs.readFileSync(path.join(rootDir, 'js', 'social-service.js'), 'utf8');
 
   // Pure HTML + external ES modules only (except optional Tailwind config or none)
   assert.ok(html.includes('<script type="module" src="js/main-menu.js"></script>'));
@@ -209,6 +210,13 @@ await test('U7: Modular refactor & accessibility structural checks (index.html, 
   assert.ok(html.includes('id="screen-main-menu" hidden'));
   assert.ok(html.includes('id="screen-character-select" hidden'));
   assert.ok(html.includes('id="screen-kitchen" hidden'));
+  assert.ok(html.includes('id="blocked-chefs-list"'), 'Settings should expose a way to review and unblock chefs');
+  assert.ok(html.includes('setting-privacy-kitchen-invites'));
+  assert.ok(html.includes('setting-privacy-direct-messages'));
+  assert.ok(mainMenuJs.includes('blockChef(chef.uid)'), 'Online chef lists should provide a block action');
+  assert.ok(mainMenuJs.includes('unblockChef(chef.uid)'), 'Blocked chef settings should provide an unblock action');
+  assert.ok(socialServiceJs.includes('export async function blockChef'));
+  assert.ok(socialServiceJs.includes('export async function unblockChef'));
 
   // Zero native browser confirm/prompt/alert left in main-menu.js
   assert.strictEqual(/\b(?:window\.)?(?:confirm|prompt|alert)\s*\(/.test(mainMenuJs), false, 'main-menu.js should use accessible custom dialogs');
@@ -354,6 +362,29 @@ await test('U10: Social membership is idempotent, deduplicated, and followed fee
   assert.strictEqual(normalizeChatMessage('  Chào bạn  '), 'Chào bạn');
   assert.throws(() => normalizeChatMessage('  '), /không được để trống/);
   assert.throws(() => normalizeChatMessage('x'.repeat(1001)), /1000 ký tự/);
+});
+
+await test('U11: Chef blocking is mutual, deduplicated, reversible, and filters online chefs', () => {
+  assert.strictEqual(isChefBlocked(['chef_b'], [], 'chef_a', 'chef_b'), true, 'A chef is blocked when the current player blocks them');
+  assert.strictEqual(isChefBlocked([], ['chef_a'], 'chef_a', 'chef_b'), true, 'A chef is blocked when they block the current player');
+  assert.strictEqual(isChefBlocked([], [], 'chef_a', 'chef_b'), false);
+  assert.strictEqual(isChefBlocked(['chef_a'], [], 'chef_a', 'chef_a'), false, 'Self must not count as a blocked chef');
+
+  const blocked = toggleBlockedChef(['chef_b', 'chef_b'], 'chef_b');
+  assert.deepStrictEqual(blocked, ['chef_b'], 'Blocking an existing entry should not create duplicates');
+  const withAnother = toggleBlockedChef(blocked, 'chef_c');
+  assert.deepStrictEqual(withAnother, ['chef_b', 'chef_c']);
+  assert.deepStrictEqual(toggleBlockedChef(withAnother, 'chef_b', false), ['chef_c'], 'Unblocking should remove only the selected chef');
+  assert.throws(() => toggleBlockedChef([], ''), /Thiếu mã đầu bếp/);
+
+  const online = [
+    { uid: 'chef_a' },
+    { uid: 'chef_b' },
+    { uid: 'chef_c', blockedChefIds: ['chef_a'] },
+    { uid: 'chef_d' }
+  ];
+  assert.deepStrictEqual(filterBlockedChefs(online, ['chef_b'], 'chef_a'), [online[3]], 'Hide self, players blocked by the current user, and players who blocked them');
+  assert.deepStrictEqual(filterBlockedChefs(null, [], 'chef_a'), []);
 });
 
 console.log(`\nUNIT SUMMARY: ${passed} passed, ${failed} failed.`);
