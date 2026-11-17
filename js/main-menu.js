@@ -1379,6 +1379,9 @@ export function initCommunityAndLeaderboardController() {
   const detailCustomerNameEl = document.getElementById("community-detail-customer-name");
   const detailCustomerSpeechEl = document.getElementById("community-detail-customer-speech");
   const detailScoreEl = document.getElementById("community-detail-score");
+  const detailLikeCountEl = document.getElementById("community-detail-like-count");
+  const detailLikeBtn = document.getElementById("btn-community-detail-like");
+  let activeDetailPost = null;
 
   let cachedCommunityPosts = [];
   let followedChefIds = [];
@@ -1387,10 +1390,23 @@ export function initCommunityAndLeaderboardController() {
 
   const openCommunityDishDetail = (post, triggerBtn) => {
     lastFocusedViewDetailBtn = triggerBtn || null;
+    activeDetailPost = post;
 
     if (detailTitleEl) detailTitleEl.textContent = post.headingTitle || "Món Ăn Sáng Tạo";
     if (detailMetaEl) {
       detailMetaEl.textContent = `Người chơi: ${post.chefDisplayName || "Bếp Trưởng"} • Được sản xuất bởi: ${post.kitchenName || "Nhà Bếp Sáng Tạo"}`;
+    }
+    const currentProfile = getActiveProfileCache();
+    const likedBy = Array.isArray(post.likedBy) ? post.likedBy : [];
+    const isLiked = Boolean(currentProfile?.uid && likedBy.includes(currentProfile.uid));
+    const likeCount = Number(post.likeCount) || likedBy.length;
+    if (detailLikeCountEl) detailLikeCountEl.textContent = `${likeCount} lượt thích`;
+    if (detailLikeBtn) {
+      detailLikeBtn.textContent = `${isLiked ? "♥ Đã thích" : "♡ Thích"} · ${likeCount}`;
+      detailLikeBtn.setAttribute("aria-pressed", String(isLiked));
+      detailLikeBtn.setAttribute("aria-label", `${isLiked ? "Bỏ thích" : "Thích"} công thức ${post.headingTitle || "này"}; ${likeCount} lượt thích`);
+      detailLikeBtn.disabled = !currentProfile?.uid;
+      detailLikeBtn.title = currentProfile?.uid ? "" : "Đăng nhập để thích công thức";
     }
 
     // 1. Hiện danh sách món trong công thức được chia sẻ
@@ -1453,6 +1469,30 @@ export function initCommunityAndLeaderboardController() {
       );
     }
   };
+
+  detailLikeBtn?.addEventListener("click", async () => {
+    if (!activeDetailPost || !getActiveProfileCache()?.uid) return;
+    const currentProfile = getActiveProfileCache();
+    detailLikeBtn.disabled = true;
+    try {
+      const result = await toggleCommunityLike(activeDetailPost.id);
+      const likedBy = Array.isArray(activeDetailPost.likedBy) ? activeDetailPost.likedBy : [];
+      activeDetailPost.likedBy = result.liked
+        ? [...new Set([...likedBy, currentProfile.uid])]
+        : likedBy.filter((uid) => uid !== currentProfile.uid);
+      activeDetailPost.likeCount = result.likeCount;
+      const countLabel = `${result.likeCount} lượt thích`;
+      detailLikeCountEl.textContent = countLabel;
+      detailLikeBtn.textContent = `${result.liked ? "♥ Đã thích" : "♡ Thích"} · ${result.likeCount}`;
+      detailLikeBtn.setAttribute("aria-pressed", String(result.liked));
+      detailLikeBtn.setAttribute("aria-label", `${result.liked ? "Bỏ thích" : "Thích"} công thức ${activeDetailPost.headingTitle || "này"}; ${result.likeCount} lượt thích`);
+      announceToScreenReader(`${result.liked ? "Đã thích" : "Đã bỏ thích"} ${activeDetailPost.headingTitle}. ${result.likeCount} lượt thích.`);
+    } catch (error) {
+      announceToScreenReader(error.message || "Không thể cập nhật lượt thích.", true);
+    } finally {
+      detailLikeBtn.disabled = !getActiveProfileCache()?.uid;
+    }
+  });
 
   const closeCommunityDishDetail = () => {
     if (modalDishDetail && modalDishDetail.open) {
@@ -1686,7 +1726,7 @@ export function initCommunityAndLeaderboardController() {
       document.getElementById("chef-public-profile-feedback").textContent = "";
       try {
         const dishes = await getCommunityDishes();
-        activeChefRecipes = dishes.filter((dish) => dish.chefUid === profile.uid);
+        activeChefRecipes = hydrateCommunitySocial(dishes.filter((dish) => dish.chefUid === profile.uid));
         chefRecipeCountEl.textContent = `Công thức: ${activeChefRecipes.length}`;
       } catch {
         chefRecipeCountEl.textContent = "Không tải được số lượng công thức.";
