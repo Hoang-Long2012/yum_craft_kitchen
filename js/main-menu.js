@@ -42,7 +42,7 @@ import {
   getLeaderboardTop100,
   resetLeaderboardScores
 } from "./community-service.js";
-import { toggleCommunityLike, toggleFollowChef, getFollowingChefIds, getFollowedFeed, hydrateCommunitySocial, getOnlineChefs, getChefPublicProfile, startChefPresence, stopChefPresence, sendKitchenInvite, getKitchenInvites, respondToKitchenInvite, getDirectMessages, sendDirectMessage } from "./social-service.js";
+import { toggleCommunityLike, toggleFollowChef, getFollowingChefIds, getFollowedFeed, hydrateCommunitySocial, getOnlineChefs, getChefPublicProfile, startChefPresence, stopChefPresence, sendKitchenInvite, getKitchenInvites, respondToKitchenInvite, getDirectMessages, getMyConversations, sendDirectMessage } from "./social-service.js";
 
 import { state } from "./core/state.js";
 import { getSavedSettings, saveSettings, applySettingsToState } from "./core/settings.js";
@@ -1292,6 +1292,59 @@ export function initCommunityAndLeaderboardController() {
       if (!inviteListEl.classList.contains("hidden") && menu && !menu.classList.contains("hidden")) void refreshKitchenInvites();
     }, 10000);
   });
+
+  const kitchenSocialDialog = document.getElementById("modal-kitchen-social");
+  const kitchenSocialTrigger = document.getElementById("btn-kitchen-social");
+  const kitchenOnlineList = document.getElementById("kitchen-online-list");
+  const kitchenInvitesList = document.getElementById("kitchen-invites-list");
+  const kitchenChatsList = document.getElementById("kitchen-chats-list");
+  const renderKitchenSocial = async () => {
+    for (const list of [kitchenOnlineList, kitchenInvitesList, kitchenChatsList]) {
+      list.setAttribute("aria-busy", "true");
+      list.textContent = "Đang tải…";
+    }
+    try {
+      if (getActiveProfileCache()?.uid) followedChefIds = await getFollowingChefIds();
+      const [chefs, invites, conversations] = await Promise.all([getOnlineChefs(), getKitchenInvites(), getMyConversations()]);
+      kitchenOnlineList.replaceChildren();
+      const others = chefs.filter((chef) => chef.uid !== getActiveProfileCache()?.uid);
+      if (!others.length) kitchenOnlineList.textContent = "Hiện chưa có đầu bếp nào khác online.";
+      others.forEach((chef) => {
+        const card = document.createElement("article");
+        card.className = "p-3 rounded-xl border border-emerald-200 bg-white";
+        const title = document.createElement("strong"); title.textContent = `${chef.displayName} (@${chef.username})`;
+        const actions = document.createElement("div"); actions.className = "mt-2 flex flex-wrap gap-2";
+        const invite = document.createElement("button"); invite.type = "button"; invite.className = "px-3 py-1.5 rounded-lg bg-amber-100 font-bold text-sm"; invite.textContent = "Mời vào bếp";
+        invite.addEventListener("click", async () => { invite.disabled = true; try { await sendKitchenInvite(chef.uid, chef.displayName); invite.textContent = "Đã gửi lời mời"; } catch (error) { invite.disabled = false; announceToScreenReader(error.message || "Không gửi được lời mời.", true); } });
+        const chat = document.createElement("button"); chat.type = "button"; chat.className = "px-3 py-1.5 rounded-lg bg-sky-100 font-bold text-sm"; chat.textContent = "Nhắn tin"; chat.addEventListener("click", () => openDirectChat(chef, chat));
+        const profile = document.createElement("button"); profile.type = "button"; profile.className = "px-3 py-1.5 rounded-lg bg-emerald-100 font-bold text-sm"; profile.textContent = "Xem hồ sơ"; profile.addEventListener("click", () => void openChefPublicProfile(chef, profile));
+        actions.append(invite, chat, profile); card.append(title, actions); kitchenOnlineList.append(card);
+      });
+      kitchenInvitesList.replaceChildren();
+      if (!invites.length) kitchenInvitesList.textContent = "Bạn chưa có lời mời nào.";
+      invites.forEach((invite) => {
+        const incoming = invite.recipientUid === getActiveProfileCache()?.uid;
+        const partner = incoming ? { uid: invite.senderUid, displayName: invite.senderName || "Đầu bếp", kitchenName: invite.senderKitchen } : { uid: invite.recipientUid, displayName: invite.recipientName || "Đầu bếp" };
+        const card = document.createElement("article"); card.className = "p-3 rounded-xl border border-amber-200 bg-white flex flex-wrap items-center justify-between gap-2";
+        const summary = document.createElement("p"); summary.className = "text-sm"; summary.textContent = incoming ? `${partner.displayName} mời bạn vào ${partner.kitchenName || "bếp"} · ${invite.status}` : `Bạn đã mời ${partner.displayName} · ${invite.status}`; card.append(summary);
+        const actions = document.createElement("div"); actions.className = "flex gap-2";
+        if (incoming && invite.status === "pending") for (const [label, answer] of [["Chấp nhận", "accepted"], ["Từ chối", "declined"]]) { const button = document.createElement("button"); button.type = "button"; button.className = "px-3 py-1.5 rounded-lg bg-amber-100 font-bold text-sm"; button.textContent = label; button.addEventListener("click", async () => { button.disabled = true; try { await respondToKitchenInvite(invite.id, answer); await renderKitchenSocial(); } catch (error) { button.disabled = false; announceToScreenReader(error.message || "Không xử lý được lời mời.", true); } }); actions.append(button); }
+        if (invite.status === "accepted") { const chat = document.createElement("button"); chat.type = "button"; chat.className = "px-3 py-1.5 rounded-lg bg-sky-100 font-bold text-sm"; chat.textContent = "Nhắn tin"; chat.addEventListener("click", () => openDirectChat(partner, chat)); actions.append(chat); }
+        card.append(actions); kitchenInvitesList.append(card);
+      });
+      kitchenChatsList.replaceChildren();
+      if (!conversations.length) kitchenChatsList.textContent = "Chưa có cuộc trò chuyện. Chọn đầu bếp online để nhắn tin.";
+      conversations.forEach((chef) => { const card = document.createElement("article"); card.className = "p-3 rounded-xl border border-sky-200 bg-white flex items-center justify-between gap-2"; const summary = document.createElement("p"); summary.className = "text-sm min-w-0"; summary.textContent = `${chef.displayName}: ${chef.lastMessage || "Chưa có tin nhắn"}`; const button = document.createElement("button"); button.type = "button"; button.className = "shrink-0 px-3 py-1.5 rounded-lg bg-sky-100 font-bold text-sm"; button.textContent = "Mở chat"; button.addEventListener("click", () => openDirectChat(chef, button)); card.append(summary, button); kitchenChatsList.append(card); });
+    } catch (error) {
+      for (const list of [kitchenOnlineList, kitchenInvitesList, kitchenChatsList]) list.textContent = error.message || "Không tải được dữ liệu kết nối.";
+    } finally {
+      for (const list of [kitchenOnlineList, kitchenInvitesList, kitchenChatsList]) list.setAttribute("aria-busy", "false");
+    }
+  };
+  kitchenSocialTrigger?.addEventListener("click", () => { kitchenSocialDialog.showModal(); void renderKitchenSocial(); });
+  document.getElementById("btn-close-kitchen-social")?.addEventListener("click", () => kitchenSocialDialog.close());
+  document.getElementById("btn-refresh-kitchen-social")?.addEventListener("click", () => void renderKitchenSocial());
+  kitchenSocialDialog?.addEventListener("close", () => { if (kitchenSocialTrigger?.isConnected) kitchenSocialTrigger.focus(); });
 
   const modalDishDetail = document.getElementById("modal-community-dish-detail");
   const btnCloseDishDetail = document.getElementById("btn-close-community-detail");

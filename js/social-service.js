@@ -269,7 +269,9 @@ export async function getDirectMessages(otherUid) {
     const messages = await getDocs(query(collection(db, 'chats', conversationId, 'messages'), orderBy('createdAt', 'desc'), limit(50)));
     return messages.docs.map((entry) => ({ ...entry.data(), id: entry.id })).reverse();
   }
-  return (readLocal().chats[conversationId] || []).slice(-50);
+  const stored = readLocal().chats[conversationId];
+  const messages = Array.isArray(stored) ? stored : stored?.messages;
+  return (Array.isArray(messages) ? messages : []).slice(-50);
 }
 
 export async function sendDirectMessage(otherUid, text) {
@@ -285,15 +287,67 @@ export async function sendDirectMessage(otherUid, text) {
   };
   if (isFirebaseConfigured() && db) {
     const chatRef = doc(db, 'chats', conversationId);
-    await setDoc(chatRef, { participants: [profile.uid, otherUid], updatedAt: message.createdAt }, { merge: true });
+    await setDoc(chatRef, {
+      participants: [profile.uid, otherUid],
+      updatedAt: message.createdAt,
+      lastMessage: message.text,
+      lastSenderUid: profile.uid
+    }, { merge: true });
     await setDoc(doc(db, 'chats', conversationId, 'messages', message.id), message);
   } else {
     const data = readLocal();
-    const messages = data.chats[conversationId] || [];
-    data.chats[conversationId] = [...messages, message].slice(-200);
+    const stored = data.chats[conversationId];
+    const messages = Array.isArray(stored) ? stored : stored?.messages || [];
+    data.chats[conversationId] = {
+      participants: [profile.uid, otherUid],
+      messages: [...messages, message].slice(-200),
+      updatedAt: message.createdAt,
+      lastMessage: message.text,
+      lastSenderUid: profile.uid
+    };
     writeLocal(data);
   }
   return message;
+}
+
+export async function getMyConversations() {
+  const profile = signedInProfile();
+  if (isFirebaseConfigured() && db) {
+    const snapshot = await getDocs(query(collection(db, 'chats'), where('participants', 'array-contains', profile.uid)));
+    const conversations = await Promise.all(snapshot.docs.map(async (entry) => {
+      const data = entry.data();
+      const otherUid = (data.participants || []).find((uid) => uid !== profile.uid);
+      if (!otherUid) return null;
+      let chef = { uid: otherUid, displayName: data.participantNames?.[otherUid] || 'Đầu bếp', username: 'chef', kitchenName: 'Nhà Bếp Sáng Tạo' };
+      try { chef = { ...chef, ...await getChefPublicProfile(otherUid) }; } catch {}
+      return { ...chef, conversationId: entry.id, lastMessage: data.lastMessage || '', lastSenderUid: data.lastSenderUid || '', updatedAt: data.updatedAt || '' };
+    }));
+    return conversations.filter(Boolean).sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+  }
+
+  const result = [];
+  const users = getMockUsers();
+  Object.entries(readLocal().chats).forEach(([conversationId, value]) => {
+    const messages = Array.isArray(value) ? value : value?.messages || [];
+    const participants = Array.isArray(value?.participants)
+      ? value.participants
+      : [...new Set(messages.map((message) => message.senderUid).filter(Boolean))];
+    const otherUid = participants.find((uid) => uid !== profile.uid);
+    if (!otherUid) return;
+    const other = users.find((user) => user.uid === otherUid) || {};
+    const lastMessage = Array.isArray(messages) ? messages[messages.length - 1] : null;
+    result.push({
+      uid: otherUid,
+      username: other.username || 'chef',
+      displayName: other.displayName || lastMessage?.senderName || 'Đầu bếp',
+      kitchenName: other.kitchenName || 'Nhà Bếp Sáng Tạo',
+      conversationId,
+      lastMessage: Array.isArray(value) ? (lastMessage?.text || '') : (value?.lastMessage || ''),
+      lastSenderUid: Array.isArray(value) ? (lastMessage?.senderUid || '') : (value?.lastSenderUid || ''),
+      updatedAt: Array.isArray(value) ? (lastMessage?.createdAt || '') : (value?.updatedAt || '')
+    });
+  });
+  return result.sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
 }
 
 export { getFollowedFeed } from './social-data.js';
