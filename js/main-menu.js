@@ -1344,6 +1344,15 @@ export function initCommunityAndLeaderboardController() {
   kitchenSocialTrigger?.addEventListener("click", () => { kitchenSocialDialog.showModal(); void renderKitchenSocial(); });
   document.getElementById("btn-close-kitchen-social")?.addEventListener("click", () => kitchenSocialDialog.close());
   document.getElementById("btn-refresh-kitchen-social")?.addEventListener("click", () => void renderKitchenSocial());
+  const ownChefProfileButton = document.getElementById("btn-view-own-chef-profile");
+  ownChefProfileButton?.addEventListener("click", () => {
+    const profile = getActiveProfileCache();
+    if (!profile?.uid) {
+      announceToScreenReader("Vui lòng đăng nhập để xem hồ sơ của bạn.", true);
+      return;
+    }
+    void openChefPublicProfile(profile, ownChefProfileButton);
+  });
   kitchenSocialDialog?.addEventListener("close", () => { if (kitchenSocialTrigger?.isConnected) kitchenSocialTrigger.focus(); });
 
   const modalDishDetail = document.getElementById("modal-community-dish-detail");
