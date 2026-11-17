@@ -1654,9 +1654,14 @@ export function initCommunityAndLeaderboardController() {
   const onlineChefsList = document.getElementById("community-online-chefs-list");
   const chefProfileDialog = document.getElementById("modal-chef-public-profile");
   let profileReturnFocus = null;
+  let activeChefRecipes = [];
+  const chefRecipeCountEl = document.getElementById("chef-public-profile-recipe-count");
+  const chefRecipesListEl = document.getElementById("chef-public-profile-recipes");
+  const viewChefRecipesBtn = document.getElementById("btn-view-chef-recipes");
 
   const openChefPublicProfile = async (chef, trigger) => {
     profileReturnFocus = trigger;
+    activeChefRecipes = [];
     chefProfileDialog.showModal();
     document.getElementById("chef-public-profile-title").textContent = chef.displayName || "Hồ sơ đầu bếp";
     document.getElementById("chef-public-profile-username").textContent = `@${chef.username || "chef"}`;
@@ -1665,6 +1670,10 @@ export function initCommunityAndLeaderboardController() {
     document.getElementById("chef-public-profile-bio").textContent = chef.bio || "Đầu bếp chưa thêm phần giới thiệu.";
     document.getElementById("chef-public-profile-stats").textContent = `${Number(chef.followerCount) || 0} người theo dõi · ${Number(chef.followingCount) || 0} đang theo dõi · ${Number(chef.totalScore) || 0} điểm`;
     document.getElementById("chef-public-profile-feedback").textContent = "Đang tải hồ sơ…";
+    chefRecipeCountEl.textContent = "Công thức: Đang tải…";
+    chefRecipesListEl.replaceChildren();
+    chefRecipesListEl.classList.add("hidden");
+    viewChefRecipesBtn.setAttribute("aria-expanded", "false");
     document.getElementById("btn-close-chef-public-profile").focus();
     try {
       const profile = await getChefPublicProfile(chef.uid);
@@ -1675,10 +1684,43 @@ export function initCommunityAndLeaderboardController() {
       document.getElementById("chef-public-profile-bio").textContent = profile.bio || "Đầu bếp chưa thêm phần giới thiệu.";
       document.getElementById("chef-public-profile-stats").textContent = `${profile.followerCount} người theo dõi · ${profile.followingCount} đang theo dõi · ${profile.totalScore} điểm`;
       document.getElementById("chef-public-profile-feedback").textContent = "";
+      try {
+        const dishes = await getCommunityDishes();
+        activeChefRecipes = dishes.filter((dish) => dish.chefUid === profile.uid);
+        chefRecipeCountEl.textContent = `Công thức: ${activeChefRecipes.length}`;
+      } catch {
+        chefRecipeCountEl.textContent = "Không tải được số lượng công thức.";
+      }
     } catch (error) {
       document.getElementById("chef-public-profile-feedback").textContent = error.message || "Không tải được hồ sơ.";
     }
   };
+
+  viewChefRecipesBtn?.addEventListener("click", () => {
+    const expanded = viewChefRecipesBtn.getAttribute("aria-expanded") === "true";
+    viewChefRecipesBtn.setAttribute("aria-expanded", String(!expanded));
+    chefRecipesListEl.classList.toggle("hidden", expanded);
+    if (expanded) return;
+    chefRecipesListEl.replaceChildren();
+    if (!activeChefRecipes.length) {
+      chefRecipesListEl.textContent = "Đầu bếp này chưa chia sẻ công thức nào.";
+      return;
+    }
+    activeChefRecipes.forEach((recipe) => {
+      const item = document.createElement("article");
+      item.className = "flex items-center justify-between gap-2 border-b border-amber-200 py-2 last:border-0";
+      const title = document.createElement("p");
+      title.className = "text-sm font-semibold text-stone-800";
+      title.textContent = recipe.headingTitle || "Công thức";
+      const openButton = document.createElement("button");
+      openButton.type = "button";
+      openButton.className = "shrink-0 px-3 py-1.5 rounded-lg bg-white border border-amber-300 text-sm font-bold";
+      openButton.textContent = "Xem";
+      openButton.addEventListener("click", () => openCommunityDishDetail(recipe, openButton));
+      item.append(title, openButton);
+      chefRecipesListEl.appendChild(item);
+    });
+  });
 
   document.getElementById("btn-close-chef-public-profile")?.addEventListener("click", () => chefProfileDialog.close());
   chefProfileDialog?.addEventListener("close", () => { if (profileReturnFocus?.isConnected) profileReturnFocus.focus(); });
