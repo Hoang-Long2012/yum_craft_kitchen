@@ -166,6 +166,30 @@ export async function updateCurrentUserProfile({ displayName, kitchenName, bio =
   return updatedProfile;
 }
 
+/** Save the signed-in user's privacy choices. Unspecified options retain public defaults for older accounts. */
+export async function updateCurrentUserPrivacySettings(settings) {
+  const current = getActiveProfileCache();
+  if (!current?.uid) throw new Error("Vui lòng đăng nhập để chỉnh sửa quyền riêng tư.");
+  const privacySettings = {
+    profileVisibility: settings?.profileVisibility === "private" ? "private" : "public",
+    showOnlineStatus: settings?.showOnlineStatus !== false,
+    showGender: settings?.showGender !== false,
+    showBio: settings?.showBio !== false
+  };
+  if (isFirebaseConfigured() && db) {
+    await setDoc(doc(db, "users", current.uid), { privacySettings }, { merge: true });
+  } else {
+    const users = getMockUsers();
+    const index = users.findIndex((user) => user.uid === current.uid);
+    if (index < 0) throw new Error("Không tìm thấy tài khoản hiện tại.");
+    users[index].privacySettings = privacySettings;
+    saveMockUsers(users);
+  }
+  const updatedProfile = { ...current, privacySettings };
+  setActiveProfileCache(updatedProfile);
+  return updatedProfile;
+}
+
 /** Change the current account password after confirming the existing credential. */
 export async function changeCurrentUserPassword({ currentPassword, newPassword, confirmPassword }) {
   const profile = getActiveProfileCache();

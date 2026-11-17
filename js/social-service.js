@@ -115,10 +115,11 @@ function updateLocalPresence(uid, isOnline) {
 
 async function writePresence(profile, isOnline) {
   const timestamp = new Date().toISOString();
+  const visibleOnline = isOnline && profile.privacySettings?.showOnlineStatus !== false;
   if (isFirebaseConfigured() && db) {
-    await setDoc(doc(db, 'users', profile.uid), { isOnline, lastSeenAt: timestamp }, { merge: true });
+    await setDoc(doc(db, 'users', profile.uid), { isOnline: visibleOnline, lastSeenAt: timestamp }, { merge: true });
   } else {
-    updateLocalPresence(profile.uid, isOnline);
+    updateLocalPresence(profile.uid, visibleOnline);
   }
 }
 
@@ -158,8 +159,8 @@ export async function getOnlineChefs() {
     users = getMockUsers();
   }
   return users
-    .filter((user) => user.uid && user.isBanned !== true && user.isOnline && isPresenceFresh(user.lastSeenAt, now, ONLINE_WINDOW_MS))
-    .map((user) => ({ uid: user.uid, username: user.username || 'chef', displayName: user.displayName || user.username || 'Bếp Trưởng', kitchenName: user.kitchenName || 'Nhà Bếp Sáng Tạo', bio: user.bio || '', gender: user.gender && user.gender !== 'unspecified' ? getProfileGenderLabel(user.gender) : '', followerCount: Number(user.followerCount) || 0 }))
+    .filter((user) => user.uid && user.isBanned !== true && user.privacySettings?.profileVisibility !== 'private' && user.privacySettings?.showOnlineStatus !== false && user.isOnline && isPresenceFresh(user.lastSeenAt, now, ONLINE_WINDOW_MS))
+    .map((user) => ({ uid: user.uid, username: user.username || 'chef', displayName: user.displayName || user.username || 'Bếp Trưởng', kitchenName: user.kitchenName || 'Nhà Bếp Sáng Tạo', bio: user.privacySettings?.showBio === false ? '' : (user.bio || ''), gender: user.privacySettings?.showGender === false ? '' : (user.gender && user.gender !== 'unspecified' ? getProfileGenderLabel(user.gender) : ''), followerCount: Number(user.followerCount) || 0 }))
     .sort((a, b) => a.displayName.localeCompare(b.displayName, 'vi'));
 }
 
@@ -175,13 +176,17 @@ export async function getChefPublicProfile(uid) {
     if (!profile) throw new Error('Không tìm thấy hồ sơ đầu bếp này.');
   }
   if (profile.isBanned) throw new Error('Hồ sơ này hiện không khả dụng.');
+  const currentProfile = getActiveProfileCache();
+  if (profile.privacySettings?.profileVisibility === 'private' && currentProfile?.uid !== profile.uid) {
+    throw new Error('Đầu bếp này đã đặt hồ sơ ở chế độ riêng tư.');
+  }
   return {
     uid: profile.uid,
     username: profile.username || 'chef',
     displayName: profile.displayName || profile.username || 'Bếp Trưởng',
     kitchenName: profile.kitchenName || 'Nhà Bếp Sáng Tạo',
-    bio: profile.bio || '',
-    gender: profile.gender && profile.gender !== 'unspecified' ? getProfileGenderLabel(profile.gender) : '',
+    bio: profile.privacySettings?.showBio === false ? '' : (profile.bio || ''),
+    gender: profile.privacySettings?.showGender === false ? '' : (profile.gender && profile.gender !== 'unspecified' ? getProfileGenderLabel(profile.gender) : ''),
     followerCount: Number(profile.followerCount) || 0,
     followingCount: Number(profile.followingCount) || 0,
     totalScore: Number(profile.totalScore) || 0

@@ -1268,6 +1268,18 @@
         <button id="btn-menu-edit-profile" type="button" class="px-4 py-2 rounded-xl bg-white text-amber-950 border border-amber-300 font-bold text-sm" aria-haspopup="dialog">✏️ Chỉnh sửa hồ sơ</button>
       </section>
 
+      <section class="p-4 rounded-2xl bg-sky-50 border border-sky-200" aria-labelledby="privacy-settings-title">
+        <h3 id="privacy-settings-title" class="font-bold text-stone-800 text-base">🔒 Quyền riêng tư</h3>
+        <p class="text-xs text-stone-600 mt-1 mb-3">Chọn thông tin nào người chơi khác có thể tìm thấy và xem.</p>
+        <div class="flex flex-col gap-2 text-sm text-stone-700">
+          <label class="flex items-start gap-2"><input type="checkbox" id="setting-privacy-profile-public" class="mt-0.5"><span>Hiển thị hồ sơ trong danh sách đầu bếp và cho phép người khác xem hồ sơ</span></label>
+          <label class="flex items-start gap-2"><input type="checkbox" id="setting-privacy-online-status" class="mt-0.5"><span>Hiển thị trạng thái đang online</span></label>
+          <label class="flex items-start gap-2"><input type="checkbox" id="setting-privacy-gender" class="mt-0.5"><span>Hiển thị giới tính trên hồ sơ và danh sách đầu bếp</span></label>
+          <label class="flex items-start gap-2"><input type="checkbox" id="setting-privacy-bio" class="mt-0.5"><span>Hiển thị phần giới thiệu trên hồ sơ và danh sách đầu bếp</span></label>
+        </div>
+      </section>
+      <p id="settings-save-feedback" class="text-sm text-stone-600" role="status" aria-live="polite"></p>
+
       <!-- Âm thanh hiệu ứng SFX -->
       <div class="flex items-center justify-between p-4 rounded-2xl bg-amber-50 border border-amber-200">
         <div>

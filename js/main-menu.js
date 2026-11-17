@@ -11,6 +11,7 @@ import {
   initAuthListener,
   getActiveProfileCache,
   updateCurrentUserProfile,
+  updateCurrentUserPrivacySettings,
   changeCurrentUserPassword
 } from "./auth-service.js";
 
@@ -1118,6 +1119,23 @@ export function initCommunityAndLeaderboardController() {
     });
   }
 
+  const applyCommunityAuthorPrivacy = async (posts) => {
+    const authorIds = [...new Set(posts.map((post) => post.chefUid).filter(Boolean))];
+    const profiles = new Map(await Promise.all(authorIds.map(async (uid) => {
+      try { return [uid, await getChefPublicProfile(uid)]; }
+      catch { return [uid, null]; }
+    })));
+    return posts.map((post) => {
+      const profile = profiles.get(post.chefUid);
+      if (!profile) return { ...post, chefBio: "", chefGender: "unspecified" };
+      return {
+        ...post,
+        chefBio: profile.bio,
+        chefGender: profile.gender ? post.chefGender : "unspecified"
+      };
+    });
+  };
+
   // --- B. Trang "Cộng Đồng Đầu Bếp" ngoài Menu Chính & Hộp Thoại "Xem Chi Tiết" ---
   const btnMenuCommunity = document.getElementById("btn-menu-community");
   const modalCommunityHub = document.getElementById("modal-community-hub");
@@ -1660,7 +1678,7 @@ export function initCommunityAndLeaderboardController() {
       }
 
       try {
-        cachedCommunityPosts = hydrateCommunitySocial(await getCommunityDishes());
+        cachedCommunityPosts = hydrateCommunitySocial(await applyCommunityAuthorPrivacy(await getCommunityDishes()));
         try { followedChefIds = await getFollowingChefIds(); } catch { followedChefIds = []; }
         communityFeedMode = "all";
         renderCommunityHubList(cachedCommunityPosts);
@@ -1767,13 +1785,34 @@ export function initCommunityAndLeaderboardController() {
 
   const renderOnlineChefs = (chefs) => {
     onlineChefsList.innerHTML = "";
-    if (!chefs.length) {
+    const currentProfile = getActiveProfileCache();
+    if (!chefs.length && !currentProfile?.uid) {
       onlineChefsList.textContent = "Hiện chưa có đầu bếp nào online.";
       return;
     }
     const list = document.createElement("ul");
     list.className = "flex flex-col gap-2";
-    chefs.forEach((chef) => {
+    if (currentProfile?.uid) {
+      const ownItem = document.createElement("li");
+      ownItem.className = "p-3 bg-sky-50 rounded-xl border border-sky-200";
+      const ownName = document.createElement("strong");
+      ownName.textContent = `${currentProfile.displayName || currentProfile.username} (@${currentProfile.username || "chef"}) · Bạn`;
+      const ownProfileBtn = document.createElement("button");
+      ownProfileBtn.type = "button";
+      ownProfileBtn.className = "ml-2 px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-950 font-bold text-sm";
+      ownProfileBtn.textContent = "Xem hồ sơ";
+      ownProfileBtn.addEventListener("click", () => { void openChefPublicProfile(currentProfile, ownProfileBtn); });
+      ownItem.append(ownName, ownProfileBtn);
+      list.appendChild(ownItem);
+    }
+    const otherChefs = chefs.filter((chef) => chef.uid !== currentProfile?.uid);
+    if (!otherChefs.length) {
+      const emptyItem = document.createElement("li");
+      emptyItem.className = "text-sm text-stone-600";
+      emptyItem.textContent = "Hiện chưa có đầu bếp nào khác online.";
+      list.appendChild(emptyItem);
+    }
+    otherChefs.forEach((chef) => {
       const item = document.createElement("li");
       item.className = "p-3 bg-white rounded-xl border border-emerald-200";
       const name = document.createElement("strong");
@@ -1842,19 +1881,6 @@ export function initCommunityAndLeaderboardController() {
         chatBtn.addEventListener("click", () => openDirectChat(chef, chatBtn));
         actions.append(followBtn, profileBtn, inviteBtn, chatBtn);
         item.appendChild(actions);
-      } else {
-        const selfBadge = document.createElement("p");
-        selfBadge.className = "mt-1 text-xs font-semibold text-emerald-800";
-        selfBadge.textContent = "Đây là hồ sơ của bạn";
-        const selfActions = document.createElement("div");
-        selfActions.className = "mt-2 flex flex-wrap gap-2";
-        const selfProfileBtn = document.createElement("button");
-        selfProfileBtn.type = "button";
-        selfProfileBtn.className = "px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-950 font-bold text-sm";
-        selfProfileBtn.textContent = "Xem hồ sơ";
-        selfProfileBtn.addEventListener("click", () => { void openChefPublicProfile(chef, selfProfileBtn); });
-        selfActions.appendChild(selfProfileBtn);
-        item.append(selfBadge, selfActions);
       }
       list.appendChild(item);
     });
@@ -2206,12 +2232,18 @@ export function initMainMenuController() {
     const volLabel = document.getElementById("setting-sfx-volume-val");
     const voiceToggle = document.getElementById("setting-voice-announcements");
     const shortcutToggle = document.getElementById("setting-single-key-shortcuts");
+    const privacy = getActiveProfileCache()?.privacySettings || {};
 
     if (toggleSfx) toggleSfx.checked = s.sfxEnabled;
     if (volSlider) volSlider.value = s.sfxVolume;
     if (volLabel) volLabel.textContent = s.sfxVolume + "%";
     if (voiceToggle) voiceToggle.checked = s.voiceAnnouncements;
     if (shortcutToggle) shortcutToggle.checked = s.singleKeyShortcutsEnabled !== false;
+    document.getElementById("setting-privacy-profile-public").checked = privacy.profileVisibility !== "private";
+    document.getElementById("setting-privacy-online-status").checked = privacy.showOnlineStatus !== false;
+    document.getElementById("setting-privacy-gender").checked = privacy.showGender !== false;
+    document.getElementById("setting-privacy-bio").checked = privacy.showBio !== false;
+    document.getElementById("settings-save-feedback").textContent = "";
   };
 
   if (btnMenuSettings && modalSettings) {
@@ -2240,7 +2272,7 @@ export function initMainMenuController() {
   }
 
   if (btnSaveSettings && modalSettings) {
-    btnSaveSettings.addEventListener("click", () => {
+    btnSaveSettings.addEventListener("click", async () => {
       const toggleSfx = document.getElementById("setting-sfx-toggle");
       const volSlider = document.getElementById("setting-sfx-volume");
       const voiceToggle = document.getElementById("setting-voice-announcements");
@@ -2253,11 +2285,30 @@ export function initMainMenuController() {
         singleKeyShortcutsEnabled: shortcutToggle ? shortcutToggle.checked : true
       };
 
-      saveSettings(newSettings);
-      applySettingsToGameState(newSettings);
-      modalSettings.close();
-      if (btnMenuSettings) btnMenuSettings.focus();
-      announceToScreenReader("Đã lưu cài đặt trò chơi thành công.");
+      const feedback = document.getElementById("settings-save-feedback");
+      btnSaveSettings.disabled = true;
+      if (feedback) feedback.textContent = "Đang lưu cài đặt…";
+      try {
+        saveSettings(newSettings);
+        applySettingsToGameState(newSettings);
+        const profile = getActiveProfileCache();
+        if (profile?.uid) {
+          const updatedProfile = await updateCurrentUserPrivacySettings({
+            profileVisibility: document.getElementById("setting-privacy-profile-public").checked ? "public" : "private",
+            showOnlineStatus: document.getElementById("setting-privacy-online-status").checked,
+            showGender: document.getElementById("setting-privacy-gender").checked,
+            showBio: document.getElementById("setting-privacy-bio").checked
+          });
+          startChefPresence(updatedProfile);
+        }
+        modalSettings.close();
+        if (btnMenuSettings) btnMenuSettings.focus();
+        announceToScreenReader("Đã lưu cài đặt trò chơi và quyền riêng tư.");
+      } catch (error) {
+        if (feedback) feedback.textContent = error.message || "Không thể lưu cài đặt quyền riêng tư.";
+      } finally {
+        btnSaveSettings.disabled = false;
+      }
     });
   }
 
