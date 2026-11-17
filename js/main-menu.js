@@ -1307,8 +1307,31 @@ export function initCommunityAndLeaderboardController() {
       if (getActiveProfileCache()?.uid) followedChefIds = await getFollowingChefIds();
       const [chefs, invites, conversations] = await Promise.all([getOnlineChefs(), getKitchenInvites(), getMyConversations()]);
       kitchenOnlineList.replaceChildren();
+      const ownProfile = getActiveProfileCache();
+      if (ownProfile?.uid) {
+        const ownCard = document.createElement("article");
+        ownCard.className = "p-3 rounded-xl border border-sky-200 bg-sky-50";
+        const ownTitle = document.createElement("strong");
+        ownTitle.textContent = `${ownProfile.displayName || ownProfile.username || "Bếp Trưởng"} (@${ownProfile.username || "chef"}) · Bạn`;
+        const ownActions = document.createElement("div");
+        ownActions.className = "mt-2 flex flex-wrap gap-2";
+        const ownProfileButton = document.createElement("button");
+        ownProfileButton.type = "button";
+        ownProfileButton.className = "px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-950 font-bold text-sm";
+        ownProfileButton.textContent = "Xem hồ sơ";
+        ownProfileButton.addEventListener("click", () => void openChefPublicProfile(ownProfile, ownProfileButton));
+        ownActions.append(ownProfileButton);
+        ownCard.append(ownTitle, ownActions);
+        kitchenOnlineList.append(ownCard);
+      }
       const others = chefs.filter((chef) => chef.uid !== getActiveProfileCache()?.uid);
-      if (!others.length) kitchenOnlineList.textContent = "Hiện chưa có đầu bếp nào khác online.";
+      if (!others.length && !ownProfile?.uid) kitchenOnlineList.textContent = "Hiện chưa có đầu bếp nào online.";
+      else if (!others.length) {
+        const empty = document.createElement("p");
+        empty.className = "text-sm text-stone-600";
+        empty.textContent = "Hiện chưa có đầu bếp nào khác online.";
+        kitchenOnlineList.append(empty);
+      }
       others.forEach((chef) => {
         const card = document.createElement("article");
         card.className = "p-3 rounded-xl border border-emerald-200 bg-white";
@@ -1344,15 +1367,6 @@ export function initCommunityAndLeaderboardController() {
   kitchenSocialTrigger?.addEventListener("click", () => { kitchenSocialDialog.showModal(); void renderKitchenSocial(); });
   document.getElementById("btn-close-kitchen-social")?.addEventListener("click", () => kitchenSocialDialog.close());
   document.getElementById("btn-refresh-kitchen-social")?.addEventListener("click", () => void renderKitchenSocial());
-  const ownChefProfileButton = document.getElementById("btn-view-own-chef-profile");
-  ownChefProfileButton?.addEventListener("click", () => {
-    const profile = getActiveProfileCache();
-    if (!profile?.uid) {
-      announceToScreenReader("Vui lòng đăng nhập để xem hồ sơ của bạn.", true);
-      return;
-    }
-    void openChefPublicProfile(profile, ownChefProfileButton);
-  });
   kitchenSocialDialog?.addEventListener("close", () => { if (kitchenSocialTrigger?.isConnected) kitchenSocialTrigger.focus(); });
 
   const modalDishDetail = document.getElementById("modal-community-dish-detail");
