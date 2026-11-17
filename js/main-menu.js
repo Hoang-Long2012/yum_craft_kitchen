@@ -51,6 +51,7 @@ import { announceNVDA } from "./accessibility/nvda-announcer.js";
 import { escapeHtml } from "./ui/dom-helpers.js";
 import { showConfirmDialog, showPromptDialog, showNoticeDialog } from "./ui/confirm-dialog.js";
 import { getProfileGenderLabel } from "./profile-data.js";
+import { getChefRecipes, getPostLikeState, filterBlockedRecipes } from "./social-data.js";
 
 export { getSavedSettings, saveSettings };
 
@@ -1120,8 +1121,8 @@ export function initCommunityAndLeaderboardController() {
   }
 
   const applyCommunityAuthorPrivacy = async (posts) => {
-    const blockedIds = new Set(await getBlockedChefIds());
-    const visiblePosts = posts.filter((post) => !blockedIds.has(post.chefUid));
+    const blockedIds = await getBlockedChefIds();
+    const visiblePosts = filterBlockedRecipes(posts, blockedIds);
     const authorIds = [...new Set(visiblePosts.map((post) => post.chefUid).filter(Boolean))];
     const profiles = new Map(await Promise.all(authorIds.map(async (uid) => {
       try { return [uid, await getChefPublicProfile(uid)]; }
@@ -1427,9 +1428,7 @@ export function initCommunityAndLeaderboardController() {
       detailMetaEl.textContent = `Người chơi: ${post.chefDisplayName || "Bếp Trưởng"} • Được sản xuất bởi: ${post.kitchenName || "Nhà Bếp Sáng Tạo"}`;
     }
     const currentProfile = getActiveProfileCache();
-    const likedBy = Array.isArray(post.likedBy) ? post.likedBy : [];
-    const isLiked = Boolean(currentProfile?.uid && likedBy.includes(currentProfile.uid));
-    const likeCount = Number(post.likeCount) || likedBy.length;
+    const { liked: isLiked, likeCount } = getPostLikeState(post, currentProfile?.uid);
     if (detailLikeCountEl) detailLikeCountEl.textContent = `${likeCount} lượt thích`;
     if (detailLikeBtn) {
       detailLikeBtn.textContent = `${isLiked ? "♥ Đã thích" : "♡ Thích"} · ${likeCount}`;
@@ -1618,14 +1617,15 @@ export function initCommunityAndLeaderboardController() {
       });
 
       const currentProfile = getActiveProfileCache();
+      const likeState = getPostLikeState(post, currentProfile?.uid);
       const likeMembers = Array.isArray(post.likedBy) ? post.likedBy : [];
-      const isLiked = Boolean(currentProfile?.uid && likeMembers.includes(currentProfile.uid));
+      const isLiked = likeState.liked;
       const likeBtn = document.createElement("button");
       likeBtn.type = "button";
       likeBtn.className = "px-4 py-2.5 rounded-2xl bg-rose-50 text-rose-800 border border-rose-200 font-bold text-xs sm:text-sm";
-      likeBtn.textContent = `${isLiked ? "♥ Đã thích" : "♡ Thích"} (${Number(post.likeCount) || likeMembers.length})`;
+      likeBtn.textContent = `${isLiked ? "♥ Đã thích" : "♡ Thích"} (${likeState.likeCount})`;
       likeBtn.disabled = !currentProfile?.uid;
-      likeBtn.setAttribute("aria-label", `${isLiked ? "Bỏ thích" : "Thích"} công thức ${post.headingTitle || "này"}; ${Number(post.likeCount) || likeMembers.length} lượt thích`);
+      likeBtn.setAttribute("aria-label", `${isLiked ? "Bỏ thích" : "Thích"} công thức ${post.headingTitle || "này"}; ${likeState.likeCount} lượt thích`);
       likeBtn.title = currentProfile?.uid ? "" : "Đăng nhập để thích công thức";
       likeBtn.addEventListener("click", async () => {
         likeBtn.disabled = true;
@@ -1756,7 +1756,7 @@ export function initCommunityAndLeaderboardController() {
       document.getElementById("chef-public-profile-feedback").textContent = "";
       try {
         const dishes = await getCommunityDishes();
-        activeChefRecipes = hydrateCommunitySocial(dishes.filter((dish) => dish.chefUid === profile.uid));
+        activeChefRecipes = hydrateCommunitySocial(getChefRecipes(dishes, profile.uid));
         chefRecipeCountEl.textContent = `Công thức: ${activeChefRecipes.length}`;
       } catch {
         chefRecipeCountEl.textContent = "Không tải được số lượng công thức.";

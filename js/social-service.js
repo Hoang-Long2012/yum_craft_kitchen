@@ -2,7 +2,7 @@
 import { db, isFirebaseConfigured, doc, getDoc, runTransaction, setDoc, collection, getDocs, query, where, orderBy, limit } from './firebase-config.js';
 import { getActiveProfileCache } from './auth-service.js';
 import { getMockUsers, saveMockUsers, readStorageJson, writeStorageJson } from './services/mock-storage.js';
-import { getFollowingIds, getFollowedFeed, toggleMember, isPresenceFresh, getConversationId, normalizeChatMessage, isChefBlocked, toggleBlockedChef, filterBlockedChefs } from './social-data.js';
+import { getFollowingIds, getFollowedFeed, toggleMember, getConversationId, normalizeChatMessage, isChefBlocked, toggleBlockedChef, filterOnlineChefs, canViewChefProfile, canReceiveKitchenInvites, canReceiveDirectMessages, getStoredChatMessages, getLocalConversationSummary } from './social-data.js';
 import { getProfileGenderLabel } from './profile-data.js';
 
 const SOCIAL_KEY = 'yumcraft_social_state';
@@ -246,8 +246,7 @@ export async function getOnlineChefs() {
   } else {
     users = getMockUsers();
   }
-  return filterBlockedChefs(users, blockedIds, currentProfile?.uid)
-    .filter((user) => user.isBanned !== true && user.privacySettings?.profileVisibility !== 'private' && user.privacySettings?.showOnlineStatus !== false && user.isOnline && isPresenceFresh(user.lastSeenAt, now, ONLINE_WINDOW_MS))
+  return filterOnlineChefs(users, blockedIds, currentProfile?.uid, now, ONLINE_WINDOW_MS)
     .map((user) => ({ uid: user.uid, username: user.username || 'chef', displayName: user.displayName || user.username || 'Bếp Trưởng', kitchenName: user.kitchenName || 'Nhà Bếp Sáng Tạo', bio: user.privacySettings?.showBio === false ? '' : (user.bio || ''), gender: user.privacySettings?.showGender === false ? '' : (user.gender && user.gender !== 'unspecified' ? getProfileGenderLabel(user.gender) : ''), followerCount: Number(user.followerCount) || 0, allowKitchenInvites: user.privacySettings?.allowKitchenInvites !== false, allowDirectMessages: user.privacySettings?.allowDirectMessages !== false }))
     .sort((a, b) => a.displayName.localeCompare(b.displayName, 'vi'));
 }
@@ -265,7 +264,7 @@ export async function getChefPublicProfile(uid) {
   }
   if (profile.isBanned) throw new Error('Hồ sơ này hiện không khả dụng.');
   const currentProfile = getActiveProfileCache();
-  if (profile.privacySettings?.profileVisibility === 'private' && currentProfile?.uid !== profile.uid) {
+  if (!canViewChefProfile(profile.privacySettings, currentProfile?.uid, profile.uid)) {
     throw new Error('Đầu bếp này đã đặt hồ sơ ở chế độ riêng tư.');
   }
   if (currentProfile?.uid && currentProfile.uid !== profile.uid) await assertNotBlocked(profile.uid);
@@ -309,13 +308,13 @@ export async function sendKitchenInvite(targetUid, targetName = '') {
       const [targetSnapshot, senderSnapshot, existing] = await Promise.all([transaction.get(targetRef), transaction.get(senderRef), transaction.get(invitationRef)]);
       if (!targetSnapshot.exists()) throw new Error('Không tìm thấy đầu bếp này.');
       if ((senderSnapshot.data()?.blockedChefIds || []).includes(targetUid) || (targetSnapshot.data().blockedChefIds || []).includes(profile.uid)) throw new Error('Không thể gửi lời mời vì có người đã chặn đối phương.');
-      if (targetSnapshot.data().privacySettings?.allowKitchenInvites === false) throw new Error('Đầu bếp này hiện không nhận lời mời vào bếp.');
+      if (!canReceiveKitchenInvites(targetSnapshot.data().privacySettings)) throw new Error('Đầu bếp này hiện không nhận lời mời vào bếp.');
       if (existing.exists() && existing.data().status === 'pending') throw new Error('Bạn đã gửi lời mời đang chờ đầu bếp này phản hồi.');
       transaction.set(invitationRef, invitation);
     });
   } else {
     await assertNotBlocked(targetUid);
-    if ((await getPrivacySettingsForUser(targetUid)).allowKitchenInvites === false) throw new Error('Đầu bếp này hiện không nhận lời mời vào bếp.');
+    if (!canReceiveKitchenInvites(await getPrivacySettingsForUser(targetUid))) throw new Error('Đầu bếp này hiện không nhận lời mời vào bếp.');
     const data = readLocal();
     if (data.invites.some((invite) => invite.id === inviteId && invite.status === 'pending')) {
       throw new Error('Bạn đã gửi lời mời đang chờ đầu bếp này phản hồi.');
@@ -386,15 +385,14 @@ export async function getDirectMessages(otherUid) {
     return messages.docs.map((entry) => ({ ...entry.data(), id: entry.id })).reverse();
   }
   const stored = readLocal().chats[conversationId];
-  const messages = Array.isArray(stored) ? stored : stored?.messages;
-  return (Array.isArray(messages) ? messages : []).slice(-50);
+  return getStoredChatMessages(stored, 50);
 }
 
 export async function sendDirectMessage(otherUid, text) {
   const profile = signedInProfile();
   if (!otherUid || otherUid === profile.uid) throw new Error('Chọn một đầu bếp khác để trò chuyện.');
   await assertNotBlocked(otherUid);
-  if ((await getPrivacySettingsForUser(otherUid)).allowDirectMessages === false) {
+  if (!canReceiveDirectMessages(await getPrivacySettingsForUser(otherUid))) {
     throw new Error('Đầu bếp này hiện không nhận tin nhắn.');
   }
   const messageText = normalizeChatMessage(text);
@@ -418,7 +416,7 @@ export async function sendDirectMessage(otherUid, text) {
   } else {
     const data = readLocal();
     const stored = data.chats[conversationId];
-    const messages = Array.isArray(stored) ? stored : stored?.messages || [];
+    const messages = getStoredChatMessages(stored, Number.MAX_SAFE_INTEGER);
     data.chats[conversationId] = {
       participants: [profile.uid, otherUid],
       messages: [...messages, message].slice(-200),
@@ -452,26 +450,11 @@ export async function getMyConversations() {
   const result = [];
   const users = getMockUsers();
   Object.entries(readLocal().chats).forEach(([conversationId, value]) => {
-    const messages = Array.isArray(value) ? value : value?.messages || [];
-    const participants = Array.isArray(value?.participants)
-      ? value.participants
-      : [...new Set(messages.map((message) => message.senderUid).filter(Boolean))];
-    const otherUid = participants.find((uid) => uid !== profile.uid);
-    if (!otherUid) return;
+    const summary = getLocalConversationSummary(conversationId, value, profile.uid, users);
+    if (!summary) return;
+    const otherUid = summary.uid;
     if (isChefBlocked(profile.blockedChefIds, users.find((user) => user.uid === otherUid)?.blockedChefIds, profile.uid, otherUid)) return;
-    const other = users.find((user) => user.uid === otherUid) || {};
-    const lastMessage = Array.isArray(messages) ? messages[messages.length - 1] : null;
-    result.push({
-      uid: otherUid,
-      username: other.username || 'chef',
-      displayName: other.displayName || lastMessage?.senderName || 'Đầu bếp',
-      kitchenName: other.kitchenName || 'Nhà Bếp Sáng Tạo',
-      allowDirectMessages: other.privacySettings?.allowDirectMessages !== false,
-      conversationId,
-      lastMessage: Array.isArray(value) ? (lastMessage?.text || '') : (value?.lastMessage || ''),
-      lastSenderUid: Array.isArray(value) ? (lastMessage?.senderUid || '') : (value?.lastSenderUid || ''),
-      updatedAt: Array.isArray(value) ? (lastMessage?.createdAt || '') : (value?.updatedAt || '')
-    });
+    result.push(summary);
   });
   return result.sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
 }

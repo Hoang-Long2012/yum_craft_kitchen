@@ -38,6 +38,9 @@ import {
 } from "./admin-service.js";
 import { getMockUsers, saveMockUsers } from "./services/mock-storage.js";
 import { PROFILE_GENDERS, normalizeProfileGender } from "./profile-data.js";
+import { normalizePrivacySettings } from "./social-data.js";
+import { validatePassword, validateDisplayName, validateKitchenName, validateProfileBio } from "./auth-data.js";
+export { validatePassword, validateDisplayName, validateKitchenName, validateProfileBio } from "./auth-data.js";
 
 // Khóa lưu trữ cục bộ cho Mock Mode
 const MOCK_SESSION_KEY = "yumcraft_mock_current_session";
@@ -95,40 +98,6 @@ export function validateUsername(username) {
   return { valid: true, sanitized: trimmed };
 }
 
-/**
- * Kiểm tra tính hợp lệ của Tên hiển thị (Display Name)
- */
-export function validateDisplayName(displayName) {
-  if (!displayName || typeof displayName !== "string") {
-    return { valid: false, message: "Vui lòng nhập tên hiển thị." };
-  }
-  const trimmed = displayName.trim();
-  if (trimmed.length < 2) {
-    return { valid: false, message: "Tên hiển thị phải có tối thiểu 2 ký tự." };
-  }
-  if (trimmed.length > 50) {
-    return { valid: false, message: "Tên hiển thị không được vượt quá 50 ký tự." };
-  }
-  return { valid: true, sanitized: trimmed };
-}
-
-/**
- * Kiểm tra tính hợp lệ của Tên nhà bếp (Kitchen Name)
- */
-export function validateKitchenName(kitchenName) {
-  if (!kitchenName || typeof kitchenName !== "string") {
-    return { valid: false, message: "Vui lòng nhập tên nhà bếp." };
-  }
-  const trimmed = kitchenName.trim();
-  if (trimmed.length < 2) {
-    return { valid: false, message: "Tên nhà bếp phải có tối thiểu 2 ký tự." };
-  }
-  if (trimmed.length > 60) {
-    return { valid: false, message: "Tên nhà bếp không được vượt quá 60 ký tự." };
-  }
-  return { valid: true, sanitized: trimmed };
-}
-
 /** Update the signed-in chef's public profile without changing account identity. */
 export async function updateCurrentUserProfile({ displayName, kitchenName, bio = "", gender = "unspecified" }) {
   const current = getActiveProfileCache();
@@ -137,15 +106,14 @@ export async function updateCurrentUserProfile({ displayName, kitchenName, bio =
   if (!validDisplayName.valid) throw new Error(validDisplayName.message);
   const validKitchenName = validateKitchenName(kitchenName);
   if (!validKitchenName.valid) throw new Error(validKitchenName.message);
-  if (typeof bio !== "string" || bio.trim().length > 160) {
-    throw new Error("Phần giới thiệu không được vượt quá 160 ký tự.");
-  }
+  const validBio = validateProfileBio(bio);
+  if (!validBio.valid) throw new Error(validBio.message);
   if (!PROFILE_GENDERS.includes(gender)) throw new Error("Vui lòng chọn một giá trị giới tính hợp lệ.");
 
   const updates = {
     displayName: validDisplayName.sanitized,
     kitchenName: validKitchenName.sanitized,
-    bio: bio.trim(),
+    bio: validBio.sanitized,
     gender: normalizeProfileGender(gender),
     profileUpdatedAt: new Date().toISOString()
   };
@@ -170,14 +138,7 @@ export async function updateCurrentUserProfile({ displayName, kitchenName, bio =
 export async function updateCurrentUserPrivacySettings(settings) {
   const current = getActiveProfileCache();
   if (!current?.uid) throw new Error("Vui lòng đăng nhập để chỉnh sửa quyền riêng tư.");
-  const privacySettings = {
-    profileVisibility: settings?.profileVisibility === "private" ? "private" : "public",
-    showOnlineStatus: settings?.showOnlineStatus !== false,
-    showGender: settings?.showGender !== false,
-    showBio: settings?.showBio !== false,
-    allowKitchenInvites: settings?.allowKitchenInvites !== false,
-    allowDirectMessages: settings?.allowDirectMessages !== false
-  };
+  const privacySettings = normalizePrivacySettings(settings);
   if (isFirebaseConfigured() && db) {
     await setDoc(doc(db, "users", current.uid), { privacySettings }, { merge: true });
   } else {
@@ -240,22 +201,6 @@ export function validateEmail(email) {
     return { valid: false, message: "Địa chỉ email không đúng định dạng (ví dụ: chef@example.com)." };
   }
   return { valid: true, sanitized: trimmed };
-}
-
-/**
- * Kiểm tra tính hợp lệ của Mật khẩu
- */
-export function validatePassword(password, confirmPassword = null) {
-  if (!password || typeof password !== "string") {
-    return { valid: false, message: "Vui lòng nhập mật khẩu." };
-  }
-  if (password.length < 8) {
-    return { valid: false, message: "Mật khẩu phải có tối thiểu 8 ký tự." };
-  }
-  if (confirmPassword !== null && password !== confirmPassword) {
-    return { valid: false, message: "Mật khẩu nhập lại không trùng khớp." };
-  }
-  return { valid: true };
 }
 
 /**

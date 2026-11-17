@@ -14,6 +14,74 @@ export function getFollowingIds(value) {
   return [];
 }
 
+export function normalizePrivacySettings(settings = {}) {
+  return {
+    profileVisibility: settings.profileVisibility === 'private' ? 'private' : 'public',
+    showOnlineStatus: settings.showOnlineStatus !== false,
+    showGender: settings.showGender !== false,
+    showBio: settings.showBio !== false,
+    allowKitchenInvites: settings.allowKitchenInvites !== false,
+    allowDirectMessages: settings.allowDirectMessages !== false
+  };
+}
+
+export function canViewChefProfile(privacySettings, viewerUid, profileUid) {
+  return privacySettings?.profileVisibility !== 'private' || viewerUid === profileUid;
+}
+
+export function canReceiveKitchenInvites(privacySettings) {
+  return privacySettings?.allowKitchenInvites !== false;
+}
+
+export function canReceiveDirectMessages(privacySettings) {
+  return privacySettings?.allowDirectMessages !== false;
+}
+
+export function getChefRecipes(posts, chefUid) {
+  return (Array.isArray(posts) ? posts : []).filter((post) => post?.chefUid === chefUid);
+}
+
+export function filterBlockedRecipes(posts, blockedChefIds) {
+  const blocked = new Set(getFollowingIds(blockedChefIds));
+  return (Array.isArray(posts) ? posts : []).filter((post) => !blocked.has(post?.chefUid));
+}
+
+export function getPostLikeState(post, viewerUid) {
+  const likedBy = getFollowingIds(post?.likedBy);
+  const count = Number(post?.likeCount);
+  return {
+    liked: Boolean(viewerUid && likedBy.includes(viewerUid)),
+    likeCount: Number.isFinite(count) && count >= 0 ? count : likedBy.length
+  };
+}
+
+export function getStoredChatMessages(stored, maxMessages = 50) {
+  const messages = Array.isArray(stored) ? stored : stored?.messages;
+  return Array.isArray(messages) ? messages.slice(-maxMessages) : [];
+}
+
+export function getLocalConversationSummary(conversationId, stored, currentUid, users = []) {
+  const messages = getStoredChatMessages(stored, Number.MAX_SAFE_INTEGER);
+  const participants = Array.isArray(stored?.participants)
+    ? stored.participants
+    : [...new Set(messages.map((message) => message.senderUid).filter(Boolean))];
+  const otherUid = participants.find((uid) => uid !== currentUid);
+  if (!otherUid) return null;
+  const other = users.find((user) => user.uid === otherUid) || {};
+  const lastMessage = messages[messages.length - 1];
+  return {
+    uid: otherUid,
+    username: other.username || 'chef',
+    displayName: other.displayName || lastMessage?.senderName || 'Đầu bếp',
+    kitchenName: other.kitchenName || 'Nhà Bếp Sáng Tạo',
+    allowDirectMessages: other.privacySettings?.allowDirectMessages !== false,
+    conversationId,
+    lastMessage: Array.isArray(stored) ? (lastMessage?.text || '') : (stored?.lastMessage || lastMessage?.text || ''),
+    lastSenderUid: Array.isArray(stored) ? (lastMessage?.senderUid || '') : (stored?.lastSenderUid || lastMessage?.senderUid || ''),
+    updatedAt: Array.isArray(stored) ? (lastMessage?.createdAt || '') : (stored?.updatedAt || lastMessage?.createdAt || '')
+  };
+}
+
 export function isChefBlocked(blockedByCurrent, blockedByOther, currentUid, otherUid) {
   if (!currentUid || !otherUid || currentUid === otherUid) return false;
   return getFollowingIds(blockedByCurrent).includes(otherUid)
@@ -34,6 +102,15 @@ export function filterBlockedChefs(chefs, blockedByCurrent, currentUid) {
     && chef.uid !== currentUid
     && !blocked.has(chef.uid)
     && !isChefBlocked([], chef.blockedChefIds, currentUid, chef.uid));
+}
+
+export function filterOnlineChefs(chefs, blockedByCurrent, currentUid, now = Date.now(), maxAgeMs = 120_000) {
+  return filterBlockedChefs(chefs, blockedByCurrent, currentUid).filter((chef) =>
+    chef.isBanned !== true
+    && canViewChefProfile(chef.privacySettings, currentUid, chef.uid)
+    && chef.privacySettings?.showOnlineStatus !== false
+    && chef.isOnline === true
+    && isPresenceFresh(chef.lastSeenAt, now, maxAgeMs));
 }
 
 export function getFollowedFeed(posts, followingIds) {
