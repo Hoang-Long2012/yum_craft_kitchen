@@ -375,6 +375,18 @@
           />
         </div>
 
+        <!-- Giới tính -->
+        <div>
+          <label for="reg-gender" class="block text-sm font-bold text-stone-700 mb-1">Giới tính</label>
+          <p id="hint-reg-gender" class="text-xs text-stone-500 mb-1">Tùy chọn. Chọn “Không muốn tiết lộ” nếu bạn không muốn hiển thị thông tin này.</p>
+          <select id="reg-gender" name="gender" aria-describedby="hint-reg-gender" class="w-full px-4 py-3 rounded-2xl border-2 border-stone-200 focus:border-orange-500 focus:outline-none text-stone-800 text-base">
+            <option value="unspecified">Không muốn tiết lộ</option>
+            <option value="female">Nữ</option>
+            <option value="male">Nam</option>
+            <option value="other">Khác</option>
+          </select>
+        </div>
+
         <!-- Email -->
         <div>
           <label for="reg-email" class="block text-sm font-bold text-stone-700 mb-1">
@@ -433,7 +445,7 @@
             Tên nhà bếp của bạn <span class="text-orange-600">*</span>
           </label>
           <p id="hint-reg-kitchen-name" class="text-xs text-stone-500 mb-1">
-            Sẽ hiển thị trên món ăn khi đăng lên cộng đồng: "Được sản xuất tại: [Tên nhà bếp]".
+            Sẽ hiển thị cùng công thức bạn chia sẻ với cộng đồng.
           </p>
           <input 
             type="text" 
@@ -510,7 +522,6 @@
           <span class="font-semibold text-stone-700">Gian bếp:</span>
           <span id="menu-user-kitchen-name" class="text-orange-700 font-bold">Nhà Bếp Anh Lộc</span>
         </p>
-        <button id="btn-menu-edit-profile" type="button" class="mt-3 px-4 py-2 rounded-xl bg-amber-100 text-amber-950 border border-amber-300 font-bold text-sm" aria-haspopup="dialog">✏️ Chỉnh sửa hồ sơ</button>
       </div>
     </header>
 
@@ -1021,7 +1032,7 @@
               <div id="share-community-container" class="hidden mt-3 pt-2.5 border-t border-amber-300/80">
                 <button id="btn-share-to-community" type="button" class="game-btn btn-3d-emerald w-full py-3 px-4 rounded-2xl text-sm sm:text-base font-extrabold font-game flex items-center justify-center gap-2 shadow-lg hover:brightness-105 transition cursor-pointer" aria-haspopup="dialog">
                   <span class="text-xl" aria-hidden="true">🌐</span>
-                  <span>Đưa Lên Cộng Đồng</span>
+                  <span>Chia Sẻ Công Thức</span>
                 </button>
               </div>
             </div>
@@ -1230,7 +1241,7 @@
     <!-- ========================================================================= -->
   <!-- MODAL: CÀI ĐẶT TẬP TRUNG (SETTINGS MODAL)                                  -->
   <!-- ========================================================================= -->
-  <dialog id="modal-settings" class="p-0 rounded-3xl shadow-2xl backdrop:bg-black/50 max-w-lg w-full border-2 border-amber-300 overflow-hidden" aria-labelledby="settings-modal-title">
+  <dialog id="modal-settings" class="p-0 rounded-3xl shadow-2xl backdrop:bg-black/50 max-w-lg w-full max-h-[90vh] border-2 border-amber-300 overflow-y-auto" aria-labelledby="settings-modal-title">
     <div class="bg-white p-6 sm:p-8 flex flex-col gap-6">
       <div class="flex items-center justify-between border-b pb-4 border-stone-200">
         <h2 id="settings-modal-title" class="text-2xl font-bold font-game text-stone-900 flex items-center gap-2">
@@ -1241,6 +1252,12 @@
           ✕ Đóng
         </button>
       </div>
+
+      <section class="p-4 rounded-2xl bg-amber-50 border border-amber-200">
+        <h3 class="font-bold text-stone-800 text-base">👤 Hồ sơ công khai</h3>
+        <p class="text-xs text-stone-600 mt-1 mb-3">Chỉnh sửa tên hiển thị, nhà bếp, giới tính và đổi mật khẩu tài khoản.</p>
+        <button id="btn-menu-edit-profile" type="button" class="px-4 py-2 rounded-xl bg-white text-amber-950 border border-amber-300 font-bold text-sm" aria-haspopup="dialog">✏️ Chỉnh sửa hồ sơ</button>
+      </section>
 
       <!-- Âm thanh hiệu ứng SFX -->
       <div class="flex items-center justify-between p-4 rounded-2xl bg-amber-50 border border-amber-200">
@@ -1448,7 +1465,7 @@
             <span class="text-3xl" aria-hidden="true">🌐</span>
             <span>Quản lý cộng đồng</span>
           </span>
-          <span class="text-xs font-bold bg-emerald-200 text-emerald-900 px-3 py-1 rounded-full shrink-0">Xem &amp; Xóa bài</span>
+          <span class="text-xs font-bold bg-emerald-200 text-emerald-900 px-3 py-1 rounded-full shrink-0">Xem &amp; Xóa công thức</span>
         </button>
 
         <!-- Nút 4: Đặt lại bảng xếp hạng -->
@@ -1875,15 +1892,15 @@
   <!-- HỆ THỐNG CỘNG ĐỒNG ĐẦU BẾP & BẢNG XẾP HẠNG (COMMUNITY & LEADERBOARD)      -->
   <!-- ========================================================================= -->
 
-  <!-- 9. HỘP THOẠI XÁC NHẬN ĐƯA LÊN CỘNG ĐỒNG ĐẦU BẾP (TRONG NHÀ BẾP) -->
+  <!-- 9. HỘP THOẠI XÁC NHẬN CHIA SẺ CÔNG THỨC VỚI CỘNG ĐỒNG -->
   <dialog id="modal-confirm-share-community" class="backdrop:bg-black/60 backdrop:backdrop-blur-sm bg-transparent p-4 z-50 max-w-md w-full m-auto" aria-labelledby="confirm-share-community-title">
     <div class="bg-white rounded-3xl p-6 shadow-2xl border-4 border-emerald-400 flex flex-col gap-4 text-stone-800 text-center">
       <div class="text-4xl" aria-hidden="true">🌐</div>
       <h2 id="confirm-share-community-title" class="text-lg sm:text-xl font-black font-game text-emerald-950">
-        Bạn có muốn đưa lên cộng đồng đầu bếp không?
+        Bạn có muốn chia sẻ công thức với cộng đồng đầu bếp không?
       </h2>
       <p id="confirm-share-community-desc" class="text-xs sm:text-sm text-stone-700 leading-relaxed font-medium bg-emerald-50 p-3.5 rounded-2xl border border-emerald-200">
-        Món ăn sẽ được đăng lên Cộng đồng Đầu bếp và điểm hài lòng sẽ được cộng vào tổng điểm của bạn trên Bảng xếp hạng!
+        Công thức món ăn sẽ được chia sẻ với Cộng đồng Đầu bếp và điểm hài lòng sẽ được cộng vào tổng điểm của bạn trên Bảng xếp hạng!
       </p>
       <div class="flex items-center justify-center gap-3 pt-1">
         <button 
@@ -1930,7 +1947,7 @@
                   CỘNG ĐỒNG ĐẦU BẾP
                 </h2>
                 <p id="community-hub-subtitle" class="text-xs sm:text-sm font-semibold text-stone-600">
-                  Những món ăn và bữa ăn sáng tạo do người chơi làm ra
+                  Công thức món ăn do cộng đồng đầu bếp sáng tạo
                 </p>
               </div>
             </div>
@@ -1938,15 +1955,15 @@
 
           <!-- Tìm kiếm nhanh trên Cộng đồng -->
           <div>
-            <label for="community-search-input" class="sr-only">Tìm kiếm món ăn hoặc đầu bếp trên cộng đồng</label>
+            <label for="community-search-input" class="sr-only">Tìm kiếm công thức hoặc đầu bếp trên cộng đồng</label>
             <input 
               type="search" 
               id="community-search-input" 
-              placeholder="🔍 Tìm nhanh theo tên món ăn, tên người chơi hoặc tên nhà bếp..." 
+              placeholder="🔍 Tìm theo tên công thức, đầu bếp hoặc nhà bếp..."
               class="w-full px-5 py-3 rounded-2xl border-2 border-emerald-300 focus:border-emerald-600 focus:outline-none text-stone-800 text-sm sm:text-base font-medium bg-emerald-50/30 shadow-inner"
             />
           </div>
-          <button id="btn-community-following-feed" type="button" class="mx-4 sm:mx-8 mb-3 px-4 py-2 rounded-xl bg-sky-100 text-sky-900 border border-sky-300 font-bold text-sm" aria-controls="community-dishes-list">👥 Bài từ người theo dõi</button>
+          <button id="btn-community-following-feed" type="button" class="mx-4 sm:mx-8 mb-3 px-4 py-2 rounded-xl bg-sky-100 text-sky-900 border border-sky-300 font-bold text-sm" aria-controls="community-dishes-list">👥 Công thức từ người theo dõi</button>
           <button id="btn-community-online-chefs" type="button" class="mx-2 mb-3 px-4 py-2 rounded-xl bg-emerald-100 text-emerald-950 border border-emerald-300 font-bold text-sm" aria-expanded="false" aria-controls="community-online-chefs-list">🟢 Đầu bếp online</button>
           <div id="community-online-chefs-list" class="hidden mx-4 sm:mx-8 mb-3 p-3 rounded-2xl bg-emerald-50 border border-emerald-200" role="region" aria-label="Danh sách đầu bếp đang online" aria-live="polite"></div>
           <button id="btn-community-kitchen-invites" type="button" class="mx-2 mb-3 px-4 py-2 rounded-xl bg-amber-100 text-amber-950 border border-amber-300 font-bold text-sm" aria-expanded="false" aria-controls="community-kitchen-invites-list">📨 Lời mời vào bếp</button>
@@ -1954,9 +1971,9 @@
         </div>
       </header>
 
-      <!-- Danh sách các món ăn và bữa ăn (Full chiều cao còn lại, Chia Heading H3 chuẩn trợ năng NVDA) -->
+      <!-- Danh sách công thức (Full chiều cao còn lại, Chia Heading H3 chuẩn trợ năng NVDA) -->
       <div class="flex-1 overflow-y-auto custom-scroll px-4 sm:px-8 py-6">
-        <div id="community-dishes-list" class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5" role="region" aria-label="Danh sách món ăn và bữa ăn trên cộng đồng">
+        <div id="community-dishes-list" class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5" role="region" aria-label="Danh sách công thức trong cộng đồng">
           <!-- Render động qua JavaScript -->
         </div>
       </div>
@@ -2001,7 +2018,7 @@
         </div>
       </div>
 
-      <!-- Phần 1: Danh sách những món ăn có trên cái dĩa được người chơi đưa lên cộng đồng -->
+      <!-- Phần 1: Danh sách món trong công thức được chia sẻ -->
       <section aria-labelledby="detail-plate-dishes-heading" class="bg-amber-50/80 p-4 sm:p-5 rounded-2xl border-2 border-amber-200">
         <h3 id="detail-plate-dishes-heading" class="text-sm sm:text-base font-extrabold font-game text-amber-950 mb-3 flex items-center gap-2">
           <span class="text-xl" aria-hidden="true">🍽️</span>
@@ -2129,8 +2146,8 @@
         </button>
       </div>
 
-      <!-- Danh sách toàn bộ những món ăn được đăng lên cộng đồng (Co giãn toàn bộ chiều cao còn lại) -->
-      <div id="admin-community-list" class="flex-1 flex flex-col gap-3 overflow-y-auto pr-1 custom-scroll" role="list" aria-label="Danh sách bài đăng cộng đồng trong bảng quản trị">
+      <!-- Danh sách công thức trong cộng đồng -->
+      <div id="admin-community-list" class="flex-1 flex flex-col gap-3 overflow-y-auto pr-1 custom-scroll" role="list" aria-label="Danh sách công thức cộng đồng trong bảng quản trị">
         <!-- Render động qua JavaScript -->
       </div>
     </div>

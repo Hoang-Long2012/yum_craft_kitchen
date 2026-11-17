@@ -871,15 +871,15 @@ export function initAdminPanelController() {
     if (!dishes || dishes.length === 0) {
       adminCommunityListEl.innerHTML = `
         <div class="p-6 text-center text-stone-500 font-semibold text-sm bg-stone-50 rounded-2xl border border-dashed border-stone-300">
-          Chưa có món ăn hoặc bữa ăn nào trên Cộng đồng Đầu bếp.
+          Cộng đồng chưa có công thức nào.
         </div>
       `;
-      if (adminCommunityCountEl) adminCommunityCountEl.textContent = "Hiện có 0 bài đăng trên cộng đồng";
+      if (adminCommunityCountEl) adminCommunityCountEl.textContent = "Hiện có 0 công thức trong cộng đồng";
       return;
     }
 
     if (adminCommunityCountEl) {
-      adminCommunityCountEl.textContent = `Hiện có ${dishes.length} món ăn / bữa ăn được đăng lên cộng đồng`;
+      adminCommunityCountEl.textContent = `Hiện có ${dishes.length} công thức trong cộng đồng`;
     }
 
     dishes.forEach((post) => {
@@ -914,8 +914,8 @@ export function initAdminPanelController() {
 
       delBtn.addEventListener("click", async () => {
         const confirmDel = await showConfirmDialog({
-          title: "Xác nhận xóa bài đăng",
-          message: `Bạn có chắc chắn muốn xóa bài đăng "${titleText}" của ${chefText} khỏi cộng đồng không?`,
+          title: "Xác nhận xóa công thức",
+          message: `Bạn có chắc chắn muốn xóa công thức "${titleText}" của ${chefText} khỏi cộng đồng không?`,
           danger: true
         });
         if (!confirmDel) return;
@@ -933,7 +933,7 @@ export function initAdminPanelController() {
           renderAdminCommunityList(listToRender);
           announceToScreenReader(`Đã xóa ${titleText} khỏi cộng đồng đầu bếp.`);
         } catch (err) {
-          await showNoticeDialog({ title: "Lỗi", message: err.message || "Lỗi khi xóa bài đăng cộng đồng." });
+          await showNoticeDialog({ title: "Lỗi", message: err.message || "Lỗi khi xóa công thức khỏi cộng đồng." });
         }
       });
 
@@ -953,7 +953,7 @@ export function initAdminPanelController() {
       cachedAdminCommunityDishes = await getCommunityDishes();
       renderAdminCommunityList(cachedAdminCommunityDishes);
       if (adminSearchCommunity) adminSearchCommunity.focus();
-      announceToScreenReader(`Quản lý cộng đồng đầu bếp: Đang có ${cachedAdminCommunityDishes.length} bài đăng.`);
+      announceToScreenReader(`Quản lý cộng đồng đầu bếp: Đang có ${cachedAdminCommunityDishes.length} công thức.`);
     } catch (e) {
       console.error("Lỗi tải danh sách cộng đồng admin:", e);
       if (adminCommunityCountEl) adminCommunityCountEl.textContent = "Lỗi tải danh sách cộng đồng.";
@@ -984,13 +984,13 @@ export function initAdminPanelController() {
   if (btnAdminDeleteAllCommunity) {
     btnAdminDeleteAllCommunity.addEventListener("click", async () => {
       if (cachedAdminCommunityDishes.length === 0) {
-        announceToScreenReader("Hiện không có bài đăng nào trên cộng đồng để xóa.");
-        await showNoticeDialog({ title: "Thông báo", message: "Hiện không có bài đăng nào trên cộng đồng để xóa." });
+        announceToScreenReader("Hiện không có công thức nào trên cộng đồng để xóa.");
+        await showNoticeDialog({ title: "Thông báo", message: "Hiện không có công thức nào trên cộng đồng để xóa." });
         return;
       }
       const confirmAll = await showConfirmDialog({
         title: "Cảnh báo xóa tất cả",
-        message: `CẢNH BÁO: Bạn có chắc chắn muốn XÓA TẤT CẢ (${cachedAdminCommunityDishes.length} bài đăng) trên Cộng đồng Đầu bếp không?`,
+        message: `CẢNH BÁO: Bạn có chắc chắn muốn XÓA TẤT CẢ (${cachedAdminCommunityDishes.length} công thức) trên Cộng đồng Đầu bếp không?`,
         danger: true
       });
       if (!confirmAll) return;
@@ -1002,7 +1002,7 @@ export function initAdminPanelController() {
         announceToScreenReader("Đã xóa tất cả món ăn trên Cộng đồng Đầu bếp thành công.");
         await showNoticeDialog({ title: "Thành công", message: "Đã xóa tất cả món ăn trên Cộng đồng Đầu bếp thành công!" });
       } catch (err) {
-        await showNoticeDialog({ title: "Lỗi", message: err.message || "Lỗi khi xóa tất cả bài đăng cộng đồng." });
+        await showNoticeDialog({ title: "Lỗi", message: err.message || "Lỗi khi xóa tất cả công thức cộng đồng." });
       }
     });
   }
@@ -1043,7 +1043,7 @@ export function initAdminPanelController() {
  * =========================================================================
  */
 export function initCommunityAndLeaderboardController() {
-  // --- A. Nút "Đưa Lên Cộng Đồng" tại Bàn Tiệc (Sau khi khách ăn xong & đánh giá) ---
+  // --- A. Nút "Chia Sẻ Công Thức" tại Bàn Tiệc sau khi khách nếm thử ---
   const shareContainer = document.getElementById("share-community-container");
   const btnShareToCommunity = document.getElementById("btn-share-to-community");
   const modalConfirmShare = document.getElementById("modal-confirm-share-community");
@@ -1055,18 +1055,18 @@ export function initCommunityAndLeaderboardController() {
     btnShareToCommunity.addEventListener("click", () => {
       const meal = state.lastTastedMeal || window.lastTastedMeal;
       if (!meal) {
-        announceToScreenReader("Chưa có món ăn nào vừa được thực khách đánh giá để đưa lên cộng đồng.", true);
+        announceToScreenReader("Chưa có công thức nào vừa được thực khách đánh giá để chia sẻ với cộng đồng.", true);
         return;
       }
 
       const headingPreview = formatCommunityMealHeading(meal.dishes, meal.fallbackTitle);
       if (confirmShareDesc) {
-        confirmShareDesc.textContent = `Tác phẩm: "${headingPreview}" (Điểm hài lòng: ${meal.satisfactionScore} điểm). Khi xác nhận, tác phẩm sẽ được đưa lên Cộng đồng Đầu bếp và cộng ${meal.satisfactionScore} điểm vào tổng điểm Bảng xếp hạng của bạn!`;
+        confirmShareDesc.textContent = `Công thức: "${headingPreview}" (Điểm hài lòng: ${meal.satisfactionScore} điểm). Khi xác nhận, công thức sẽ được chia sẻ với Cộng đồng Đầu bếp và cộng ${meal.satisfactionScore} điểm vào tổng điểm Bảng xếp hạng của bạn!`;
       }
 
       modalConfirmShare.showModal();
       if (btnConfirmShareYes) btnConfirmShareYes.focus();
-      announceToScreenReader(`Bạn có muốn đưa lên cộng đồng đầu bếp không? Tác phẩm ${headingPreview}, điểm hài lòng ${meal.satisfactionScore} điểm. Nhấn Xác nhận để đưa lên.`);
+      announceToScreenReader(`Bạn có muốn chia sẻ công thức với cộng đồng đầu bếp không? ${headingPreview}, điểm hài lòng ${meal.satisfactionScore} điểm. Nhấn Xác nhận để chia sẻ.`);
     });
   }
 
@@ -1074,7 +1074,7 @@ export function initCommunityAndLeaderboardController() {
     btnConfirmShareNo.addEventListener("click", () => {
       modalConfirmShare.close();
       if (btnShareToCommunity) btnShareToCommunity.focus();
-      announceToScreenReader("Đã hủy đưa món ăn lên cộng đồng.");
+      announceToScreenReader("Đã hủy chia sẻ công thức với cộng đồng.");
     });
   }
 
@@ -1088,13 +1088,13 @@ export function initCommunityAndLeaderboardController() {
 
       try {
         btnConfirmShareYes.disabled = true;
-        btnConfirmShareYes.textContent = "Đang đưa lên...";
+        btnConfirmShareYes.textContent = "Đang chia sẻ...";
 
         const result = await publishMealToCommunity(meal, getActiveProfileCache());
 
         modalConfirmShare.close();
 
-        // Nút "Đưa lên cộng đồng" biến mất hoàn toàn (reset) cho đến khi bày bữa ăn mới và khách ăn xong đánh giá lại
+        // Nút chia sẻ công thức ẩn cho đến khi món tiếp theo được thực khách nếm thử
         if (shareContainer) {
           shareContainer.classList.add("hidden");
         }
@@ -1106,11 +1106,11 @@ export function initCommunityAndLeaderboardController() {
         if (tabFridge) tabFridge.focus();
 
         announceToScreenReader(
-          `Đã đưa "${result.post.headingTitle}" lên Cộng đồng Đầu bếp thành công! Bạn được cộng ${result.addedScore} điểm hài lòng vào tổng điểm (Tổng điểm hiện tại: ${result.newTotalScore} điểm).`,
+          `Đã chia sẻ công thức "${result.post.headingTitle}" với Cộng đồng Đầu bếp! Bạn được cộng ${result.addedScore} điểm hài lòng vào tổng điểm (Tổng điểm hiện tại: ${result.newTotalScore} điểm).`,
           true
         );
       } catch (err) {
-        await showNoticeDialog({ title: "Lỗi", message: err.message || "Không thể đưa món ăn lên cộng đồng. Vui lòng thử lại." });
+        await showNoticeDialog({ title: "Lỗi", message: err.message || "Không thể chia sẻ công thức. Vui lòng thử lại." });
       } finally {
         btnConfirmShareYes.disabled = false;
         btnConfirmShareYes.textContent = "✅ Xác nhận";
@@ -1314,7 +1314,7 @@ export function initCommunityAndLeaderboardController() {
       detailMetaEl.textContent = `Người chơi: ${post.chefDisplayName || "Bếp Trưởng"} • Được sản xuất bởi: ${post.kitchenName || "Nhà Bếp Sáng Tạo"}`;
     }
 
-    // 1. Hiện danh sách những món ăn có trên cái dĩa được người chơi đưa lên cộng đồng
+    // 1. Hiện danh sách món trong công thức được chia sẻ
     if (detailDishesListEl) {
       detailDishesListEl.innerHTML = "";
       const dishesOnPlate = Array.isArray(post.dishesOnPlate) && post.dishesOnPlate.length > 0
@@ -1400,7 +1400,7 @@ export function initCommunityAndLeaderboardController() {
     if (!posts || posts.length === 0) {
       communityDishesListEl.innerHTML = `
         <div class="col-span-full p-10 text-center text-stone-600 font-semibold text-base bg-white/90 rounded-3xl border-2 border-dashed border-emerald-300 shadow-sm">
-          Chưa có món ăn hoặc bữa ăn nào được đưa lên Cộng đồng Đầu bếp. Hãy vào nhà bếp nấu ăn và trở thành người đầu tiên chia sẻ tác phẩm nhé!
+          Cộng đồng chưa có công thức nào. Hãy nấu một món, mời thực khách nếm thử rồi chia sẻ công thức đầu tiên nhé!
         </div>
       `;
       return;
@@ -1408,7 +1408,7 @@ export function initCommunityAndLeaderboardController() {
 
     const visiblePosts = communityFeedMode === "following" ? getFollowedFeed(posts, followedChefIds) : posts;
     if (!visiblePosts.length) {
-      communityDishesListEl.innerHTML = `<div class="col-span-full p-8 text-center text-stone-600 bg-white rounded-3xl border-2 border-dashed border-emerald-300">${communityFeedMode === "following" ? "Chưa có bài đăng từ đầu bếp bạn theo dõi." : "Không tìm thấy bài đăng phù hợp."}</div>`;
+      communityDishesListEl.innerHTML = `<div class="col-span-full p-8 text-center text-stone-600 bg-white rounded-3xl border-2 border-dashed border-emerald-300">${communityFeedMode === "following" ? "Đầu bếp bạn theo dõi chưa chia sẻ công thức nào." : "Không tìm thấy công thức phù hợp."}</div>`;
       return;
     }
 
@@ -1476,8 +1476,8 @@ export function initCommunityAndLeaderboardController() {
       likeBtn.className = "px-4 py-2.5 rounded-2xl bg-rose-50 text-rose-800 border border-rose-200 font-bold text-xs sm:text-sm";
       likeBtn.textContent = `${isLiked ? "♥ Đã thích" : "♡ Thích"} (${Number(post.likeCount) || likeMembers.length})`;
       likeBtn.disabled = !currentProfile?.uid;
-      likeBtn.setAttribute("aria-label", `${isLiked ? "Bỏ thích" : "Thích"} ${post.headingTitle || "bài đăng"}; ${Number(post.likeCount) || likeMembers.length} lượt thích`);
-      likeBtn.title = currentProfile?.uid ? "" : "Đăng nhập để thích bài đăng";
+      likeBtn.setAttribute("aria-label", `${isLiked ? "Bỏ thích" : "Thích"} công thức ${post.headingTitle || "này"}; ${Number(post.likeCount) || likeMembers.length} lượt thích`);
+      likeBtn.title = currentProfile?.uid ? "" : "Đăng nhập để thích công thức";
       likeBtn.addEventListener("click", async () => {
         likeBtn.disabled = true;
         try {
@@ -1550,7 +1550,7 @@ export function initCommunityAndLeaderboardController() {
         } else if (communitySearchInput) {
           communitySearchInput.focus();
         }
-        announceToScreenReader(`Cộng đồng Đầu bếp: Hiện có ${cachedCommunityPosts.length} món ăn và bữa ăn. Dùng phím H hoặc số 3 để duyệt nhanh qua từng món ăn.`);
+        announceToScreenReader(`Cộng đồng Đầu bếp: Hiện có ${cachedCommunityPosts.length} công thức. Dùng phím H hoặc số 3 để duyệt nhanh qua từng công thức.`);
       } catch (e) {
         console.error("Lỗi tải Cộng đồng đầu bếp:", e);
         if (communityDishesListEl) {
@@ -1564,10 +1564,10 @@ export function initCommunityAndLeaderboardController() {
   const followingFeedBtn = document.getElementById("btn-community-following-feed");
   if (followingFeedBtn) followingFeedBtn.addEventListener("click", () => {
     communityFeedMode = communityFeedMode === "following" ? "all" : "following";
-    followingFeedBtn.textContent = communityFeedMode === "following" ? "🌐 Tất cả bài đăng" : "👥 Bài từ người theo dõi";
+    followingFeedBtn.textContent = communityFeedMode === "following" ? "🌐 Tất cả công thức" : "👥 Công thức từ người theo dõi";
     renderCommunityHubList(cachedCommunityPosts);
     if (communityFeedMode === "following" && followedChefIds.length === 0) {
-      announceToScreenReader("Bạn chưa theo dõi đầu bếp nào. Hãy chọn Theo dõi đầu bếp trên một bài đăng.");
+      announceToScreenReader("Bạn chưa theo dõi đầu bếp nào. Hãy chọn Theo dõi đầu bếp trên một công thức.");
     }
   });
 
@@ -1907,6 +1907,7 @@ export function initMainMenuController() {
       const password = document.getElementById("reg-password").value;
       const confirmPassword = document.getElementById("reg-confirm-password").value;
       const kitchenName = document.getElementById("reg-kitchen-name").value.trim();
+      const gender = document.getElementById("reg-gender").value;
       const rememberMe = document.getElementById("reg-remember-me").checked;
       const btnSubmit = document.getElementById("btn-register-submit");
       const btnText = document.getElementById("btn-register-text");
@@ -1922,6 +1923,7 @@ export function initMainMenuController() {
           password,
           confirmPassword,
           kitchenName,
+          gender,
           rememberMe
         });
 

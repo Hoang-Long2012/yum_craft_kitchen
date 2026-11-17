@@ -1,6 +1,6 @@
 /**
  * YUMCRAFT KITCHEN — COMMUNITY HUB & LEADERBOARD SERVICE
- * Quản lý Cộng Đồng Đầu Bếp (Đăng món ăn / bữa ăn, Xem danh sách, Xem chi tiết, Quản trị xóa bài)
+ * Quản lý Cộng Đồng Đầu Bếp (Chia sẻ công thức, xem danh sách/chi tiết và quản trị xóa công thức)
  * và Bảng Xếp Hạng Top 100 Đầu Bếp Xuất Sắc Nhất (Cộng điểm hài lòng, Xếp hạng Top 100, Đặt lại bảng xếp hạng).
  * Hỗ trợ song song cả Firebase Firestore thực tế và Chế độ Giả lập Cục bộ (Local Mock Mode).
  */
@@ -25,7 +25,7 @@ import { getMockUsers, saveMockUsers } from "./services/mock-storage.js";
 const COMMUNITY_STORAGE_KEY = "yumcraft_community_dishes_db";
 
 /**
- * Định dạng Heading tên món ăn hoặc bữa ăn trên Cộng Đồng Đầu Bếp
+ * Định dạng tiêu đề công thức trên Cộng Đồng Đầu Bếp
  * Quy tắc của anh Lộc (LC Boy):
  * - Nếu 1 món: Hiện thẳng tên món ăn đó lên.
  * - Nếu nhiều món (2, 10, 20 hay 100 món): Hiện ra hết toàn bộ không cắt bớt,
@@ -85,17 +85,17 @@ function saveLocalCommunityDishes(list) {
 }
 
 /**
- * ĐƯA MÓN ĂN / BỮA ĂN LÊN CỘNG ĐỒNG ĐẦU BẾP & CỘNG ĐIỂM VÀO BẢNG XẾP HẠNG
+ * CHIA SẺ CÔNG THỨC VỚI CỘNG ĐỒNG & CỘNG ĐIỂM VÀO BẢNG XẾP HẠNG
  * @param {Object} mealPayload - Dữ liệu bữa ăn vừa được thực khách thưởng thức và đánh giá
  * @param {Object} chefProfile - Hồ sơ người chơi đang đăng nhập (tùy chọn, tự lấy từ cache nếu thiếu)
  */
 export async function publishMealToCommunity(mealPayload, chefProfile = null) {
   const profile = chefProfile || getActiveProfileCache();
   if (!profile || !profile.uid) {
-    throw new Error("Vui lòng đăng nhập tài khoản Bếp Trưởng để đưa món ăn lên cộng đồng.");
+    throw new Error("Vui lòng đăng nhập tài khoản Bếp Trưởng để chia sẻ công thức.");
   }
   if (!mealPayload || typeof mealPayload !== "object") {
-    throw new Error("Không tìm thấy dữ liệu món ăn vừa thưởng thức để đưa lên cộng đồng.");
+    throw new Error("Không tìm thấy công thức vừa được thực khách thưởng thức để chia sẻ.");
   }
 
   const rawDishes = Array.isArray(mealPayload.dishes) ? mealPayload.dishes : [];
@@ -155,12 +155,12 @@ export async function publishMealToCommunity(mealPayload, chefProfile = null) {
     createdAt: nowIso
   };
 
-  // 1. Lưu bài đăng vào LocalStorage cache
+  // 1. Lưu công thức vào LocalStorage cache
   const localPosts = getLocalCommunityDishes();
   localPosts.unshift(newPost);
   saveLocalCommunityDishes(localPosts);
 
-  // 2. Lưu bài đăng lên Firestore collection `community_dishes`
+  // 2. Lưu công thức lên Firestore collection `community_dishes`
   if (isFirebaseConfigured() && db) {
     try {
       await setDoc(doc(db, "community_dishes", postId), newPost);
@@ -269,7 +269,7 @@ export async function getCommunityDishes() {
 
 /**
  * XÓA 1 MÓN ĂN / BỮA ĂN BẤT KỲ TRÊN CỘNG ĐỒNG (DÀNH CHO ADMIN)
- * @param {string} dishId - ID bài đăng cần xóa
+ * @param {string} dishId - ID công thức cần xóa
  */
 export async function deleteCommunityDish(dishId) {
   if (!dishId) throw new Error("Thiếu mã món ăn cần xóa.");

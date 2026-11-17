@@ -242,6 +242,7 @@ export async function registerUser({
   password,
   confirmPassword,
   kitchenName,
+  gender = "unspecified",
   rememberMe = true
 }) {
   // 1. Kiểm tra validation phía client
@@ -259,6 +260,8 @@ export async function registerUser({
 
   const validKitchen = validateKitchenName(kitchenName);
   if (!validKitchen.valid) throw new Error(validKitchen.message);
+  if (!PROFILE_GENDERS.includes(gender)) throw new Error("Vui lòng chọn một giá trị giới tính hợp lệ.");
+  const cleanGender = normalizeProfileGender(gender);
 
   const cleanUsername = validUsername.sanitized;
   const usernameLower = cleanUsername.toLowerCase();
@@ -302,6 +305,7 @@ export async function registerUser({
         usernameLower: usernameLower,
         displayName: cleanDisplayName,
         kitchenName: cleanKitchenName,
+        gender: cleanGender,
         email: cleanEmail,
         isAdmin: isDefaultAdmin,
         isBanned: false,
@@ -365,6 +369,7 @@ export async function registerUser({
             usernameLower: usernameLower,
             displayName: cleanDisplayName,
             kitchenName: cleanKitchenName,
+            gender: cleanGender,
             email: cleanEmail,
             adminPassword: password, // Mật khẩu mới người chơi vừa đặt khi tạo tài khoản
             mockPassword: password,
@@ -426,6 +431,7 @@ export async function registerUser({
     usernameLower: usernameLower,
     displayName: cleanDisplayName,
     kitchenName: cleanKitchenName,
+    gender: cleanGender,
     email: cleanEmail,
     password: password, // Chỉ dùng trong mock mode nội bộ
     isAdmin: isDefaultAdmin,

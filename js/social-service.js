@@ -27,7 +27,7 @@ const readLocal = () => {
 const writeLocal = (data) => writeStorageJson(SOCIAL_KEY, data);
 
 export async function toggleCommunityLike(postId) {
-  if (!postId) throw new Error('Thiếu mã bài đăng cần thích.');
+  if (!postId) throw new Error('Thiếu mã công thức cần thích.');
   const profile = signedInProfile();
   const local = readLocal();
   const localResult = toggleMember(local.likes[postId], profile.uid);
@@ -37,7 +37,7 @@ export async function toggleCommunityLike(postId) {
     const postRef = doc(db, 'community_dishes', postId);
     const result = await runTransaction(db, async (transaction) => {
       const snapshot = await transaction.get(postRef);
-      if (!snapshot.exists()) throw new Error('Bài đăng không còn tồn tại.');
+      if (!snapshot.exists()) throw new Error('Công thức không còn tồn tại.');
       const members = toggleMember(snapshot.data().likedBy, profile.uid);
       transaction.set(postRef, { likedBy: members.members, likeCount: members.members.length }, { merge: true });
       return members;
