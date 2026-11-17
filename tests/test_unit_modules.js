@@ -17,6 +17,8 @@ import {
 import { state, resetKitchenItemsState } from '../js/core/state.js';
 import { getMockUsers, saveMockUsers, readStorageJson, writeStorageJson } from '../js/services/mock-storage.js';
 import { escapeHtml } from '../js/ui/dom-helpers.js';
+import { toggleMember, getFollowingIds, getFollowedFeed, isPresenceFresh, getConversationId, normalizeChatMessage } from '../js/social-data.js';
+import { normalizeProfileGender, getProfileGenderLabel } from '../js/profile-data.js';
 import { createFoodItem, describeItemStateShort, itemContainsIce, formatNaturalList } from '../js/cooking/food-item.js';
 import { analyzeCulinaryChemistry, combineFlavorProfiles, generateSmartDishTitle } from '../js/cooking/chemistry.js';
 import {
@@ -330,6 +332,28 @@ await test('U9: Pure sensory & multi-dish review across salty/spicy/burnt/raw-me
   ], chef);
   assert.strictEqual(multiReview.reactionType, 'bad');
   assert.ok(multiReview.speech.length > 10);
+});
+
+await test('U10: Social membership is idempotent, deduplicated, and followed feed filters by chef', () => {
+  const liked = toggleMember(['u1', 'u1', 'u2'], 'u1');
+  assert.deepStrictEqual(liked, { members: ['u2'], active: false });
+  const added = toggleMember(liked.members, 'u1');
+  assert.deepStrictEqual(added, { members: ['u2', 'u1'], active: true });
+  assert.deepStrictEqual(getFollowingIds({ u1: true, u2: false, u3: 1 }), ['u1', 'u3']);
+  assert.deepStrictEqual(getFollowingIds(['u1', 'u1', null]), ['u1']);
+  const posts = [{ id: 'p1', chefUid: 'u1' }, { id: 'p2', chefUid: 'u2' }, { id: 'p3' }];
+  assert.deepStrictEqual(getFollowedFeed(posts, ['u2']), [posts[1]]);
+  assert.deepStrictEqual(getFollowedFeed(null, ['u1']), []);
+  assert.strictEqual(isPresenceFresh('2026-11-17T00:00:00.000Z', Date.parse('2026-11-17T00:01:00.000Z')), true);
+  assert.strictEqual(isPresenceFresh('2026-11-16T23:50:00.000Z', Date.parse('2026-11-17T00:00:00.000Z')), false);
+  assert.strictEqual(isPresenceFresh('invalid', Date.now()), false);
+  assert.strictEqual(normalizeProfileGender('female'), 'female');
+  assert.strictEqual(normalizeProfileGender('unexpected'), 'unspecified');
+  assert.strictEqual(getProfileGenderLabel('male'), 'Nam');
+  assert.strictEqual(getConversationId('chef_a', 'chef_b'), getConversationId('chef_b', 'chef_a'));
+  assert.strictEqual(normalizeChatMessage('  Chào bạn  '), 'Chào bạn');
+  assert.throws(() => normalizeChatMessage('  '), /không được để trống/);
+  assert.throws(() => normalizeChatMessage('x'.repeat(1001)), /1000 ký tự/);
 });
 
 console.log(`\nUNIT SUMMARY: ${passed} passed, ${failed} failed.`);

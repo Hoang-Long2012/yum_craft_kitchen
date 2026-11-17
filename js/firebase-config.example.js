@@ -9,6 +9,9 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   updateProfile, 
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
   signOut, 
   onAuthStateChanged, 
   setPersistence, 
@@ -26,6 +29,9 @@ import {
   getDocs,
   deleteDoc,
   updateDoc,
+  runTransaction,
+  orderBy,
+  limit,
   serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
@@ -74,6 +80,9 @@ export {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
   signOut,
   onAuthStateChanged,
   setPersistence,
@@ -88,5 +97,8 @@ export {
   getDocs,
   deleteDoc,
   updateDoc,
+  runTransaction,
+  orderBy,
+  limit,
   serverTimestamp
 };

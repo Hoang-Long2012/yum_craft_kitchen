@@ -11,6 +11,9 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
   signOut as fbSignOut,
   onAuthStateChanged,
   setPersistence,
@@ -34,6 +37,7 @@ import {
   getMaintenanceConfig
 } from "./admin-service.js";
 import { getMockUsers, saveMockUsers } from "./services/mock-storage.js";
+import { PROFILE_GENDERS, normalizeProfileGender } from "./profile-data.js";
 
 // Khóa lưu trữ cục bộ cho Mock Mode
 const MOCK_SESSION_KEY = "yumcraft_mock_current_session";
@@ -123,6 +127,78 @@ export function validateKitchenName(kitchenName) {
     return { valid: false, message: "Tên nhà bếp không được vượt quá 60 ký tự." };
   }
   return { valid: true, sanitized: trimmed };
+}
+
+/** Update the signed-in chef's public profile without changing account identity. */
+export async function updateCurrentUserProfile({ displayName, kitchenName, bio = "", gender = "unspecified" }) {
+  const current = getActiveProfileCache();
+  if (!current?.uid) throw new Error("Vui lòng đăng nhập để chỉnh sửa hồ sơ.");
+  const validDisplayName = validateDisplayName(displayName);
+  if (!validDisplayName.valid) throw new Error(validDisplayName.message);
+  const validKitchenName = validateKitchenName(kitchenName);
+  if (!validKitchenName.valid) throw new Error(validKitchenName.message);
+  if (typeof bio !== "string" || bio.trim().length > 160) {
+    throw new Error("Phần giới thiệu không được vượt quá 160 ký tự.");
+  }
+  if (!PROFILE_GENDERS.includes(gender)) throw new Error("Vui lòng chọn một giá trị giới tính hợp lệ.");
+
+  const updates = {
+    displayName: validDisplayName.sanitized,
+    kitchenName: validKitchenName.sanitized,
+    bio: bio.trim(),
+    gender: normalizeProfileGender(gender),
+    profileUpdatedAt: new Date().toISOString()
+  };
+
+  if (isFirebaseConfigured() && auth && db) {
+    if (auth.currentUser) await updateProfile(auth.currentUser, { displayName: updates.displayName });
+    await setDoc(doc(db, "users", current.uid), updates, { merge: true });
+  } else {
+    const users = getMockUsers();
+    const index = users.findIndex((user) => user.uid === current.uid);
+    if (index < 0) throw new Error("Không tìm thấy tài khoản hiện tại.");
+    Object.assign(users[index], updates);
+    saveMockUsers(users);
+  }
+
+  const updatedProfile = { ...current, ...updates };
+  setActiveProfileCache(updatedProfile);
+  return updatedProfile;
+}
+
+/** Change the current account password after confirming the existing credential. */
+export async function changeCurrentUserPassword({ currentPassword, newPassword, confirmPassword }) {
+  const profile = getActiveProfileCache();
+  if (!profile?.uid) throw new Error("Vui lòng đăng nhập để đổi mật khẩu.");
+  const validation = validatePassword(newPassword, confirmPassword);
+  if (!validation.valid) throw new Error(validation.message);
+  if (!currentPassword) throw new Error("Vui lòng nhập mật khẩu hiện tại.");
+  if (currentPassword === newPassword) throw new Error("Mật khẩu mới phải khác mật khẩu hiện tại.");
+
+  if (isFirebaseConfigured() && auth && db) {
+    if (profile.adminPassword || profile.mockPassword) {
+      const savedPassword = profile.adminPassword || profile.mockPassword;
+      if (currentPassword !== savedPassword) throw new Error("Mật khẩu hiện tại không chính xác.");
+      const updates = { adminPassword: newPassword, mockPassword: newPassword };
+      await setDoc(doc(db, "users", profile.uid), updates, { merge: true });
+      setActiveProfileCache({ ...profile, ...updates });
+      return true;
+    }
+    const user = auth.currentUser;
+    if (!user?.email) throw new Error("Phiên đăng nhập không còn hợp lệ. Vui lòng đăng nhập lại.");
+    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+    await reauthenticateWithCredential(user, credential);
+    await updatePassword(user, newPassword);
+
+    return true;
+  }
+
+  const users = getMockUsers();
+  const user = users.find((entry) => entry.uid === profile.uid);
+  if (!user || user.password !== currentPassword) throw new Error("Mật khẩu hiện tại không chính xác.");
+  user.password = newPassword;
+  saveMockUsers(users);
+  return true;
 }
 
 /**
