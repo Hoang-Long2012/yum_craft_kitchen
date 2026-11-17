@@ -163,6 +163,31 @@ export async function getOnlineChefs() {
     .sort((a, b) => a.displayName.localeCompare(b.displayName, 'vi'));
 }
 
+export async function getChefPublicProfile(uid) {
+  if (!uid) throw new Error('Thiếu mã hồ sơ đầu bếp.');
+  let profile;
+  if (isFirebaseConfigured() && db) {
+    const snapshot = await getDoc(doc(db, 'users', uid));
+    if (!snapshot.exists()) throw new Error('Không tìm thấy hồ sơ đầu bếp này.');
+    profile = { uid: snapshot.id, ...snapshot.data() };
+  } else {
+    profile = getMockUsers().find((user) => user.uid === uid);
+    if (!profile) throw new Error('Không tìm thấy hồ sơ đầu bếp này.');
+  }
+  if (profile.isBanned) throw new Error('Hồ sơ này hiện không khả dụng.');
+  return {
+    uid: profile.uid,
+    username: profile.username || 'chef',
+    displayName: profile.displayName || profile.username || 'Bếp Trưởng',
+    kitchenName: profile.kitchenName || 'Nhà Bếp Sáng Tạo',
+    bio: profile.bio || '',
+    gender: profile.gender && profile.gender !== 'unspecified' ? getProfileGenderLabel(profile.gender) : '',
+    followerCount: Number(profile.followerCount) || 0,
+    followingCount: Number(profile.followingCount) || 0,
+    totalScore: Number(profile.totalScore) || 0
+  };
+}
+
 const createId = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
 export async function sendKitchenInvite(targetUid, targetName = '') {

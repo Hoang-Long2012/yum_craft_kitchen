@@ -548,6 +548,11 @@
         <span>Cộng đồng đầu bếp</span>
       </button>
 
+      <button id="btn-community-online-chefs" type="button" class="w-full py-3 px-5 bg-emerald-50 hover:bg-emerald-100 text-emerald-950 font-game font-bold text-base rounded-2xl border-2 border-emerald-200 flex items-center justify-center gap-2" aria-expanded="false" aria-controls="community-online-chefs-list">🟢 Đầu bếp online</button>
+      <div id="community-online-chefs-list" class="hidden p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-left" role="region" aria-label="Danh sách đầu bếp đang online" aria-live="polite"></div>
+      <button id="btn-community-kitchen-invites" type="button" class="w-full py-3 px-5 bg-amber-50 hover:bg-amber-100 text-amber-950 font-game font-bold text-base rounded-2xl border-2 border-amber-200 flex items-center justify-center gap-2" aria-expanded="false" aria-controls="community-kitchen-invites-list">📨 Lời mời vào bếp</button>
+      <div id="community-kitchen-invites-list" class="hidden p-3 rounded-2xl bg-amber-50 border border-amber-200 text-left" role="region" aria-label="Lời mời vào bếp" aria-live="polite"></div>
+
       <!-- Bảng xếp hạng -->
       <button 
         type="button" 
@@ -1964,10 +1969,6 @@
             />
           </div>
           <button id="btn-community-following-feed" type="button" class="mx-4 sm:mx-8 mb-3 px-4 py-2 rounded-xl bg-sky-100 text-sky-900 border border-sky-300 font-bold text-sm" aria-controls="community-dishes-list">👥 Công thức từ người theo dõi</button>
-          <button id="btn-community-online-chefs" type="button" class="mx-2 mb-3 px-4 py-2 rounded-xl bg-emerald-100 text-emerald-950 border border-emerald-300 font-bold text-sm" aria-expanded="false" aria-controls="community-online-chefs-list">🟢 Đầu bếp online</button>
-          <div id="community-online-chefs-list" class="hidden mx-4 sm:mx-8 mb-3 p-3 rounded-2xl bg-emerald-50 border border-emerald-200" role="region" aria-label="Danh sách đầu bếp đang online" aria-live="polite"></div>
-          <button id="btn-community-kitchen-invites" type="button" class="mx-2 mb-3 px-4 py-2 rounded-xl bg-amber-100 text-amber-950 border border-amber-300 font-bold text-sm" aria-expanded="false" aria-controls="community-kitchen-invites-list">📨 Lời mời vào bếp</button>
-          <div id="community-kitchen-invites-list" class="hidden mx-4 sm:mx-8 mb-3 p-3 rounded-2xl bg-amber-50 border border-amber-200" role="region" aria-label="Lời mời vào bếp" aria-live="polite"></div>
         </div>
       </header>
 
@@ -2171,6 +2172,18 @@
       <p id="edit-profile-feedback" class="text-sm" role="status" aria-live="polite"></p>
       <div class="flex justify-end gap-2"><button id="btn-cancel-edit-profile" type="button" class="px-4 py-2 rounded-xl bg-stone-100 text-stone-800 font-bold">Hủy</button><button id="btn-save-edit-profile" type="submit" class="px-5 py-2 rounded-xl bg-amber-600 text-white font-bold">Lưu hồ sơ</button></div>
     </form>
+  </dialog>
+
+  <dialog id="modal-chef-public-profile" class="backdrop:bg-black/65 backdrop:backdrop-blur-sm bg-transparent p-4 z-50 max-w-lg w-full m-auto" aria-labelledby="chef-public-profile-title">
+    <section class="bg-white rounded-3xl shadow-2xl border-2 border-emerald-300 p-6 flex flex-col gap-3">
+      <div class="flex items-center justify-between gap-3"><h2 id="chef-public-profile-title" class="text-xl font-extrabold text-emerald-950">Hồ sơ đầu bếp</h2><button id="btn-close-chef-public-profile" type="button" class="px-3 py-2 rounded-xl bg-stone-100 font-bold">Đóng</button></div>
+      <p id="chef-public-profile-username" class="text-sm text-stone-600"></p>
+      <p id="chef-public-profile-kitchen" class="font-semibold text-orange-800"></p>
+      <p id="chef-public-profile-gender" class="text-sm text-stone-700"></p>
+      <p id="chef-public-profile-bio" class="text-sm text-stone-700 whitespace-pre-wrap"></p>
+      <p id="chef-public-profile-stats" class="text-sm font-semibold text-emerald-900"></p>
+      <p id="chef-public-profile-feedback" class="text-sm text-stone-600" role="status" aria-live="polite"></p>
+    </section>
   </dialog>
 
   <!-- Modal Xác nhận / Nhập liệu / Thông báo tùy chỉnh chuẩn WCAG (thay thế window.confirm/prompt/alert) -->
