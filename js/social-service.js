@@ -37,6 +37,84 @@ async function getPrivacySettingsForUser(uid) {
   return target.privacySettings || {};
 }
 
+async function getBlockedIdsForUser(uid) {
+  if (isFirebaseConfigured() && db) {
+    const snapshot = await getDoc(doc(db, 'users', uid));
+    return snapshot.exists() && Array.isArray(snapshot.data().blockedChefIds) ? snapshot.data().blockedChefIds : [];
+  }
+  const user = getMockUsers().find((entry) => entry.uid === uid);
+  return Array.isArray(user?.blockedChefIds) ? user.blockedChefIds : [];
+}
+
+async function isBlockedEitherDirection(otherUid) {
+  const profile = signedInProfile();
+  if (!otherUid || otherUid === profile.uid) throw new Error('Chọn một đầu bếp khác.');
+  const [mine, theirs] = await Promise.all([
+    getBlockedIdsForUser(profile.uid),
+    getBlockedIdsForUser(otherUid)
+  ]);
+  return mine.includes(otherUid) || theirs.includes(profile.uid);
+}
+
+async function assertNotBlocked(otherUid) {
+  if (await isBlockedEitherDirection(otherUid)) throw new Error('Không thể tương tác với đầu bếp này vì có người đã chặn đối phương.');
+}
+
+export async function getBlockedChefIds() {
+  return getBlockedIdsForUser(signedInProfile().uid);
+}
+
+export async function getBlockedChefs() {
+  const ids = await getBlockedChefIds();
+  const users = getMockUsers();
+  return Promise.all(ids.map(async (uid) => {
+    if (isFirebaseConfigured() && db) {
+      const snapshot = await getDoc(doc(db, 'users', uid));
+      if (!snapshot.exists()) return { uid, displayName: 'Đầu bếp không còn tồn tại' };
+      const user = snapshot.data();
+      return { uid, displayName: user.displayName || user.username || 'Đầu bếp', username: user.username || 'chef' };
+    }
+    const user = users.find((entry) => entry.uid === uid);
+    return { uid, displayName: user?.displayName || user?.username || 'Đầu bếp', username: user?.username || 'chef' };
+  }));
+}
+
+async function updateBlockedChef(targetUid, shouldBlock) {
+  if (!targetUid) throw new Error('Thiếu mã đầu bếp cần chặn.');
+  const profile = signedInProfile();
+  if (targetUid === profile.uid) throw new Error('Bạn không thể chặn chính mình.');
+  if (isFirebaseConfigured() && db) {
+    const userRef = doc(db, 'users', profile.uid);
+    await runTransaction(db, async (transaction) => {
+      const snapshot = await transaction.get(userRef);
+      if (!snapshot.exists()) throw new Error('Không tìm thấy hồ sơ của bạn.');
+      const targetSnapshot = shouldBlock ? await transaction.get(doc(db, 'users', targetUid)) : null;
+      if (shouldBlock && !targetSnapshot.exists()) throw new Error('Không tìm thấy đầu bếp này.');
+      const currentIds = Array.isArray(snapshot.data().blockedChefIds) ? snapshot.data().blockedChefIds : [];
+      const blockedChefIds = shouldBlock
+        ? [...new Set([...currentIds, targetUid])]
+        : currentIds.filter((uid) => uid !== targetUid);
+      transaction.set(userRef, { blockedChefIds }, { merge: true });
+      profile.blockedChefIds = blockedChefIds;
+    });
+  } else {
+    const users = getMockUsers();
+    const index = users.findIndex((user) => user.uid === profile.uid);
+    if (index < 0) throw new Error('Không tìm thấy hồ sơ của bạn.');
+    if (shouldBlock && !users.some((user) => user.uid === targetUid)) throw new Error('Không tìm thấy đầu bếp này.');
+    const currentIds = Array.isArray(users[index].blockedChefIds) ? users[index].blockedChefIds : [];
+    users[index].blockedChefIds = shouldBlock
+      ? [...new Set([...currentIds, targetUid])]
+      : currentIds.filter((uid) => uid !== targetUid);
+    profile.blockedChefIds = users[index].blockedChefIds;
+    saveMockUsers(users);
+  }
+  return getBlockedChefIds();
+}
+
+export async function blockChef(uid) { return updateBlockedChef(uid, true); }
+export async function unblockChef(uid) { return updateBlockedChef(uid, false); }
+
 export async function toggleCommunityLike(postId) {
   if (!postId) throw new Error('Thiếu mã công thức cần thích.');
   const profile = signedInProfile();
@@ -66,6 +144,7 @@ export async function toggleFollowChef(targetUid) {
   if (!targetUid) throw new Error('Thiếu mã đầu bếp cần theo dõi.');
   const profile = signedInProfile();
   if (profile.uid === targetUid) throw new Error('Bạn không thể tự theo dõi chính mình.');
+  await assertNotBlocked(targetUid);
   const local = readLocal();
   const localResult = toggleMember(local.following[profile.uid], targetUid);
   local.following[profile.uid] = localResult.members;
@@ -161,6 +240,8 @@ export async function stopChefPresence(profile = activePresenceProfile || getAct
 
 export async function getOnlineChefs() {
   const now = Date.now();
+  const currentProfile = getActiveProfileCache();
+  const blockedIds = currentProfile?.uid ? await getBlockedIdsForUser(currentProfile.uid) : [];
   let users;
   if (isFirebaseConfigured() && db) {
     const snapshot = await getDocs(query(collection(db, 'users'), where('isOnline', '==', true)));
@@ -170,7 +251,7 @@ export async function getOnlineChefs() {
     users = getMockUsers();
   }
   return users
-    .filter((user) => user.uid && user.isBanned !== true && user.privacySettings?.profileVisibility !== 'private' && user.privacySettings?.showOnlineStatus !== false && user.isOnline && isPresenceFresh(user.lastSeenAt, now, ONLINE_WINDOW_MS))
+    .filter((user) => user.uid && user.uid !== currentProfile?.uid && !blockedIds.includes(user.uid) && !(Array.isArray(user.blockedChefIds) ? user.blockedChefIds : []).includes(currentProfile?.uid) && user.isBanned !== true && user.privacySettings?.profileVisibility !== 'private' && user.privacySettings?.showOnlineStatus !== false && user.isOnline && isPresenceFresh(user.lastSeenAt, now, ONLINE_WINDOW_MS))
     .map((user) => ({ uid: user.uid, username: user.username || 'chef', displayName: user.displayName || user.username || 'Bếp Trưởng', kitchenName: user.kitchenName || 'Nhà Bếp Sáng Tạo', bio: user.privacySettings?.showBio === false ? '' : (user.bio || ''), gender: user.privacySettings?.showGender === false ? '' : (user.gender && user.gender !== 'unspecified' ? getProfileGenderLabel(user.gender) : ''), followerCount: Number(user.followerCount) || 0, allowKitchenInvites: user.privacySettings?.allowKitchenInvites !== false, allowDirectMessages: user.privacySettings?.allowDirectMessages !== false }))
     .sort((a, b) => a.displayName.localeCompare(b.displayName, 'vi'));
 }
@@ -191,6 +272,7 @@ export async function getChefPublicProfile(uid) {
   if (profile.privacySettings?.profileVisibility === 'private' && currentProfile?.uid !== profile.uid) {
     throw new Error('Đầu bếp này đã đặt hồ sơ ở chế độ riêng tư.');
   }
+  if (currentProfile?.uid && currentProfile.uid !== profile.uid) await assertNotBlocked(profile.uid);
   return {
     uid: profile.uid,
     username: profile.username || 'chef',
@@ -227,13 +309,16 @@ export async function sendKitchenInvite(targetUid, targetName = '') {
   };
   if (isFirebaseConfigured() && db) {
     await runTransaction(db, async (transaction) => {
-      const [targetSnapshot, existing] = await Promise.all([transaction.get(targetRef), transaction.get(invitationRef)]);
+      const senderRef = doc(db, 'users', profile.uid);
+      const [targetSnapshot, senderSnapshot, existing] = await Promise.all([transaction.get(targetRef), transaction.get(senderRef), transaction.get(invitationRef)]);
       if (!targetSnapshot.exists()) throw new Error('Không tìm thấy đầu bếp này.');
+      if ((senderSnapshot.data()?.blockedChefIds || []).includes(targetUid) || (targetSnapshot.data().blockedChefIds || []).includes(profile.uid)) throw new Error('Không thể gửi lời mời vì có người đã chặn đối phương.');
       if (targetSnapshot.data().privacySettings?.allowKitchenInvites === false) throw new Error('Đầu bếp này hiện không nhận lời mời vào bếp.');
       if (existing.exists() && existing.data().status === 'pending') throw new Error('Bạn đã gửi lời mời đang chờ đầu bếp này phản hồi.');
       transaction.set(invitationRef, invitation);
     });
   } else {
+    await assertNotBlocked(targetUid);
     if ((await getPrivacySettingsForUser(targetUid)).allowKitchenInvites === false) throw new Error('Đầu bếp này hiện không nhận lời mời vào bếp.');
     const data = readLocal();
     if (data.invites.some((invite) => invite.id === inviteId && invite.status === 'pending')) {
@@ -254,10 +339,19 @@ export async function getKitchenInvites() {
     ]);
     const invites = new Map();
     [incoming, outgoing].forEach((snapshot) => snapshot.forEach((entry) => invites.set(entry.id, { ...entry.data(), id: entry.id })));
-    return [...invites.values()].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    const visibleInvites = [];
+    for (const invite of invites.values()) {
+      const otherUid = invite.senderUid === profile.uid ? invite.recipientUid : invite.senderUid;
+      if (!(await isBlockedEitherDirection(otherUid))) visibleInvites.push(invite);
+    }
+    return visibleInvites.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
   }
-  return readLocal().invites
-    .filter((invite) => invite.senderUid === profile.uid || invite.recipientUid === profile.uid)
+  const visibleInvites = [];
+  for (const invite of readLocal().invites.filter((entry) => entry.senderUid === profile.uid || entry.recipientUid === profile.uid)) {
+    const otherUid = invite.senderUid === profile.uid ? invite.recipientUid : invite.senderUid;
+    if (!(await isBlockedEitherDirection(otherUid))) visibleInvites.push(invite);
+  }
+  return visibleInvites
     .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 }
 
@@ -270,6 +364,9 @@ export async function respondToKitchenInvite(inviteId, response) {
       const snapshot = await transaction.get(inviteRef);
       if (!snapshot.exists() || snapshot.data().recipientUid !== profile.uid) throw new Error('Không tìm thấy lời mời dành cho bạn.');
       if (snapshot.data().status !== 'pending') throw new Error('Lời mời này đã được xử lý.');
+      const senderRef = doc(db, 'users', snapshot.data().senderUid);
+      const [senderSnapshot, recipientSnapshot] = await Promise.all([transaction.get(senderRef), transaction.get(doc(db, 'users', profile.uid))]);
+      if ((senderSnapshot.data()?.blockedChefIds || []).includes(profile.uid) || (recipientSnapshot.data()?.blockedChefIds || []).includes(snapshot.data().senderUid)) throw new Error('Không thể xử lý lời mời vì có người đã chặn đối phương.');
       transaction.set(inviteRef, { status: response, respondedAt: new Date().toISOString() }, { merge: true });
       return { ...snapshot.data(), id: snapshot.id, status: response };
     });
@@ -278,6 +375,7 @@ export async function respondToKitchenInvite(inviteId, response) {
   const invite = data.invites.find((entry) => entry.id === inviteId && entry.recipientUid === profile.uid);
   if (!invite) throw new Error('Không tìm thấy lời mời dành cho bạn.');
   if (invite.status !== 'pending') throw new Error('Lời mời này đã được xử lý.');
+  await assertNotBlocked(invite.senderUid);
   invite.status = response;
   invite.respondedAt = new Date().toISOString();
   writeLocal(data);
@@ -299,6 +397,7 @@ export async function getDirectMessages(otherUid) {
 export async function sendDirectMessage(otherUid, text) {
   const profile = signedInProfile();
   if (!otherUid || otherUid === profile.uid) throw new Error('Chọn một đầu bếp khác để trò chuyện.');
+  await assertNotBlocked(otherUid);
   if ((await getPrivacySettingsForUser(otherUid)).allowDirectMessages === false) {
     throw new Error('Đầu bếp này hiện không nhận tin nhắn.');
   }
@@ -344,6 +443,7 @@ export async function getMyConversations() {
       const data = entry.data();
       const otherUid = (data.participants || []).find((uid) => uid !== profile.uid);
       if (!otherUid) return null;
+      if (await isBlockedEitherDirection(otherUid)) return null;
       let chef = { uid: otherUid, displayName: data.participantNames?.[otherUid] || 'Đầu bếp', username: 'chef', kitchenName: 'Nhà Bếp Sáng Tạo' };
       try { chef = { ...chef, ...await getChefPublicProfile(otherUid) }; } catch {}
       let allowDirectMessages = true;
@@ -362,6 +462,7 @@ export async function getMyConversations() {
       : [...new Set(messages.map((message) => message.senderUid).filter(Boolean))];
     const otherUid = participants.find((uid) => uid !== profile.uid);
     if (!otherUid) return;
+    if ((profile.blockedChefIds || []).includes(otherUid) || (users.find((user) => user.uid === otherUid)?.blockedChefIds || []).includes(profile.uid)) return;
     const other = users.find((user) => user.uid === otherUid) || {};
     const lastMessage = Array.isArray(messages) ? messages[messages.length - 1] : null;
     result.push({

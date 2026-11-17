@@ -43,7 +43,7 @@ import {
   getLeaderboardTop100,
   resetLeaderboardScores
 } from "./community-service.js";
-import { toggleCommunityLike, toggleFollowChef, getFollowingChefIds, getFollowedFeed, hydrateCommunitySocial, getOnlineChefs, getChefPublicProfile, startChefPresence, stopChefPresence, sendKitchenInvite, getKitchenInvites, respondToKitchenInvite, getDirectMessages, getMyConversations, sendDirectMessage } from "./social-service.js";
+import { toggleCommunityLike, toggleFollowChef, getFollowingChefIds, getFollowedFeed, hydrateCommunitySocial, getOnlineChefs, getChefPublicProfile, startChefPresence, stopChefPresence, sendKitchenInvite, getKitchenInvites, respondToKitchenInvite, getDirectMessages, getMyConversations, sendDirectMessage, blockChef, unblockChef, getBlockedChefs, getBlockedChefIds } from "./social-service.js";
 
 import { state } from "./core/state.js";
 import { getSavedSettings, saveSettings, applySettingsToState } from "./core/settings.js";
@@ -1120,12 +1120,14 @@ export function initCommunityAndLeaderboardController() {
   }
 
   const applyCommunityAuthorPrivacy = async (posts) => {
-    const authorIds = [...new Set(posts.map((post) => post.chefUid).filter(Boolean))];
+    const blockedIds = new Set(await getBlockedChefIds());
+    const visiblePosts = posts.filter((post) => !blockedIds.has(post.chefUid));
+    const authorIds = [...new Set(visiblePosts.map((post) => post.chefUid).filter(Boolean))];
     const profiles = new Map(await Promise.all(authorIds.map(async (uid) => {
       try { return [uid, await getChefPublicProfile(uid)]; }
       catch { return [uid, null]; }
     })));
-    return posts.map((post) => {
+    return visiblePosts.map((post) => {
       const profile = profiles.get(post.chefUid);
       if (!profile) return { ...post, chefBio: "", chefGender: "unspecified" };
       return {
@@ -1367,7 +1369,9 @@ export function initCommunityAndLeaderboardController() {
           invite.addEventListener("click", async () => { invite.disabled = true; try { await sendKitchenInvite(chef.uid, chef.displayName); invite.textContent = "Đã gửi lời mời"; } catch (error) { invite.disabled = false; announceToScreenReader(error.message || "Không gửi được lời mời.", true); } }); actions.append(invite); }
         if (chef.allowDirectMessages !== false) { const chat = document.createElement("button"); chat.type = "button"; chat.className = "px-3 py-1.5 rounded-lg bg-sky-100 font-bold text-sm"; chat.textContent = "Nhắn tin"; chat.addEventListener("click", () => openDirectChat(chef, chat)); actions.append(chat); }
         const profile = document.createElement("button"); profile.type = "button"; profile.className = "px-3 py-1.5 rounded-lg bg-emerald-100 font-bold text-sm"; profile.textContent = "Xem hồ sơ"; profile.addEventListener("click", () => void openChefPublicProfile(chef, profile));
-        actions.append(profile); card.append(title, actions); kitchenOnlineList.append(card);
+        const block = document.createElement("button"); block.type = "button"; block.className = "px-3 py-1.5 rounded-lg bg-rose-100 text-rose-900 font-bold text-sm"; block.textContent = "Chặn";
+        block.addEventListener("click", async () => { block.disabled = true; try { await blockChef(chef.uid); announceToScreenReader(`Đã chặn ${chef.displayName}.`); await renderKitchenSocial(); } catch (error) { block.disabled = false; announceToScreenReader(error.message || "Không thể chặn đầu bếp.", true); } });
+        actions.append(profile, block); card.append(title, actions); kitchenOnlineList.append(card);
       });
       kitchenInvitesList.replaceChildren();
       if (!invites.length) kitchenInvitesList.textContent = "Bạn chưa có lời mời nào.";
@@ -1868,6 +1872,22 @@ export function initCommunityAndLeaderboardController() {
         profileBtn.textContent = "Xem hồ sơ";
         profileBtn.addEventListener("click", () => { void openChefPublicProfile(chef, profileBtn); });
         actions.append(followBtn, profileBtn);
+        const blockBtn = document.createElement("button");
+        blockBtn.type = "button";
+        blockBtn.className = "px-3 py-1.5 rounded-lg bg-rose-100 text-rose-900 font-bold text-sm";
+        blockBtn.textContent = "Chặn";
+        blockBtn.addEventListener("click", async () => {
+          blockBtn.disabled = true;
+          try {
+            await blockChef(chef.uid);
+            announceToScreenReader(`Đã chặn ${chef.displayName}.`);
+            renderOnlineChefs(await getOnlineChefs());
+          } catch (error) {
+            blockBtn.disabled = false;
+            announceToScreenReader(error.message || "Không thể chặn đầu bếp.", true);
+          }
+        });
+        actions.appendChild(blockBtn);
         if (chef.allowKitchenInvites !== false) {
           const inviteBtn = document.createElement("button");
           inviteBtn.type = "button";
@@ -2237,6 +2257,49 @@ export function initMainMenuController() {
   const modalSettings = document.getElementById("modal-settings");
   const btnCloseSettings = document.getElementById("btn-close-settings");
   const btnSaveSettings = document.getElementById("btn-save-settings");
+  const blockedChefsListEl = document.getElementById("blocked-chefs-list");
+
+  const refreshBlockedChefsList = async () => {
+    if (!blockedChefsListEl) return;
+    blockedChefsListEl.setAttribute("aria-busy", "true");
+    blockedChefsListEl.textContent = "Đang tải…";
+    try {
+      const chefs = await getBlockedChefs();
+      blockedChefsListEl.replaceChildren();
+      if (!chefs.length) {
+        blockedChefsListEl.textContent = "Bạn chưa chặn đầu bếp nào.";
+        return;
+      }
+      chefs.forEach((chef) => {
+        const row = document.createElement("div");
+        row.className = "flex items-center justify-between gap-2 rounded-xl bg-white border border-sky-100 p-2";
+        const name = document.createElement("span");
+        name.className = "text-sm text-stone-800";
+        name.textContent = `${chef.displayName} (@${chef.username || "chef"})`;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "shrink-0 px-3 py-1.5 rounded-lg bg-white border border-sky-300 text-sky-950 font-bold text-sm";
+        button.textContent = "Bỏ chặn";
+        button.addEventListener("click", async () => {
+          button.disabled = true;
+          try {
+            await unblockChef(chef.uid);
+            announceToScreenReader(`Đã bỏ chặn ${chef.displayName}.`);
+            await refreshBlockedChefsList();
+          } catch (error) {
+            button.disabled = false;
+            announceToScreenReader(error.message || "Không thể bỏ chặn đầu bếp.", true);
+          }
+        });
+        row.append(name, button);
+        blockedChefsListEl.appendChild(row);
+      });
+    } catch (error) {
+      blockedChefsListEl.textContent = error.message || "Không tải được danh sách đầu bếp đã chặn.";
+    } finally {
+      blockedChefsListEl.setAttribute("aria-busy", "false");
+    }
+  };
 
   // Nạp trạng thái cài đặt vào modal
   const populateSettingsModal = () => {
@@ -2260,6 +2323,7 @@ export function initMainMenuController() {
     document.getElementById("setting-privacy-kitchen-invites").checked = privacy.allowKitchenInvites !== false;
     document.getElementById("setting-privacy-direct-messages").checked = privacy.allowDirectMessages !== false;
     document.getElementById("settings-save-feedback").textContent = "";
+    void refreshBlockedChefsList();
   };
 
   if (btnMenuSettings && modalSettings) {
