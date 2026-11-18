@@ -1148,6 +1148,7 @@ export function initCommunityAndLeaderboardController() {
   const communityDishesListEl = document.getElementById("community-dishes-list");
   const inviteListEl = document.getElementById("community-kitchen-invites-list");
   const inviteListBtn = document.getElementById("btn-community-kitchen-invites");
+  const inviteDialog = document.getElementById("modal-community-kitchen-invites");
   const chatDialog = document.getElementById("modal-direct-chat");
   const chatMessagesEl = document.getElementById("direct-chat-messages");
   const chatTitleEl = document.getElementById("direct-chat-title");
@@ -1169,8 +1170,8 @@ export function initCommunityAndLeaderboardController() {
     messages.forEach((message) => {
       const bubble = document.createElement("article");
       bubble.className = `max-w-[90%] p-2.5 rounded-xl ${message.senderUid === getActiveProfileCache()?.uid ? "self-end bg-sky-200" : "self-start bg-white border border-sky-100"}`;
-      const author = document.createElement("strong");
-      author.className = "block text-xs text-sky-950";
+      const author = document.createElement("h3");
+      author.className = "text-xs font-bold text-sky-950";
       author.textContent = message.senderUid === getActiveProfileCache()?.uid ? "Bạn" : (message.senderName || activeChatChef?.displayName || "Đầu bếp");
       const body = document.createElement("p");
       body.className = "whitespace-pre-wrap break-words text-sm text-stone-900";
@@ -1261,13 +1262,14 @@ export function initCommunityAndLeaderboardController() {
           : { uid: invite.recipientUid, displayName: invite.recipientName || "Đầu bếp", kitchenName: "" };
         const card = document.createElement("article");
         card.className = "p-3 mb-2 bg-white rounded-xl border border-amber-200 flex flex-wrap items-center justify-between gap-2";
-        const summary = document.createElement("p");
-        summary.className = "text-sm text-stone-800";
+        const summary = document.createElement("h3");
+        summary.className = "text-sm font-bold text-stone-800";
+        const details = document.createElement("p");
+        details.className = "text-xs text-stone-600";
         const status = { pending: "đang chờ phản hồi", accepted: "đã chấp nhận lời mời", declined: "đã từ chối lời mời" }[invite.status] || "không xác định";
-        summary.textContent = incoming
-          ? `${partner.displayName} mời bạn vào ${partner.kitchenName} · ${status}`
-          : `Bạn đã mời ${partner.displayName} vào bếp · ${status}`;
-        card.appendChild(summary);
+        summary.textContent = incoming ? `Lời mời từ ${partner.displayName}` : `Lời mời gửi đến ${partner.displayName}`;
+        details.textContent = incoming ? `${partner.kitchenName} · ${status}` : `Lời mời vào bếp · ${status}`;
+        card.append(summary, details);
         const actions = document.createElement("div");
         actions.className = "flex flex-wrap gap-2";
         if (incoming && invite.status === "pending") {
@@ -1306,20 +1308,19 @@ export function initCommunityAndLeaderboardController() {
   };
 
   inviteListBtn?.addEventListener("click", async () => {
-    const expanded = inviteListBtn.getAttribute("aria-expanded") === "true";
-    inviteListBtn.setAttribute("aria-expanded", String(!expanded));
-    inviteListEl.classList.toggle("hidden", expanded);
-    if (expanded) {
-      if (inviteRefreshTimer) clearInterval(inviteRefreshTimer);
-      inviteRefreshTimer = null;
-      return;
-    }
+    inviteDialog.showModal();
+    document.getElementById("btn-close-community-kitchen-invites").focus();
     await refreshKitchenInvites();
     if (inviteRefreshTimer) clearInterval(inviteRefreshTimer);
     inviteRefreshTimer = setInterval(() => {
-      const menu = document.getElementById("screen-main-menu");
-      if (!inviteListEl.classList.contains("hidden") && menu && !menu.classList.contains("hidden")) void refreshKitchenInvites();
+      if (inviteDialog.open) void refreshKitchenInvites();
     }, 10000);
+  });
+  document.getElementById("btn-close-community-kitchen-invites")?.addEventListener("click", () => inviteDialog.close());
+  inviteDialog?.addEventListener("close", () => {
+    if (inviteRefreshTimer) clearInterval(inviteRefreshTimer);
+    inviteRefreshTimer = null;
+    if (inviteListBtn?.isConnected) inviteListBtn.focus();
   });
 
   const kitchenSocialDialog = document.getElementById("modal-kitchen-social");
@@ -1340,7 +1341,8 @@ export function initCommunityAndLeaderboardController() {
       if (ownProfile?.uid) {
         const ownCard = document.createElement("article");
         ownCard.className = "p-3 rounded-xl border border-sky-200 bg-sky-50";
-        const ownTitle = document.createElement("strong");
+        const ownTitle = document.createElement("h3");
+        ownTitle.className = "font-bold";
         ownTitle.textContent = `${ownProfile.displayName || ownProfile.username || "Bếp Trưởng"} (@${ownProfile.username || "chef"}) · Bạn`;
         const ownActions = document.createElement("div");
         ownActions.className = "mt-2 flex flex-wrap gap-2";
@@ -1364,7 +1366,7 @@ export function initCommunityAndLeaderboardController() {
       others.forEach((chef) => {
         const card = document.createElement("article");
         card.className = "p-3 rounded-xl border border-emerald-200 bg-white";
-        const title = document.createElement("strong"); title.textContent = `${chef.displayName} (@${chef.username})`;
+        const title = document.createElement("h3"); title.className = "font-bold"; title.textContent = `${chef.displayName} (@${chef.username})`;
         const actions = document.createElement("div"); actions.className = "mt-2 flex flex-wrap gap-2";
         if (chef.allowKitchenInvites !== false) { const invite = document.createElement("button"); invite.type = "button"; invite.className = "px-3 py-1.5 rounded-lg bg-amber-100 font-bold text-sm"; invite.textContent = "Mời vào bếp";
           invite.addEventListener("click", async () => { invite.disabled = true; try { await sendKitchenInvite(chef.uid, chef.displayName); invite.textContent = "Đã gửi lời mời"; } catch (error) { invite.disabled = false; announceToScreenReader(error.message || "Không gửi được lời mời.", true); } }); actions.append(invite); }
@@ -1380,7 +1382,8 @@ export function initCommunityAndLeaderboardController() {
         const incoming = invite.recipientUid === getActiveProfileCache()?.uid;
         const partner = incoming ? { uid: invite.senderUid, displayName: invite.senderName || "Đầu bếp", kitchenName: invite.senderKitchen } : { uid: invite.recipientUid, displayName: invite.recipientName || "Đầu bếp" };
         const card = document.createElement("article"); card.className = "p-3 rounded-xl border border-amber-200 bg-white flex flex-wrap items-center justify-between gap-2";
-        const summary = document.createElement("p"); summary.className = "text-sm"; summary.textContent = incoming ? `${partner.displayName} mời bạn vào ${partner.kitchenName || "bếp"} · ${invite.status}` : `Bạn đã mời ${partner.displayName} · ${invite.status}`; card.append(summary);
+        const summary = document.createElement("h3"); summary.className = "text-sm font-bold"; summary.textContent = incoming ? `Lời mời từ ${partner.displayName}` : `Lời mời gửi đến ${partner.displayName}`;
+        const details = document.createElement("p"); details.className = "text-xs text-stone-600"; details.textContent = incoming ? `${partner.kitchenName || "Nhà bếp"} · ${invite.status}` : `Lời mời vào bếp · ${invite.status}`; card.append(summary, details);
         const actions = document.createElement("div"); actions.className = "flex gap-2";
         if (incoming && invite.status === "pending") for (const [label, answer] of [["Chấp nhận", "accepted"], ["Từ chối", "declined"]]) { const button = document.createElement("button"); button.type = "button"; button.className = "px-3 py-1.5 rounded-lg bg-amber-100 font-bold text-sm"; button.textContent = label; button.addEventListener("click", async () => { button.disabled = true; try { await respondToKitchenInvite(invite.id, answer); await renderKitchenSocial(); } catch (error) { button.disabled = false; announceToScreenReader(error.message || "Không xử lý được lời mời.", true); } }); actions.append(button); }
         if (invite.status === "accepted") { const chat = document.createElement("button"); chat.type = "button"; chat.className = "px-3 py-1.5 rounded-lg bg-sky-100 font-bold text-sm"; chat.textContent = "Nhắn tin"; chat.addEventListener("click", () => openDirectChat(partner, chat)); actions.append(chat); }
@@ -1388,7 +1391,7 @@ export function initCommunityAndLeaderboardController() {
       });
       kitchenChatsList.replaceChildren();
       if (!conversations.length) kitchenChatsList.textContent = "Chưa có cuộc trò chuyện. Chọn đầu bếp online để nhắn tin.";
-      conversations.forEach((chef) => { const card = document.createElement("article"); card.className = "p-3 rounded-xl border border-sky-200 bg-white flex items-center justify-between gap-2"; const summary = document.createElement("p"); summary.className = "text-sm min-w-0"; summary.textContent = `${chef.displayName}: ${chef.lastMessage || "Chưa có tin nhắn"}`; const button = document.createElement("button"); button.type = "button"; button.className = "shrink-0 px-3 py-1.5 rounded-lg bg-sky-100 font-bold text-sm"; button.textContent = "Mở chat"; button.addEventListener("click", () => openDirectChat(chef, button)); card.append(summary, button); kitchenChatsList.append(card); });
+      conversations.forEach((chef) => { const card = document.createElement("article"); card.className = "p-3 rounded-xl border border-sky-200 bg-white flex items-center justify-between gap-2"; const summary = document.createElement("div"); summary.className = "min-w-0"; const title = document.createElement("h3"); title.className = "text-sm font-bold"; title.textContent = chef.displayName; const preview = document.createElement("p"); preview.className = "text-sm text-stone-600 truncate"; preview.textContent = chef.lastMessage || "Chưa có tin nhắn"; summary.append(title, preview); const button = document.createElement("button"); button.type = "button"; button.className = "shrink-0 px-3 py-1.5 rounded-lg bg-sky-100 font-bold text-sm"; button.textContent = "Mở chat"; button.addEventListener("click", () => openDirectChat(chef, button)); card.append(summary, button); kitchenChatsList.append(card); });
     } catch (error) {
       for (const list of [kitchenOnlineList, kitchenInvitesList, kitchenChatsList]) list.textContent = error.message || "Không tải được dữ liệu kết nối.";
     } finally {
@@ -1722,7 +1725,10 @@ export function initCommunityAndLeaderboardController() {
 
   const onlineChefsBtn = document.getElementById("btn-community-online-chefs");
   const onlineChefsList = document.getElementById("community-online-chefs-list");
+  const onlineChefsDialog = document.getElementById("modal-community-online-chefs");
   const chefProfileDialog = document.getElementById("modal-chef-public-profile");
+  const chefRecipesDialog = document.getElementById("modal-chef-recipes");
+  const chefRecipesDialogTitle = document.getElementById("chef-recipes-dialog-title");
   let profileReturnFocus = null;
   let activeChefRecipes = [];
   const chefRecipeCountEl = document.getElementById("chef-public-profile-recipe-count");
@@ -1742,8 +1748,7 @@ export function initCommunityAndLeaderboardController() {
     document.getElementById("chef-public-profile-feedback").textContent = "Đang tải hồ sơ…";
     chefRecipeCountEl.textContent = "Công thức: Đang tải…";
     chefRecipesListEl.replaceChildren();
-    chefRecipesListEl.classList.add("hidden");
-    viewChefRecipesBtn.setAttribute("aria-expanded", "false");
+    viewChefRecipesBtn.disabled = true;
     document.getElementById("btn-close-chef-public-profile").focus();
     try {
       const profile = await getChefPublicProfile(chef.uid);
@@ -1758,19 +1763,21 @@ export function initCommunityAndLeaderboardController() {
         const dishes = await getCommunityDishes();
         activeChefRecipes = hydrateCommunitySocial(getChefRecipes(dishes, profile.uid));
         chefRecipeCountEl.textContent = `Công thức: ${activeChefRecipes.length}`;
+        viewChefRecipesBtn.disabled = false;
       } catch {
         chefRecipeCountEl.textContent = "Không tải được số lượng công thức.";
+        viewChefRecipesBtn.disabled = false;
       }
     } catch (error) {
       document.getElementById("chef-public-profile-feedback").textContent = error.message || "Không tải được hồ sơ.";
+      viewChefRecipesBtn.disabled = true;
     }
   };
 
   viewChefRecipesBtn?.addEventListener("click", () => {
-    const expanded = viewChefRecipesBtn.getAttribute("aria-expanded") === "true";
-    viewChefRecipesBtn.setAttribute("aria-expanded", String(!expanded));
-    chefRecipesListEl.classList.toggle("hidden", expanded);
-    if (expanded) return;
+    if (!chefRecipesDialog.open) chefRecipesDialog.showModal();
+    chefRecipesDialogTitle.textContent = `Công thức của ${document.getElementById("chef-public-profile-title").textContent}`;
+    document.getElementById("btn-close-chef-recipes").focus();
     chefRecipesListEl.replaceChildren();
     if (!activeChefRecipes.length) {
       chefRecipesListEl.textContent = "Đầu bếp này chưa chia sẻ công thức nào.";
@@ -1778,19 +1785,22 @@ export function initCommunityAndLeaderboardController() {
     }
     activeChefRecipes.forEach((recipe) => {
       const item = document.createElement("article");
-      item.className = "flex items-center justify-between gap-2 border-b border-amber-200 py-2 last:border-0";
-      const title = document.createElement("p");
-      title.className = "text-sm font-semibold text-stone-800";
+      item.className = "flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3";
+      const title = document.createElement("h3");
+      title.className = "text-sm font-bold text-stone-800";
       title.textContent = recipe.headingTitle || "Công thức";
       const openButton = document.createElement("button");
       openButton.type = "button";
       openButton.className = "shrink-0 px-3 py-1.5 rounded-lg bg-white border border-amber-300 text-sm font-bold";
-      openButton.textContent = "Xem";
+      openButton.textContent = "Xem chi tiết";
       openButton.addEventListener("click", () => openCommunityDishDetail(recipe, openButton));
       item.append(title, openButton);
       chefRecipesListEl.appendChild(item);
     });
   });
+
+  document.getElementById("btn-close-chef-recipes")?.addEventListener("click", () => chefRecipesDialog.close());
+  chefRecipesDialog?.addEventListener("close", () => { if (viewChefRecipesBtn?.isConnected) viewChefRecipesBtn.focus(); });
 
   document.getElementById("btn-close-chef-public-profile")?.addEventListener("click", () => chefProfileDialog.close());
   chefProfileDialog?.addEventListener("close", () => { if (profileReturnFocus?.isConnected) profileReturnFocus.focus(); });
@@ -1827,7 +1837,8 @@ export function initCommunityAndLeaderboardController() {
     otherChefs.forEach((chef) => {
       const item = document.createElement("li");
       item.className = "p-3 bg-white rounded-xl border border-emerald-200";
-      const name = document.createElement("strong");
+      const name = document.createElement("h3");
+      name.className = "font-bold";
       name.textContent = `${chef.displayName} (@${chef.username})`;
       const details = document.createElement("p");
       details.className = "text-sm text-stone-700";
@@ -1922,11 +1933,8 @@ export function initCommunityAndLeaderboardController() {
   };
 
   if (onlineChefsBtn && onlineChefsList) onlineChefsBtn.addEventListener("click", async () => {
-    const expanded = onlineChefsBtn.getAttribute("aria-expanded") === "true";
-    onlineChefsBtn.setAttribute("aria-expanded", String(!expanded));
-    onlineChefsList.classList.toggle("hidden", expanded);
-    if (expanded) return;
-
+    onlineChefsDialog.showModal();
+    document.getElementById("btn-close-community-online-chefs").focus();
     onlineChefsList.setAttribute("aria-busy", "true");
     onlineChefsList.textContent = "Đang tải danh sách đầu bếp online…";
     try {
@@ -1939,6 +1947,8 @@ export function initCommunityAndLeaderboardController() {
       onlineChefsList.setAttribute("aria-busy", "false");
     }
   });
+  document.getElementById("btn-close-community-online-chefs")?.addEventListener("click", () => onlineChefsDialog.close());
+  onlineChefsDialog?.addEventListener("close", () => { if (onlineChefsBtn?.isConnected) onlineChefsBtn.focus(); });
 
   if (communitySearchInput) {
     communitySearchInput.addEventListener("input", (e) => {
@@ -2273,8 +2283,8 @@ export function initMainMenuController() {
       chefs.forEach((chef) => {
         const row = document.createElement("div");
         row.className = "flex items-center justify-between gap-2 rounded-xl bg-white border border-sky-100 p-2";
-        const name = document.createElement("span");
-        name.className = "text-sm text-stone-800";
+        const name = document.createElement("h5");
+        name.className = "text-sm font-bold text-stone-800";
         name.textContent = `${chef.displayName} (@${chef.username || "chef"})`;
         const button = document.createElement("button");
         button.type = "button";

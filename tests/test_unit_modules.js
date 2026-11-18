@@ -216,9 +216,14 @@ await test('U7: Modular refactor & accessibility structural checks (index.html, 
   assert.ok(html.includes('setting-privacy-direct-messages'));
   assert.ok(html.includes('id="community-online-chefs-list"'));
   assert.ok(html.includes('id="community-kitchen-invites-list"'));
+  assert.ok(html.includes('id="modal-community-online-chefs"') && html.includes('id="modal-community-kitchen-invites"'));
+  assert.ok(html.includes('id="btn-community-online-chefs"') && html.includes('aria-haspopup="dialog"'));
+  assert.ok(html.includes('id="btn-close-community-online-chefs"') && html.includes('id="btn-close-community-kitchen-invites"'));
   assert.ok(html.includes('id="direct-chat-messages"') && html.includes('id="form-direct-chat"'));
   assert.ok(html.includes('id="modal-kitchen-social"') && html.includes('id="kitchen-chats-list"'));
-  assert.ok(html.includes('id="chef-public-profile-recipe-count"') && html.includes('id="btn-view-chef-recipes"'));
+  assert.ok(html.includes('id="chef-public-profile-recipe-count"') && html.includes('id="btn-view-chef-recipes"') && html.includes('id="modal-chef-recipes"'));
+  assert.ok(html.includes('id="chef-public-profile-details-heading"') && html.includes('id="chef-public-profile-stats-heading"'));
+  assert.strictEqual(html.includes('aria-expanded="false"'), false, 'Social list controls should open dialogs rather than expand inline content');
   assert.ok(html.includes('id="community-detail-like-count"') && html.includes('id="btn-community-detail-like"'));
   assert.ok(html.includes('id="btn-kitchen-social"') && html.includes('id="kitchen-invites-list"'));
   assert.ok(html.includes('id="btn-menu-edit-profile"') && html.includes('id="form-edit-profile"') && html.includes('id="profile-gender"'));

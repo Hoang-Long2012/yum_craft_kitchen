@@ -548,10 +548,8 @@
         <span>Cộng đồng đầu bếp</span>
       </button>
 
-      <button id="btn-community-online-chefs" type="button" class="w-full py-3 px-5 bg-emerald-50 hover:bg-emerald-100 text-emerald-950 font-game font-bold text-base rounded-2xl border-2 border-emerald-200 flex items-center justify-center gap-2" aria-expanded="false" aria-controls="community-online-chefs-list">🟢 Đầu bếp online</button>
-      <div id="community-online-chefs-list" class="hidden p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-left" role="region" aria-label="Danh sách đầu bếp đang online" aria-live="polite"></div>
-      <button id="btn-community-kitchen-invites" type="button" class="w-full py-3 px-5 bg-amber-50 hover:bg-amber-100 text-amber-950 font-game font-bold text-base rounded-2xl border-2 border-amber-200 flex items-center justify-center gap-2" aria-expanded="false" aria-controls="community-kitchen-invites-list">📨 Lời mời vào bếp</button>
-      <div id="community-kitchen-invites-list" class="hidden p-3 rounded-2xl bg-amber-50 border border-amber-200 text-left" role="region" aria-label="Lời mời vào bếp" aria-live="polite"></div>
+      <button id="btn-community-online-chefs" type="button" class="w-full py-3 px-5 bg-emerald-50 hover:bg-emerald-100 text-emerald-950 font-game font-bold text-base rounded-2xl border-2 border-emerald-200 flex items-center justify-center gap-2" aria-haspopup="dialog">🟢 Đầu bếp online</button>
+      <button id="btn-community-kitchen-invites" type="button" class="w-full py-3 px-5 bg-amber-50 hover:bg-amber-100 text-amber-950 font-game font-bold text-base rounded-2xl border-2 border-amber-200 flex items-center justify-center gap-2" aria-haspopup="dialog">📨 Lời mời vào bếp</button>
 
       <!-- Bảng xếp hạng -->
       <button 
@@ -2000,6 +1998,20 @@
     </div>
   </dialog>
 
+  <dialog id="modal-community-online-chefs" class="backdrop:bg-black/70 bg-transparent p-3 z-50 max-w-3xl w-full m-auto" aria-labelledby="community-online-chefs-title">
+    <section class="bg-white rounded-3xl shadow-2xl border-2 border-emerald-300 p-4 sm:p-6 flex flex-col gap-4 max-h-[88vh]">
+      <header class="flex items-center justify-between gap-3"><h2 id="community-online-chefs-title" class="text-xl font-extrabold text-emerald-950">Đầu bếp đang online</h2><button id="btn-close-community-online-chefs" type="button" class="px-3 py-2 rounded-xl bg-stone-100 font-bold">Đóng</button></header>
+      <div id="community-online-chefs-list" class="grid gap-2 overflow-y-auto p-1 text-left" role="region" aria-label="Danh sách đầu bếp đang online" aria-live="polite" aria-busy="false"></div>
+    </section>
+  </dialog>
+
+  <dialog id="modal-community-kitchen-invites" class="backdrop:bg-black/70 bg-transparent p-3 z-50 max-w-3xl w-full m-auto" aria-labelledby="community-kitchen-invites-title">
+    <section class="bg-white rounded-3xl shadow-2xl border-2 border-amber-300 p-4 sm:p-6 flex flex-col gap-4 max-h-[88vh]">
+      <header class="flex items-center justify-between gap-3"><h2 id="community-kitchen-invites-title" class="text-xl font-extrabold text-amber-950">Lời mời vào bếp</h2><button id="btn-close-community-kitchen-invites" type="button" class="px-3 py-2 rounded-xl bg-stone-100 font-bold">Đóng</button></header>
+      <div id="community-kitchen-invites-list" class="grid gap-2 overflow-y-auto p-1 text-left" role="region" aria-label="Lời mời vào bếp" aria-live="polite" aria-busy="false"></div>
+    </section>
+  </dialog>
+
   <dialog id="modal-direct-chat" class="backdrop:bg-black/70 bg-transparent p-3 z-50 max-w-2xl w-full m-auto" aria-labelledby="direct-chat-title">
     <section class="bg-white rounded-3xl shadow-2xl border-2 border-sky-300 p-4 sm:p-6 flex flex-col gap-3 max-h-[88vh]">
       <div class="flex items-center justify-between gap-3"><h2 id="direct-chat-title" class="text-lg sm:text-xl font-extrabold text-sky-950">Trò chuyện</h2><button id="btn-close-direct-chat" type="button" class="px-3 py-2 rounded-xl bg-stone-100 font-bold">Đóng</button></div>
@@ -2206,14 +2218,17 @@
   <dialog id="modal-chef-public-profile" class="backdrop:bg-black/65 backdrop:backdrop-blur-sm bg-transparent p-4 z-50 max-w-lg w-full m-auto" aria-labelledby="chef-public-profile-title">
     <section class="bg-white rounded-3xl shadow-2xl border-2 border-emerald-300 p-6 flex flex-col gap-3">
       <div class="flex items-center justify-between gap-3"><h2 id="chef-public-profile-title" class="text-xl font-extrabold text-emerald-950">Hồ sơ đầu bếp</h2><button id="btn-close-chef-public-profile" type="button" class="px-3 py-2 rounded-xl bg-stone-100 font-bold">Đóng</button></div>
-      <p id="chef-public-profile-username" class="text-sm text-stone-600"></p>
-      <p id="chef-public-profile-kitchen" class="font-semibold text-orange-800"></p>
-      <p id="chef-public-profile-gender" class="text-sm text-stone-700"></p>
-      <p id="chef-public-profile-bio" class="text-sm text-stone-700 whitespace-pre-wrap"></p>
-      <p id="chef-public-profile-stats" class="text-sm font-semibold text-emerald-900"></p>
-      <div class="flex flex-wrap items-center gap-2"><p id="chef-public-profile-recipe-count" class="text-sm font-semibold text-amber-900">Công thức: Đang tải…</p><button id="btn-view-chef-recipes" type="button" class="px-3 py-2 rounded-xl bg-amber-100 text-amber-950 font-bold" aria-expanded="false" aria-controls="chef-public-profile-recipes">Xem công thức</button></div>
-      <div id="chef-public-profile-recipes" class="hidden max-h-56 overflow-y-auto rounded-xl border border-amber-200 bg-amber-50 p-3" role="region" aria-label="Công thức của đầu bếp"></div>
+      <section aria-labelledby="chef-public-profile-details-heading"><h3 id="chef-public-profile-details-heading" class="text-sm font-extrabold text-emerald-900">Thông tin đầu bếp</h3><p id="chef-public-profile-username" class="text-sm text-stone-600"></p><p id="chef-public-profile-kitchen" class="font-semibold text-orange-800"></p><p id="chef-public-profile-gender" class="text-sm text-stone-700"></p><p id="chef-public-profile-bio" class="text-sm text-stone-700 whitespace-pre-wrap"></p></section>
+      <section aria-labelledby="chef-public-profile-stats-heading"><h3 id="chef-public-profile-stats-heading" class="text-sm font-extrabold text-emerald-900">Hoạt động cộng đồng</h3><p id="chef-public-profile-stats" class="text-sm font-semibold text-emerald-900"></p></section>
+      <section aria-labelledby="chef-public-profile-recipes-heading"><h3 id="chef-public-profile-recipes-heading" class="text-sm font-extrabold text-amber-950">Công thức đã chia sẻ</h3><div class="flex flex-wrap items-center gap-2"><p id="chef-public-profile-recipe-count" class="text-sm font-semibold text-amber-900">Công thức: Đang tải…</p><button id="btn-view-chef-recipes" type="button" class="px-3 py-2 rounded-xl bg-amber-100 text-amber-950 font-bold" aria-haspopup="dialog" disabled>Xem công thức</button></div></section>
       <p id="chef-public-profile-feedback" class="text-sm text-stone-600" role="status" aria-live="polite"></p>
+    </section>
+  </dialog>
+
+  <dialog id="modal-chef-recipes" class="backdrop:bg-black/65 backdrop:backdrop-blur-sm bg-transparent p-4 z-50 max-w-2xl w-full m-auto" aria-labelledby="chef-recipes-dialog-title">
+    <section class="bg-white rounded-3xl shadow-2xl border-2 border-amber-300 p-5 sm:p-6 flex flex-col gap-3 max-h-[88vh]">
+      <header class="flex items-center justify-between gap-3"><h2 id="chef-recipes-dialog-title" class="text-xl font-extrabold text-amber-950">Công thức của đầu bếp</h2><button id="btn-close-chef-recipes" type="button" class="px-3 py-2 rounded-xl bg-stone-100 font-bold">Đóng</button></header>
+      <div id="chef-public-profile-recipes" class="grid gap-2 overflow-y-auto" role="region" aria-label="Công thức của đầu bếp"></div>
     </section>
   </dialog>
 
