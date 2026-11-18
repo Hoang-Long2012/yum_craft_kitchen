@@ -51,7 +51,7 @@ import { announceNVDA } from "./accessibility/nvda-announcer.js";
 import { escapeHtml } from "./ui/dom-helpers.js";
 import { showConfirmDialog, showPromptDialog, showNoticeDialog } from "./ui/confirm-dialog.js";
 import { getProfileGenderLabel } from "./profile-data.js";
-import { getChefRecipes, getPostLikeState, filterBlockedRecipes } from "./social-data.js";
+import { getChefRecipes, getPostLikeState, filterBlockedRecipes, normalizeSearchText, matchesOnlineChefSearch, matchesCommunityRecipeSearch } from "./social-data.js";
 
 export { getSavedSettings, saveSettings };
 
@@ -1326,8 +1326,20 @@ export function initCommunityAndLeaderboardController() {
   const kitchenSocialDialog = document.getElementById("modal-kitchen-social");
   const kitchenSocialTrigger = document.getElementById("btn-kitchen-social");
   const kitchenOnlineList = document.getElementById("kitchen-online-list");
+  const kitchenOnlineSearchInput = document.getElementById("kitchen-online-search");
+  const kitchenOnlineSearchEmpty = document.getElementById("kitchen-online-search-empty");
   const kitchenInvitesList = document.getElementById("kitchen-invites-list");
   const kitchenChatsList = document.getElementById("kitchen-chats-list");
+  const filterKitchenOnlineChefs = () => {
+    const query = normalizeSearchText(kitchenOnlineSearchInput?.value).replace(/^@/, "");
+    let visibleCount = 0;
+    kitchenOnlineList.querySelectorAll("article[data-search-text]").forEach((card) => {
+      card.hidden = Boolean(query && !card.dataset.searchText.includes(query));
+      if (!card.hidden) visibleCount++;
+    });
+    kitchenOnlineSearchEmpty.hidden = !query || visibleCount > 0;
+  };
+  kitchenOnlineSearchInput?.addEventListener("input", filterKitchenOnlineChefs);
   const renderKitchenSocial = async () => {
     for (const list of [kitchenOnlineList, kitchenInvitesList, kitchenChatsList]) {
       list.setAttribute("aria-busy", "true");
@@ -1341,6 +1353,7 @@ export function initCommunityAndLeaderboardController() {
       if (ownProfile?.uid) {
         const ownCard = document.createElement("article");
         ownCard.className = "p-3 rounded-xl border border-sky-200 bg-sky-50";
+        ownCard.dataset.searchText = normalizeSearchText(`${ownProfile.username || ""} ${ownProfile.displayName || ""} ${ownProfile.kitchenName || ""}`);
         const ownTitle = document.createElement("h3");
         ownTitle.className = "font-bold";
         ownTitle.textContent = `${ownProfile.displayName || ownProfile.username || "Bếp Trưởng"} (@${ownProfile.username || "chef"}) · Bạn`;
@@ -1366,6 +1379,7 @@ export function initCommunityAndLeaderboardController() {
       others.forEach((chef) => {
         const card = document.createElement("article");
         card.className = "p-3 rounded-xl border border-emerald-200 bg-white";
+        card.dataset.searchText = normalizeSearchText(`${chef.username || ""} ${chef.displayName || ""} ${chef.kitchenName || ""}`);
         const title = document.createElement("h3"); title.className = "font-bold"; title.textContent = `${chef.displayName} (@${chef.username})`;
         const actions = document.createElement("div"); actions.className = "mt-2 flex flex-wrap gap-2";
         if (chef.allowKitchenInvites !== false) { const invite = document.createElement("button"); invite.type = "button"; invite.className = "px-3 py-1.5 rounded-lg bg-amber-100 font-bold text-sm"; invite.textContent = "Mời vào bếp";
@@ -1392,6 +1406,7 @@ export function initCommunityAndLeaderboardController() {
       kitchenChatsList.replaceChildren();
       if (!conversations.length) kitchenChatsList.textContent = "Chưa có cuộc trò chuyện. Chọn đầu bếp online để nhắn tin.";
       conversations.forEach((chef) => { const card = document.createElement("article"); card.className = "p-3 rounded-xl border border-sky-200 bg-white flex items-center justify-between gap-2"; const summary = document.createElement("div"); summary.className = "min-w-0"; const title = document.createElement("h3"); title.className = "text-sm font-bold"; title.textContent = chef.displayName; const preview = document.createElement("p"); preview.className = "text-sm text-stone-600 truncate"; preview.textContent = chef.lastMessage || "Chưa có tin nhắn"; summary.append(title, preview); const button = document.createElement("button"); button.type = "button"; button.className = "shrink-0 px-3 py-1.5 rounded-lg bg-sky-100 font-bold text-sm"; button.textContent = "Mở chat"; button.addEventListener("click", () => openDirectChat(chef, button)); card.append(summary, button); kitchenChatsList.append(card); });
+      filterKitchenOnlineChefs();
     } catch (error) {
       for (const list of [kitchenOnlineList, kitchenInvitesList, kitchenChatsList]) list.textContent = error.message || "Không tải được dữ liệu kết nối.";
     } finally {
@@ -1725,12 +1740,14 @@ export function initCommunityAndLeaderboardController() {
 
   const onlineChefsBtn = document.getElementById("btn-community-online-chefs");
   const onlineChefsList = document.getElementById("community-online-chefs-list");
+  const onlineChefsSearchInput = document.getElementById("community-online-chefs-search");
   const onlineChefsDialog = document.getElementById("modal-community-online-chefs");
   const chefProfileDialog = document.getElementById("modal-chef-public-profile");
   const chefRecipesDialog = document.getElementById("modal-chef-recipes");
   const chefRecipesDialogTitle = document.getElementById("chef-recipes-dialog-title");
   let profileReturnFocus = null;
   let activeChefRecipes = [];
+  let cachedOnlineChefs = null;
   const chefRecipeCountEl = document.getElementById("chef-public-profile-recipe-count");
   const chefRecipesListEl = document.getElementById("chef-public-profile-recipes");
   const viewChefRecipesBtn = document.getElementById("btn-view-chef-recipes");
@@ -1808,13 +1825,12 @@ export function initCommunityAndLeaderboardController() {
   const renderOnlineChefs = (chefs) => {
     onlineChefsList.innerHTML = "";
     const currentProfile = getActiveProfileCache();
-    if (!chefs.length && !currentProfile?.uid) {
-      onlineChefsList.textContent = "Hiện chưa có đầu bếp nào online.";
-      return;
-    }
+    const query = onlineChefsSearchInput?.value.trim() || "";
+    const matchesChef = (chef) => matchesOnlineChefSearch(chef, query);
+    const showOwnProfile = Boolean(currentProfile?.uid && matchesChef(currentProfile));
     const list = document.createElement("ul");
     list.className = "flex flex-col gap-2";
-    if (currentProfile?.uid) {
+    if (showOwnProfile) {
       const ownItem = document.createElement("li");
       ownItem.className = "p-3 bg-sky-50 rounded-xl border border-sky-200";
       const ownName = document.createElement("strong");
@@ -1827,11 +1843,13 @@ export function initCommunityAndLeaderboardController() {
       ownItem.append(ownName, ownProfileBtn);
       list.appendChild(ownItem);
     }
-    const otherChefs = chefs.filter((chef) => chef.uid !== currentProfile?.uid);
+    const otherChefs = chefs.filter((chef) => chef.uid !== currentProfile?.uid && matchesChef(chef));
     if (!otherChefs.length) {
       const emptyItem = document.createElement("li");
       emptyItem.className = "text-sm text-stone-600";
-      emptyItem.textContent = "Hiện chưa có đầu bếp nào khác online.";
+      emptyItem.textContent = query
+        ? `Không tìm thấy đầu bếp phù hợp với “${query}”.`
+        : (currentProfile?.uid ? "Hiện chưa có đầu bếp nào khác online." : "Hiện chưa có đầu bếp nào online.");
       list.appendChild(emptyItem);
     }
     otherChefs.forEach((chef) => {
@@ -1892,7 +1910,8 @@ export function initCommunityAndLeaderboardController() {
           try {
             await blockChef(chef.uid);
             announceToScreenReader(`Đã chặn ${chef.displayName}.`);
-            renderOnlineChefs(await getOnlineChefs());
+            cachedOnlineChefs = await getOnlineChefs();
+            renderOnlineChefs(cachedOnlineChefs);
           } catch (error) {
             blockBtn.disabled = false;
             announceToScreenReader(error.message || "Không thể chặn đầu bếp.", true);
@@ -1934,34 +1953,35 @@ export function initCommunityAndLeaderboardController() {
 
   if (onlineChefsBtn && onlineChefsList) onlineChefsBtn.addEventListener("click", async () => {
     onlineChefsDialog.showModal();
-    document.getElementById("btn-close-community-online-chefs").focus();
+    onlineChefsSearchInput.focus();
     onlineChefsList.setAttribute("aria-busy", "true");
     onlineChefsList.textContent = "Đang tải danh sách đầu bếp online…";
     try {
       if (getActiveProfileCache()?.uid) followedChefIds = await getFollowingChefIds();
       const chefs = await getOnlineChefs();
-      renderOnlineChefs(chefs);
+      cachedOnlineChefs = chefs;
+      renderOnlineChefs(cachedOnlineChefs);
     } catch (error) {
+      cachedOnlineChefs = null;
       onlineChefsList.textContent = error.message || "Không tải được danh sách. Hãy thử mở lại.";
     } finally {
       onlineChefsList.setAttribute("aria-busy", "false");
     }
+  });
+  onlineChefsSearchInput?.addEventListener("input", () => {
+    if (cachedOnlineChefs) renderOnlineChefs(cachedOnlineChefs);
   });
   document.getElementById("btn-close-community-online-chefs")?.addEventListener("click", () => onlineChefsDialog.close());
   onlineChefsDialog?.addEventListener("close", () => { if (onlineChefsBtn?.isConnected) onlineChefsBtn.focus(); });
 
   if (communitySearchInput) {
     communitySearchInput.addEventListener("input", (e) => {
-      const q = e.target.value.toLowerCase().trim();
+      const q = e.target.value.trim();
       if (!q) {
         renderCommunityHubList(cachedCommunityPosts);
         return;
       }
-      const filtered = cachedCommunityPosts.filter(p =>
-        (p.headingTitle && p.headingTitle.toLowerCase().includes(q)) ||
-        (p.chefDisplayName && p.chefDisplayName.toLowerCase().includes(q)) ||
-        (p.kitchenName && p.kitchenName.toLowerCase().includes(q))
-      );
+      const filtered = cachedCommunityPosts.filter((post) => matchesCommunityRecipeSearch(post, q));
       renderCommunityHubList(filtered);
     });
   }

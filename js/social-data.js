@@ -41,6 +41,23 @@ export function getChefRecipes(posts, chefUid) {
   return (Array.isArray(posts) ? posts : []).filter((post) => post?.chefUid === chefUid);
 }
 
+export function normalizeSearchText(value) {
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLocaleLowerCase('vi').trim();
+}
+
+function matchesSearchFields(fields, query) {
+  const normalizedQuery = normalizeSearchText(query).replace(/^@/, '');
+  return !normalizedQuery || fields.some((field) => normalizeSearchText(field).includes(normalizedQuery));
+}
+
+export function matchesOnlineChefSearch(chef, query) {
+  return matchesSearchFields([chef?.username, chef?.displayName, chef?.kitchenName], query);
+}
+
+export function matchesCommunityRecipeSearch(recipe, query) {
+  return matchesSearchFields([recipe?.headingTitle, recipe?.chefUsername, recipe?.chefDisplayName, recipe?.kitchenName], query);
+}
+
 export function filterBlockedRecipes(posts, blockedChefIds) {
   const blocked = new Set(getFollowingIds(blockedChefIds));
   return (Array.isArray(posts) ? posts : []).filter((post) => !blocked.has(post?.chefUid));

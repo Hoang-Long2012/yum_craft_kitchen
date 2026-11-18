@@ -1981,7 +1981,7 @@
             <input 
               type="search" 
               id="community-search-input" 
-              placeholder="🔍 Tìm theo tên công thức, đầu bếp hoặc nhà bếp..."
+              placeholder="🔍 Tìm công thức theo tên món, @username, tên hiển thị hoặc nhà bếp…"
               class="w-full px-5 py-3 rounded-2xl border-2 border-emerald-300 focus:border-emerald-600 focus:outline-none text-stone-800 text-sm sm:text-base font-medium bg-emerald-50/30 shadow-inner"
             />
           </div>
@@ -2001,6 +2001,7 @@
   <dialog id="modal-community-online-chefs" class="backdrop:bg-black/70 bg-transparent p-3 z-50 max-w-3xl w-full m-auto" aria-labelledby="community-online-chefs-title">
     <section class="bg-white rounded-3xl shadow-2xl border-2 border-emerald-300 p-4 sm:p-6 flex flex-col gap-4 max-h-[88vh]">
       <header class="flex items-center justify-between gap-3"><h2 id="community-online-chefs-title" class="text-xl font-extrabold text-emerald-950">Đầu bếp đang online</h2><button id="btn-close-community-online-chefs" type="button" class="px-3 py-2 rounded-xl bg-stone-100 font-bold">Đóng</button></header>
+      <div><label for="community-online-chefs-search" class="sr-only">Tìm đầu bếp theo tên người dùng, tên hiển thị hoặc tên nhà bếp</label><input id="community-online-chefs-search" type="search" class="w-full px-4 py-2.5 rounded-xl border-2 border-emerald-200 focus:border-emerald-500 focus:outline-none" placeholder="Tìm theo @username, tên hiển thị hoặc nhà bếp…"></div>
       <div id="community-online-chefs-list" class="grid gap-2 overflow-y-auto p-1 text-left" role="region" aria-label="Danh sách đầu bếp đang online" aria-live="polite" aria-busy="false"></div>
     </section>
   </dialog>
@@ -2024,7 +2025,7 @@
   <dialog id="modal-kitchen-social" class="backdrop:bg-black/70 bg-transparent p-3 z-50 max-w-3xl w-full m-auto" aria-labelledby="kitchen-social-title">
     <section class="bg-amber-50 rounded-3xl shadow-2xl border-2 border-emerald-300 p-4 sm:p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
       <header class="flex flex-wrap items-center justify-between gap-3"><div><h2 id="kitchen-social-title" class="text-lg sm:text-xl font-extrabold text-emerald-950">Kết nối trong bếp</h2><p class="text-sm text-stone-700">Mời đầu bếp, xử lý lời mời và tiếp tục trò chuyện.</p></div><div class="flex flex-wrap gap-2"><button id="btn-refresh-kitchen-social" type="button" class="px-3 py-2 rounded-xl bg-emerald-100 font-bold">Làm mới</button><button id="btn-close-kitchen-social" type="button" class="px-3 py-2 rounded-xl bg-stone-100 font-bold">Đóng</button></div></header>
-      <section aria-labelledby="kitchen-social-online-title"><h3 id="kitchen-social-online-title" class="font-extrabold text-emerald-950 mb-2">Đầu bếp online</h3><div id="kitchen-online-list" class="grid gap-2" role="region" aria-label="Đầu bếp online trong bếp" aria-live="polite" aria-busy="false"></div></section>
+      <section aria-labelledby="kitchen-social-online-title"><h3 id="kitchen-social-online-title" class="font-extrabold text-emerald-950 mb-2">Đầu bếp online</h3><div class="mb-2"><label for="kitchen-online-search" class="sr-only">Tìm đầu bếp theo tên người dùng, tên hiển thị hoặc tên nhà bếp</label><input id="kitchen-online-search" type="search" class="w-full px-3 py-2 rounded-xl border-2 border-emerald-200 focus:border-emerald-500 focus:outline-none" placeholder="Tìm theo @username, tên hiển thị hoặc nhà bếp…"></div><div id="kitchen-online-list" class="grid gap-2" role="region" aria-label="Đầu bếp online trong bếp" aria-live="polite" aria-busy="false"></div><p id="kitchen-online-search-empty" class="hidden mt-2 text-sm text-stone-600" role="status" aria-live="polite">Không tìm thấy đầu bếp phù hợp.</p></section>
       <section aria-labelledby="kitchen-social-invites-title"><h3 id="kitchen-social-invites-title" class="font-extrabold text-amber-950 mb-2">Lời mời vào bếp</h3><div id="kitchen-invites-list" class="grid gap-2" role="region" aria-label="Lời mời vào bếp" aria-live="polite" aria-busy="false"></div></section>
       <section aria-labelledby="kitchen-social-chats-title"><h3 id="kitchen-social-chats-title" class="font-extrabold text-sky-950 mb-2">Tin nhắn gần đây</h3><div id="kitchen-chats-list" class="grid gap-2" role="region" aria-label="Các cuộc trò chuyện gần đây" aria-live="polite" aria-busy="false"></div></section>
     </section>

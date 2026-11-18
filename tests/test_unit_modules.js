@@ -17,7 +17,7 @@ import {
 import { state, resetKitchenItemsState } from '../js/core/state.js';
 import { getMockUsers, saveMockUsers, readStorageJson, writeStorageJson } from '../js/services/mock-storage.js';
 import { escapeHtml } from '../js/ui/dom-helpers.js';
-import { toggleMember, getFollowingIds, getFollowedFeed, isPresenceFresh, getConversationId, normalizeChatMessage, isChefBlocked, toggleBlockedChef, filterBlockedChefs, filterOnlineChefs, normalizePrivacySettings, canViewChefProfile, canReceiveKitchenInvites, canReceiveDirectMessages, getChefRecipes, filterBlockedRecipes, getPostLikeState, getStoredChatMessages, getLocalConversationSummary } from '../js/social-data.js';
+import { toggleMember, getFollowingIds, getFollowedFeed, isPresenceFresh, getConversationId, normalizeChatMessage, isChefBlocked, toggleBlockedChef, filterBlockedChefs, filterOnlineChefs, normalizePrivacySettings, canViewChefProfile, canReceiveKitchenInvites, canReceiveDirectMessages, getChefRecipes, filterBlockedRecipes, getPostLikeState, getStoredChatMessages, getLocalConversationSummary, matchesOnlineChefSearch, matchesCommunityRecipeSearch } from '../js/social-data.js';
 import { PROFILE_GENDERS, normalizeProfileGender, getProfileGenderLabel } from '../js/profile-data.js';
 import { validatePassword, validateDisplayName, validateKitchenName, validateProfileBio } from '../js/auth-data.js';
 import { createFoodItem, describeItemStateShort, itemContainsIce, formatNaturalList } from '../js/cooking/food-item.js';
@@ -218,9 +218,11 @@ await test('U7: Modular refactor & accessibility structural checks (index.html, 
   assert.ok(html.includes('id="community-kitchen-invites-list"'));
   assert.ok(html.includes('id="modal-community-online-chefs"') && html.includes('id="modal-community-kitchen-invites"'));
   assert.ok(html.includes('id="btn-community-online-chefs"') && html.includes('aria-haspopup="dialog"'));
+  assert.ok(html.includes('id="community-online-chefs-search"') && html.includes('id="community-search-input"'));
   assert.ok(html.includes('id="btn-close-community-online-chefs"') && html.includes('id="btn-close-community-kitchen-invites"'));
   assert.ok(html.includes('id="direct-chat-messages"') && html.includes('id="form-direct-chat"'));
   assert.ok(html.includes('id="modal-kitchen-social"') && html.includes('id="kitchen-chats-list"'));
+  assert.ok(html.includes('id="kitchen-online-search"'));
   assert.ok(html.includes('id="chef-public-profile-recipe-count"') && html.includes('id="btn-view-chef-recipes"') && html.includes('id="modal-chef-recipes"'));
   assert.ok(html.includes('id="chef-public-profile-details-heading"') && html.includes('id="chef-public-profile-stats-heading"'));
   assert.strictEqual(html.includes('aria-expanded="false"'), false, 'Social list controls should open dialogs rather than expand inline content');
@@ -492,6 +494,20 @@ await test('U14: Password change validation rejects missing, short, and mismatch
   assert.strictEqual(validatePassword('long-enough', 'different').valid, false);
   assert.deepStrictEqual(validatePassword('long-enough', 'long-enough'), { valid: true });
   assert.deepStrictEqual(validatePassword('long-enough'), { valid: true }, 'Sign-in may validate without a confirmation field');
+});
+
+await test('U15: Player and recipe search matches usernames, display names, kitchens, and Vietnamese accents', () => {
+  const chef = { username: 'chef_daubep', displayName: 'Bếp Đỏ', kitchenName: 'Nhà Bếp Sáng Tạo' };
+  assert.strictEqual(matchesOnlineChefSearch(chef, '@CHEF_DA'), true, 'Player lookup accepts @username and ignores case');
+  assert.strictEqual(matchesOnlineChefSearch(chef, 'bep do'), true, 'Player lookup ignores Vietnamese accent marks');
+  assert.strictEqual(matchesOnlineChefSearch(chef, 'sang tao'), true, 'Player lookup searches kitchen names');
+  assert.strictEqual(matchesOnlineChefSearch(chef, 'not-a-chef'), false);
+
+  const recipe = { headingTitle: 'Phở Bò', chefUsername: 'pho_master', chefDisplayName: 'Bếp Phở', kitchenName: 'Bếp Hà Nội' };
+  assert.strictEqual(matchesCommunityRecipeSearch(recipe, 'pho bo'), true, 'Recipe lookup searches dish titles without accents');
+  assert.strictEqual(matchesCommunityRecipeSearch(recipe, '@PHO_M'), true, 'Recipe lookup searches usernames');
+  assert.strictEqual(matchesCommunityRecipeSearch(recipe, 'ha noi'), true, 'Recipe lookup searches kitchen names');
+  assert.strictEqual(matchesCommunityRecipeSearch(recipe, 'khong co'), false);
 });
 
 console.log(`\nUNIT SUMMARY: ${passed} passed, ${failed} failed.`);
