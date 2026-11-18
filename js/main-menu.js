@@ -2359,8 +2359,7 @@ export function initMainMenuController() {
       modalSettings._returnFocusEl = document.activeElement || btnMenuSettings;
       populateSettingsModal();
       modalSettings.showModal();
-      const firstInput = document.getElementById("setting-sfx-toggle") || btnCloseSettings;
-      if (firstInput) firstInput.focus();
+      btnCloseSettings?.focus();
     });
   }
 
