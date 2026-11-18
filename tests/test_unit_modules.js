@@ -223,7 +223,8 @@ await test('U7: Modular refactor & accessibility structural checks (index.html, 
   assert.ok(html.includes('id="direct-chat-messages"') && html.includes('id="form-direct-chat"'));
   assert.ok(html.includes('id="modal-kitchen-social"') && html.includes('id="kitchen-chats-list"'));
   assert.ok(html.includes('id="kitchen-online-search"'));
-  assert.ok(html.includes('id="chef-public-profile-recipe-count"') && html.includes('id="btn-view-chef-recipes"') && html.includes('id="modal-chef-recipes"'));
+  assert.ok(html.includes('id="chef-public-profile-recipe-count"') && html.includes('id="btn-view-chef-recipes"'));
+  assert.strictEqual(html.includes('id="modal-chef-recipes"'), false, 'Chef recipes should use the searchable community page rather than a separate dialog');
   assert.ok(html.includes('id="chef-public-profile-details-heading"') && html.includes('id="chef-public-profile-stats-heading"'));
   assert.strictEqual(html.includes('aria-expanded="false"'), false, 'Social list controls should open dialogs rather than expand inline content');
   assert.ok(html.includes('id="community-detail-like-count"') && html.includes('id="btn-community-detail-like"'));

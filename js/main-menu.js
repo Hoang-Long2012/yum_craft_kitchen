@@ -1146,6 +1146,7 @@ export function initCommunityAndLeaderboardController() {
   const btnBackFromCommunity = document.getElementById("btn-back-from-community");
   const communitySearchInput = document.getElementById("community-search-input");
   const communityDishesListEl = document.getElementById("community-dishes-list");
+  let hasLoadedCommunityPosts = false;
   const inviteListEl = document.getElementById("community-kitchen-invites-list");
   const inviteListBtn = document.getElementById("btn-community-kitchen-invites");
   const inviteDialog = document.getElementById("modal-community-kitchen-invites");
@@ -1564,7 +1565,9 @@ export function initCommunityAndLeaderboardController() {
     communityDishesListEl.innerHTML = "";
 
     if (!posts || posts.length === 0) {
-      communityDishesListEl.innerHTML = `
+      communityDishesListEl.innerHTML = communitySearchInput?.value.trim()
+        ? `<div class="col-span-full p-10 text-center text-stone-600 font-semibold text-base bg-white/90 rounded-3xl border-2 border-dashed border-emerald-300 shadow-sm">Không tìm thấy công thức của đầu bếp này.</div>`
+        : `
         <div class="col-span-full p-10 text-center text-stone-600 font-semibold text-base bg-white/90 rounded-3xl border-2 border-dashed border-emerald-300 shadow-sm">
           Cộng đồng chưa có công thức nào. Hãy nấu một món, mời thực khách nếm thử rồi chia sẻ công thức đầu tiên nhé!
         </div>
@@ -1698,10 +1701,20 @@ export function initCommunityAndLeaderboardController() {
     });
   };
 
-  if (btnMenuCommunity && modalCommunityHub) {
-    btnMenuCommunity.addEventListener("click", async () => {
-      modalCommunityHub.showModal();
-      if (communitySearchInput) communitySearchInput.value = "";
+  const openCommunityHub = async (searchQuery = "") => {
+    if (!modalCommunityHub) return;
+    if (!modalCommunityHub.open) modalCommunityHub.showModal();
+    if (communitySearchInput) communitySearchInput.value = searchQuery;
+    if (searchQuery && hasLoadedCommunityPosts) {
+      communityFeedMode = "all";
+      renderCommunityHubList(cachedCommunityPosts.filter((post) => matchesCommunityRecipeSearch(post, searchQuery)));
+      communitySearchInput?.focus();
+      return;
+    }
+    if (!searchQuery && hasLoadedCommunityPosts) {
+      communityFeedMode = "all";
+      renderCommunityHubList(cachedCommunityPosts);
+    }
       if (communityDishesListEl) {
         communityDishesListEl.setAttribute("aria-busy", "true");
         communityDishesListEl.innerHTML = `<div class="col-span-full p-8 text-center text-stone-500 font-semibold text-base">Đang tải danh sách món ăn từ Cộng đồng Đầu bếp...</div>`;
@@ -1709,15 +1722,22 @@ export function initCommunityAndLeaderboardController() {
 
       try {
         cachedCommunityPosts = hydrateCommunitySocial(await applyCommunityAuthorPrivacy(await getCommunityDishes()));
+        hasLoadedCommunityPosts = true;
         try { followedChefIds = await getFollowingChefIds(); } catch { followedChefIds = []; }
         communityFeedMode = "all";
-        renderCommunityHubList(cachedCommunityPosts);
+        const visiblePosts = searchQuery
+          ? cachedCommunityPosts.filter((post) => matchesCommunityRecipeSearch(post, searchQuery))
+          : cachedCommunityPosts;
+        renderCommunityHubList(visiblePosts);
         if (btnBackFromCommunity) {
           btnBackFromCommunity.focus();
         } else if (communitySearchInput) {
           communitySearchInput.focus();
         }
-        announceToScreenReader(`Cộng đồng Đầu bếp: Hiện có ${cachedCommunityPosts.length} công thức. Dùng phím H hoặc số 3 để duyệt nhanh qua từng công thức.`);
+        if (searchQuery) communitySearchInput?.focus();
+        announceToScreenReader(searchQuery
+          ? `Công thức của @${searchQuery}: tìm thấy ${visiblePosts.length} công thức.`
+          : `Cộng đồng Đầu bếp: Hiện có ${cachedCommunityPosts.length} công thức. Dùng phím H hoặc số 3 để duyệt nhanh qua từng công thức.`);
       } catch (e) {
         console.error("Lỗi tải Cộng đồng đầu bếp:", e);
         if (communityDishesListEl) {
@@ -1725,7 +1745,10 @@ export function initCommunityAndLeaderboardController() {
           communityDishesListEl.innerHTML = `<div class="col-span-full p-8 text-center text-red-800 bg-red-50 rounded-3xl border border-red-200" role="alert">Không tải được cộng đồng. Vui lòng đóng và mở lại để thử lại.</div>`;
         }
       }
-    });
+  };
+
+  if (btnMenuCommunity && modalCommunityHub) {
+    btnMenuCommunity.addEventListener("click", () => openCommunityHub());
   }
 
   const followingFeedBtn = document.getElementById("btn-community-following-feed");
@@ -1743,18 +1766,15 @@ export function initCommunityAndLeaderboardController() {
   const onlineChefsSearchInput = document.getElementById("community-online-chefs-search");
   const onlineChefsDialog = document.getElementById("modal-community-online-chefs");
   const chefProfileDialog = document.getElementById("modal-chef-public-profile");
-  const chefRecipesDialog = document.getElementById("modal-chef-recipes");
-  const chefRecipesDialogTitle = document.getElementById("chef-recipes-dialog-title");
   let profileReturnFocus = null;
-  let activeChefRecipes = [];
+  let activeChefUsername = "";
   let cachedOnlineChefs = null;
   const chefRecipeCountEl = document.getElementById("chef-public-profile-recipe-count");
-  const chefRecipesListEl = document.getElementById("chef-public-profile-recipes");
   const viewChefRecipesBtn = document.getElementById("btn-view-chef-recipes");
 
   const openChefPublicProfile = async (chef, trigger) => {
     profileReturnFocus = trigger;
-    activeChefRecipes = [];
+    activeChefUsername = chef.username || "";
     chefProfileDialog.showModal();
     document.getElementById("chef-public-profile-title").textContent = chef.displayName || "Hồ sơ đầu bếp";
     document.getElementById("chef-public-profile-username").textContent = `@${chef.username || "chef"}`;
@@ -1764,11 +1784,11 @@ export function initCommunityAndLeaderboardController() {
     document.getElementById("chef-public-profile-stats").textContent = `${Number(chef.followerCount) || 0} người theo dõi · ${Number(chef.followingCount) || 0} đang theo dõi · ${Number(chef.totalScore) || 0} điểm`;
     document.getElementById("chef-public-profile-feedback").textContent = "Đang tải hồ sơ…";
     chefRecipeCountEl.textContent = "Công thức: Đang tải…";
-    chefRecipesListEl.replaceChildren();
     viewChefRecipesBtn.disabled = true;
     document.getElementById("btn-close-chef-public-profile").focus();
     try {
       const profile = await getChefPublicProfile(chef.uid);
+      activeChefUsername = profile.username || activeChefUsername;
       document.getElementById("chef-public-profile-title").textContent = profile.displayName;
       document.getElementById("chef-public-profile-username").textContent = `@${profile.username}`;
       document.getElementById("chef-public-profile-kitchen").textContent = profile.kitchenName;
@@ -1778,8 +1798,8 @@ export function initCommunityAndLeaderboardController() {
       document.getElementById("chef-public-profile-feedback").textContent = "";
       try {
         const dishes = await getCommunityDishes();
-        activeChefRecipes = hydrateCommunitySocial(getChefRecipes(dishes, profile.uid));
-        chefRecipeCountEl.textContent = `Công thức: ${activeChefRecipes.length}`;
+        const chefRecipes = getChefRecipes(dishes, profile.uid);
+        chefRecipeCountEl.textContent = `Công thức: ${chefRecipes.length}`;
         viewChefRecipesBtn.disabled = false;
       } catch {
         chefRecipeCountEl.textContent = "Không tải được số lượng công thức.";
@@ -1792,32 +1812,10 @@ export function initCommunityAndLeaderboardController() {
   };
 
   viewChefRecipesBtn?.addEventListener("click", () => {
-    if (!chefRecipesDialog.open) chefRecipesDialog.showModal();
-    chefRecipesDialogTitle.textContent = `Công thức của ${document.getElementById("chef-public-profile-title").textContent}`;
-    document.getElementById("btn-close-chef-recipes").focus();
-    chefRecipesListEl.replaceChildren();
-    if (!activeChefRecipes.length) {
-      chefRecipesListEl.textContent = "Đầu bếp này chưa chia sẻ công thức nào.";
-      return;
-    }
-    activeChefRecipes.forEach((recipe) => {
-      const item = document.createElement("article");
-      item.className = "flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3";
-      const title = document.createElement("h3");
-      title.className = "text-sm font-bold text-stone-800";
-      title.textContent = recipe.headingTitle || "Công thức";
-      const openButton = document.createElement("button");
-      openButton.type = "button";
-      openButton.className = "shrink-0 px-3 py-1.5 rounded-lg bg-white border border-amber-300 text-sm font-bold";
-      openButton.textContent = "Xem chi tiết";
-      openButton.addEventListener("click", () => openCommunityDishDetail(recipe, openButton));
-      item.append(title, openButton);
-      chefRecipesListEl.appendChild(item);
-    });
+    profileReturnFocus = null;
+    chefProfileDialog.close();
+    void openCommunityHub(activeChefUsername);
   });
-
-  document.getElementById("btn-close-chef-recipes")?.addEventListener("click", () => chefRecipesDialog.close());
-  chefRecipesDialog?.addEventListener("close", () => { if (viewChefRecipesBtn?.isConnected) viewChefRecipesBtn.focus(); });
 
   document.getElementById("btn-close-chef-public-profile")?.addEventListener("click", () => chefProfileDialog.close());
   chefProfileDialog?.addEventListener("close", () => { if (profileReturnFocus?.isConnected) profileReturnFocus.focus(); });
